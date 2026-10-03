@@ -107,7 +107,7 @@ Second column: comma-separated paths or globs from the repo root (`src/*` covers
 Canary words: Dev=Kestrel
 
 - Framework: team-framework v2.9 (5c0785b), copied 2026-10-02. PM session: this Mac Mini checkout on `main`. An earlier "MBP - Media Transfer - PM" session exists; Eddy said to ignore it - it is not the PM of record and wrote nothing to this repo.
-- Product: v1.0.2 shipped (single commit 693239c, DMG built by hand). v2.0 is a UI/UX-only release - four items, see `BACKLOG.md` P1 and WO-1 in `channels/dev-questions.md`.
+- Product: v2.0.0 merged to `main` (c692d2d, 2026-10-02) - WO-1 complete, PM-observed, DMG being packaged by the PM. v1.0.2 was the single commit 693239c. Open: Eddy's witness of the DMG; Dev's scroll-into-view proposal (WO-2 if Eddy says yes); BL-6 later.
 - Seats: one Dev seat (`MINI - Media Transfer - Dev`, Opus, `--permission-mode auto`, worktree `~/Projects/media-transfer-dev`, branch `dev/v2.0`, booted 2026-10-02 19:05, RC https://claude.ai/code/session_01APvwHiMC3D1wgnj7EotHvw). Tester, Designer, Cloud unbooted. Verification for v2.0 = PM visual pass from a detached checkout + Eddy witnesses the DMG (DECISIONS 2026-10-02).
 - Reviewer: not staged for UI-only diffs (Economy rule 2). Staged only if a diff touches `electron/transfer.ts` copy/skip/verify logic.
 - Grants in force (DECISIONS 2026-10-02): PM merges main, PM deploys (`npm run package`). PM canary word given 2026-10-02 (lives only in the boot context, never here). Nothing pending from Eddy.

@@ -5,6 +5,8 @@ Protocol: the PM's current WORK ORDER lives at the top (newest supersedes; work 
 
 ## WORK ORDER
 
+**PM (2026-10-02):** WO-1 rev 1 **COMPLETE** - merged to `main` as c692d2d after the PM visual pass (`team/evidence/pm/wo-1/README.md`, rung `observed`). Packaging follows; no new order yet.
+
 **PM (2026-10-02):** WO-1 rev 1 - **Media Transfer v2.0, UI/UX release.** Framework v2.9 (5c0785b). Your canary word is in your boot line; every note here and every message to the PM starts with it.
 
 ### Setup (before any code)
@@ -71,6 +73,12 @@ Throttled 120 MB/s rig, window front: strip off 86.07 vs on 86.03 MB/s (mean of 
 Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lockfile edit can be dropped.
 
 ## Questions
+
+**PM (2026-10-02):** LOCK package 2026-10-02T19:37:09-07:00 - `npm run package` from `main` tip c692d2d (v2.0.0 DMG).
+
+**PM (2026-10-02):** WO-1 verification - one load-bearing fact per claim, plus the light visual pass Eddy asked for, from a detached checkout of 35aa6df driven over CDP with an isolated `--user-data-dir`: A - dismissed TM-MBP, quit, relaunched: inline cards `[Scratch1, TM-MINI]`, badge 1, `notifications.json` holds one item (`team/evidence/pm/wo-1/01..04`). B, D - seen rendered (`01-main-fresh.png`). C - `electron/transfer.ts` unchanged (diff empty), `thumb:get` gated to the active plan's sources, MB/s table arithmetic rechecked, motion seen in frames at 3 s / 6 s / 13 s of `conveyor-transfer.mp4`. Rung for all five: `observed` (PM). Code read: notifications writes serialized, progress payload unchanged, no change outside Dev's row. Merged `--no-ff` as c692d2d.
+
+**PM (2026-10-02):** answers to the three notes - (1) PID 32795 is Eddy's own dev run from 18:52, not a seat; it stays up, Eddy decides; the packaged app uses its own userData so it does not affect the DMG. (2) Passed to Eddy to dismiss; no grant given. (3) Scroll-into-view on Start: PM recommends yes; waiting for Eddy's word before it becomes WO-2. Thank you for the two bugs found and fixed in testing (double-dismiss race, instance lock) - both documented in CLAUDE.md.
 
 **Dev (2026-10-02):** Kestrel - three non-blocking notes for the PM:
 1. **Second Electron instance.** PID 32795, `electron .` from `~/Projects/media-transfer` (the PM checkout), started 18:52, before this seat booted. It shares the dev userData `~/Library/Application Support/media-transfer/` and holds its Local Storage lock, so a dev run from this worktree can't persist `localStorage` while it's up. I left it running (not mine). TEAM.md says "exactly one running instance": PM's call whether to quit it.

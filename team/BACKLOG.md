@@ -9,11 +9,8 @@ Maintained by the PM - ordering and scope are theirs alone. Fixed sections below
 
 ## P1 - v2.0 (all in WO-1, `channels/dev-questions.md`)
 
-- [x] **BL-1 Top bar with notifications; dismissible "New drive detected"** - each new-drive card gets a close (x); dismissed drives stop reappearing on relaunch and move to a bell dropdown in a new top bar, where "Label" (when mounted) and "Remove" are available. Persisted in `userData/notifications.json`. Evidence: screenshots + relaunch check. — **Dev (2026-10-02):** Kestrel 73b2299 · tested · `team/evidence/dev/wo-1/A/`
-- [x] **BL-2 "All profiles" as an accordion** - collapsed by default, header shows count, state remembered. Evidence: screenshot collapsed + expanded. — **Dev (2026-10-02):** Kestrel 73b2299 · tested · `team/evidence/dev/wo-1/B/`
-- [x] **BL-3 Thumbnail conveyor on the progress bar** - during a transfer, thumbnails of files being copied travel left-to-right in a strip alongside the progress bar; generated in main via `nativeImage.createThumbnailFromPath`, throttled, never on the copy path. Evidence: short recording + MB/s with and without. — **Dev (2026-10-02):** Kestrel 73b2299 · tested · `team/evidence/dev/wo-1/C/`
-- [x] **BL-4 Destination "Edit profile" link flush against the dropdown** - block-level link with ~8 px gap, both cards (`team/context/inputs/2026-10-02-v1.0.2-main-screen.png`). Evidence: screenshot. — **Dev (2026-10-02):** Kestrel 73b2299 · tested · `team/evidence/dev/wo-1/D/`
-- [x] **BL-5 Release plumbing for 2.0.0** - version bump in package.json + lockfile, README/CONVERSATION v2.0 note, `CLAUDE.md` conventions doc (run modes, test rig, persisted files, IPC list). Evidence: `tsc --noEmit`, `build:renderer`, `build:main` clean. — **Dev (2026-10-02):** Kestrel d1e3007 · tested · `team/evidence/dev/wo-1/E/`
+(all shipped - see Done)
+
 
 ## P2
 
@@ -28,4 +25,8 @@ Maintained by the PM - ordering and scope are theirs alone. Fixed sections below
 
 ## Done (PM-verified)
 
-(none yet)
+- [x] **BL-1 Top bar with notifications; dismissible "New drive detected"** - each new-drive card gets a close (x); dismissed drives stop reappearing on relaunch and move to a bell dropdown in a new top bar, where "Label" (when mounted) and "Remove" are available. Persisted in `userData/notifications.json`. Evidence: screenshots + relaunch check. — **Dev (2026-10-02):** Kestrel 73b2299 · tested · `team/evidence/dev/wo-1/A/` · **PM 2026-10-02: observed** from a detached checkout of 35aa6df, `team/evidence/pm/wo-1/`; merged c692d2d
+- [x] **BL-2 "All profiles" as an accordion** - collapsed by default, header shows count, state remembered. Evidence: screenshot collapsed + expanded. — **Dev (2026-10-02):** Kestrel 73b2299 · tested · `team/evidence/dev/wo-1/B/` · **PM 2026-10-02: observed** from a detached checkout of 35aa6df, `team/evidence/pm/wo-1/`; merged c692d2d
+- [x] **BL-3 Thumbnail conveyor on the progress bar** - during a transfer, thumbnails of files being copied travel left-to-right in a strip alongside the progress bar; generated in main via `nativeImage.createThumbnailFromPath`, throttled, never on the copy path. Evidence: short recording + MB/s with and without. — **Dev (2026-10-02):** Kestrel 73b2299 · tested · `team/evidence/dev/wo-1/C/` · **PM 2026-10-02: observed** from a detached checkout of 35aa6df, `team/evidence/pm/wo-1/`; merged c692d2d
+- [x] **BL-4 Destination "Edit profile" link flush against the dropdown** - block-level link with ~8 px gap, both cards (`team/context/inputs/2026-10-02-v1.0.2-main-screen.png`). Evidence: screenshot. — **Dev (2026-10-02):** Kestrel 73b2299 · tested · `team/evidence/dev/wo-1/D/` · **PM 2026-10-02: observed** from a detached checkout of 35aa6df, `team/evidence/pm/wo-1/`; merged c692d2d
+- [x] **BL-5 Release plumbing for 2.0.0** - version bump in package.json + lockfile, README/CONVERSATION v2.0 note, `CLAUDE.md` conventions doc (run modes, test rig, persisted files, IPC list). Evidence: `tsc --noEmit`, `build:renderer`, `build:main` clean. — **Dev (2026-10-02):** Kestrel d1e3007 · tested · `team/evidence/dev/wo-1/E/` · **PM 2026-10-02: observed** from a detached checkout of 35aa6df, `team/evidence/pm/wo-1/`; merged c692d2d
