@@ -1,0 +1,16 @@
+# 2026-10-02 19:31 MST - worktree dev/v2.0, node v26.8.1
+$ npx tsc --noEmit
+exit=0
+$ npm run build:renderer
+computing gzip size...
+dist/index.html                   0.40 kB │ gzip:  0.27 kB
+dist/assets/index-unOI4ga6.css   10.87 kB │ gzip:  2.77 kB
+dist/assets/index-Dt4h7YfR.js   159.88 kB │ gzip: 51.22 kB
+✓ built in 218ms
+$ npm run build:main
+  dist-electron/main.js     18.3kb
+  dist-electron/preload.js   1.9kb
+
+⚡ Done in 2ms
+$ git diff --stat HEAD -- electron/transfer.ts
+(empty = transfer.ts unchanged)
