@@ -208,7 +208,7 @@ for block in run('git', 'worktree', 'list', '--porcelain').strip().split('\n\n')
     if not role or role not in table: print(f"WARN worktree {path}: cannot map to a role in the path table (name it <project>-<seat>)"); continue
     if kv.get('branch') == 'refs/heads/main': print(f"FAIL worktree {path} ({role}) is on main - seats work on their own branch"); bad = 1
     files = []
-    for l in run('git', 'status', '--porcelain', cwd=path).splitlines():
+    for l in run('git', 'status', '--porcelain', '-uall', cwd=path).splitlines():  # -uall: untracked files by full path, not a collapsed dir (v2.9.1)
         files.append(l[3:].split(' -> ')[-1].strip('"'))
     out = [f for f in files if not allowed(role, f)]
     if out: print(f"FAIL worktree {path} ({role}) has uncommitted changes outside its paths: {' '.join(out[:6])}"); bad = 1
