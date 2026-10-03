@@ -52,6 +52,27 @@ Protocol: the PM's current WORK ORDER lives at the top (newest supersedes; work 
 ### Out of scope (Deferred in BACKLOG.md - don't build)
 Other notification kinds (transfer done/failed), Designer-level redesign, automated UI tests, any change to copy/skip/verify logic.
 
+### Check-offs (WO-1 rev 1)
+
+**Dev (2026-10-02):** Kestrel - worktree state: everything committed and pushed on `dev/v2.0`; no in-progress local work. Rig torn down (images detached, .dmg files deleted, test profiles/userData removed).
+
+**Dev (2026-10-02):** Kestrel A/BL-1 73b2299 · tested · `team/evidence/dev/wo-1/A/` + relaunch/replug checks in `team/evidence/dev/wo-1/README.md`
+Fixed during test: two quick × clicks lost one dismissal (concurrent notifications.json writes); writes are now serialized and re-tested.
+
+**Dev (2026-10-02):** Kestrel B/BL-2 73b2299 · tested · `team/evidence/dev/wo-1/B/`
+Persistence proven in an isolated userData; see the environment note under Questions.
+
+**Dev (2026-10-02):** Kestrel C/BL-3 73b2299 · tested · `team/evidence/dev/wo-1/C/conveyor-transfer.mp4`, MB/s table in `team/evidence/dev/wo-1/README.md`
+Throttled 120 MB/s rig, window front: strip off 86.07 vs on 86.03 MB/s (mean of 3 each) - within noise. `transfer.ts` unchanged.
+
+**Dev (2026-10-02):** Kestrel D/BL-4 73b2299 · tested · `team/evidence/dev/wo-1/D/01-both-cards.png`
+
+**Dev (2026-10-02):** Kestrel E/BL-5 d1e3007 (+ CLAUDE.md in 73b2299) · tested · `team/evidence/dev/wo-1/E/checks.txt`
+Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lockfile edit can be dropped.
+
 ## Questions
 
-(none yet)
+**Dev (2026-10-02):** Kestrel - three non-blocking notes for the PM:
+1. **Second Electron instance.** PID 32795, `electron .` from `~/Projects/media-transfer` (the PM checkout), started 18:52, before this seat booted. It shares the dev userData `~/Library/Application Support/media-transfer/` and holds its Local Storage lock, so a dev run from this worktree can't persist `localStorage` while it's up. I left it running (not mine). TEAM.md says "exactly one running instance": PM's call whether to quit it.
+2. **macOS privacy prompt left on screen.** One `screencapture -v` attempt made macOS ask "screencapture is requesting to bypass the system private window picker…". I did not approve it (that's Eddy's grant to make) and switched to CDP screencast. If the dialog is still up, Eddy can dismiss it; no grant is needed.
+3. **Proposal (not built):** with the Plan section expanded, the progress bar and conveyor start below the fold at the default 1040×780 window, so Eddy has to scroll to see them. Scrolling the progress section into view on Start (one line) would fix it. Want it folded into WO-1?

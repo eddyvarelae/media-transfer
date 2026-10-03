@@ -165,3 +165,29 @@ npm run package        full DMG build → release/
 ```
 
 **Version 1.0.2** — `release/Media Transfer-1.0.2-arm64.dmg`
+
+---
+
+## v2.0 — UI/UX release (2026-10-02)
+
+Eddy's brief, with a screenshot of v1.0.2 showing three unlabeled Time
+Machine / scratch volumes stuck under "New drive detected":
+
+1. **Dismissible new-drive cards + a top bar with a bell.** Each card gets
+   an ×; dismissed drives stay hidden across unplug/replug and relaunch and
+   live on in the bell's dropdown (Label while mounted, Remove). Stored in
+   `userData/notifications.json`; labeling a drive clears its entry.
+2. **"All profiles" is an accordion**, collapsed by default, header shows
+   `n (m mounted)`, open/closed remembered.
+3. **Thumbnails on the progress bar.** As each file starts copying, a
+   QuickLook thumbnail (main process, `nativeImage.createThumbnailFromPath`,
+   read from the card only) rides a strip left to right above the bar.
+   Throttled to 2 tiles/s with one request in flight; the copier never waits
+   on it. Measured on a disk-image rig: same MB/s with and without the strip.
+4. **Spacing fix:** the profile cards' "Edit profile" link sits on its own
+   line under the dropdown.
+
+The copy / skip / verify logic in `electron/transfer.ts` did not change.
+
+**Version 2.0.0**
+

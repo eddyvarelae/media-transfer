@@ -2,11 +2,37 @@ import { useEffect, useMemo, useState } from 'react';
 import type { AppState, PlanSummary, Profile, Progress, VerifyReport } from './types';
 import { bytes, duration } from './format';
 import ProfileEditor from './ProfileEditor';
+import TopBar from './TopBar';
+import ThumbConveyor from './ThumbConveyor';
 
 type Phase = 'idle' | 'planning' | 'ready' | 'copying' | 'done' | 'error';
 
+function readFlag(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeFlag(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* per-viewer convenience only */
+  }
+}
+
+// Escape hatch for measuring transfer speed without the thumbnail strip: localStorage mt.thumbs = "off".
+const thumbsEnabled = readFlag('mt.thumbs') !== 'off';
+
 export default function App() {
-  const [state, setState] = useState<AppState>({ volumes: [], profiles: {} });
+  const [state, setState] = useState<AppState>({
+    volumes: [],
+    profiles: {},
+    notifications: [],
+  });
+  const [dismissing, setDismissing] = useState<Set<string>>(new Set());
   const [editingVolume, setEditingVolume] = useState<string | null>(null);
   const [originVolume, setOriginVolume] = useState<string | null>(null);
   const [destVolume, setDestVolume] = useState<string | null>(null);
@@ -38,7 +64,12 @@ export default function App() {
   );
   const mountedOrigins = mountedProfiles.filter((p) => p.role === 'origin');
   const mountedDestinations = mountedProfiles.filter((p) => p.role === 'destination');
-  const unknownVolumes = state.volumes.filter((v) => !state.profiles[v]);
+  const dismissed = new Set(
+    state.notifications.filter((n) => n.kind === 'new-drive').map((n) => n.volumeName),
+  );
+  const unknownVolumes = state.volumes.filter(
+    (v) => !state.profiles[v] && !dismissed.has(v) && !dismissing.has(v),
+  );
 
   useEffect(() => {
     if (!originVolume && mountedOrigins.length > 0) setOriginVolume(mountedOrigins[0].volumeName);
@@ -101,6 +132,26 @@ export default function App() {
     setEditingVolume(null);
   }
 
+  async function dismissDrive(volumeName: string) {
+    // Hide the card at once, even if a poll broadcast lands before the entry is persisted.
+    setDismissing((d) => new Set(d).add(volumeName));
+    try {
+      const next = await window.api.dismissNotification(volumeName);
+      setState((s) => ({ ...s, notifications: next }));
+    } finally {
+      setDismissing((d) => {
+        const n = new Set(d);
+        n.delete(volumeName);
+        return n;
+      });
+    }
+  }
+
+  async function removeNotification(id: string) {
+    const next = await window.api.removeNotification(id);
+    setState((s) => ({ ...s, notifications: next }));
+  }
+
   async function deleteProfile(volumeName: string) {
     const next = await window.api.deleteProfile(volumeName);
     setState((s) => ({ ...s, profiles: next }));
@@ -121,204 +172,226 @@ export default function App() {
       ? Math.min(100, (progress.bytesCopiedOverall / progress.totalBytesOverall) * 100)
       : 0;
 
+  const topBar = (
+    <TopBar
+      notifications={state.notifications}
+      volumes={state.volumes}
+      onLabel={setEditingVolume}
+      onRemove={removeNotification}
+    />
+  );
+
   if (editingVolume) {
     return (
-      <div className="app">
-        <header>
-          <h1>Edit profile</h1>
-          <p className="sub">{editingVolume}</p>
-        </header>
-        <ProfileEditor
-          volumeName={editingVolume}
-          existing={state.profiles[editingVolume] ?? null}
-          onSave={saveProfile}
-          onCancel={() => setEditingVolume(null)}
-          onDelete={
-            state.profiles[editingVolume] ? () => deleteProfile(editingVolume) : undefined
-          }
-        />
-      </div>
+      <>
+        {topBar}
+        <div className="app">
+          <header>
+            <h1>Edit profile</h1>
+            <p className="sub">{editingVolume}</p>
+          </header>
+          <ProfileEditor
+            volumeName={editingVolume}
+            existing={state.profiles[editingVolume] ?? null}
+            onSave={saveProfile}
+            onCancel={() => setEditingVolume(null)}
+            onDelete={
+              state.profiles[editingVolume] ? () => deleteProfile(editingVolume) : undefined
+            }
+          />
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="app">
-      <header>
-        <h1>Media Transfer</h1>
-        <p className="sub">Profiles per drive · select folders · safe offload</p>
-      </header>
+    <>
+      {topBar}
+      <div className="app">
 
-      {unknownVolumes.length > 0 && (
-        <section className="unknown">
-          <h2>New drive detected</h2>
-          <div className="unknown-grid">
-            {unknownVolumes.map((v) => (
-              <div key={v} className="unknown-card">
-                <div>
-                  <strong>{v}</strong>
-                  <div className="muted small">
-                    <code>/Volumes/{v}</code>
-                  </div>
-                </div>
-                <button className="primary" onClick={() => setEditingVolume(v)}>
-                  Label this drive
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="drives">
-        <DrivePicker
-          title="Origin"
-          tone="source"
-          mounted={mountedOrigins}
-          selected={originVolume}
-          onSelect={setOriginVolume}
-          onEdit={setEditingVolume}
-        />
-        <DrivePicker
-          title="Destination"
-          tone="dest"
-          mounted={mountedDestinations}
-          selected={destVolume}
-          onSelect={setDestVolume}
-          onEdit={setEditingVolume}
-        />
-      </section>
-
-      <ProfilesSection
-        profiles={state.profiles}
-        volumes={state.volumes}
-        onEdit={setEditingVolume}
-      />
-
-      <section className="actions">
-        <button
-          onClick={doPlan}
-          disabled={!canPlan}
-          className={phase === 'done' ? 'primary' : ''}
-        >
-          {phase === 'planning'
-            ? 'Scanning…'
-            : phase === 'done'
-              ? 'Scan origin again'
-              : 'Scan origin'}
-        </button>
-        {plan && phase !== 'copying' && phase !== 'done' && (
-          <button className="primary" onClick={doStart} disabled={totalFilesToCopy === 0}>
-            {totalFilesToCopy === 0
-              ? 'Nothing to transfer'
-              : `Start transfer (${totalFilesToCopy} files, ${bytes(totalBytesToCopy)})`}
-          </button>
-        )}
-        {phase === 'copying' && (
-          <button className="danger" onClick={doCancel}>
-            Cancel
-          </button>
-        )}
-      </section>
-
-      {originProfile && originProfile.folders.length === 0 && (
-        <div className="hint">
-          Origin <code>{originProfile.volumeName}</code> has no folders selected. Edit its profile
-          to pick folders.
-        </div>
-      )}
-
-      {error && <div className="error">Error: {error}</div>}
-
-      {plan && (
-        <section className="plan">
-          <h2>Plan</h2>
-          <p className="muted">
-            Destination: <code>{plan.destBase}</code> · {totalFilesToSkip} file(s) already present
-            will be skipped.
-          </p>
-          <div className="folders">
-            {plan.folders.map((f) => (
-              <div className="folder" key={f.folderRel}>
-                <div className="folder-head">
-                  <strong>{f.label}</strong>
-                  <span className="muted">
-                    {f.filesToCopy} to copy · {f.filesToSkip} skip · {bytes(f.totalBytesToCopy)}
-                  </span>
-                </div>
-                <div className="paths">
+        {unknownVolumes.length > 0 && (
+          <section className="unknown">
+            <h2>New drive detected</h2>
+            <div className="unknown-grid">
+              {unknownVolumes.map((v) => (
+                <div key={v} className="unknown-card">
                   <div>
-                    <span className="tag">from</span>
-                    <code>{f.sourceRoot}</code>
+                    <strong>{v}</strong>
+                    <div className="muted small">
+                      <code>/Volumes/{v}</code>
+                    </div>
                   </div>
-                  <div>
-                    <span className="tag">to</span>
-                    <code>{f.destRoot}</code>
+                  <div className="unknown-actions">
+                    <button className="primary" onClick={() => setEditingVolume(v)}>
+                      Label this drive
+                    </button>
+                    <button
+                      className="close"
+                      aria-label={`Dismiss ${v}`}
+                      title="Dismiss (stays in the bell)"
+                      onClick={() => dismissDrive(v)}
+                    >
+                      ×
+                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {(phase === 'copying' || phase === 'done') && progress && (
-        <section className="progress-section">
-          <h2>{phase === 'done' ? 'Transfer complete' : 'Transferring'}</h2>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${overallPct}%` }} />
-          </div>
-          <div className="progress-stats">
-            <span>{overallPct.toFixed(1)}%</span>
-            <span>
-              {bytes(progress.bytesCopiedOverall)} / {bytes(progress.totalBytesOverall)}
-            </span>
-            <span>{bytes(progress.bytesPerSecond)}/s</span>
-            <span>Elapsed {duration(progress.elapsedMs / 1000)}</span>
-            <span>ETA {phase === 'done' ? '—' : duration(etaSec)}</span>
-          </div>
-          <div className="current-file muted">
-            {phase === 'copying' && (
-              <>
-                <span className="tag">{progress.folderLabel}</span>
-                {progress.currentFile} · {progress.filesCopied + 1}/{progress.totalFiles}
-              </>
-            )}
-          </div>
-        </section>
-      )}
-
-      {report && (
-        <section className="verify">
-          <h2>Verification</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Folder</th>
-                <th>Source</th>
-                <th>Destination</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {report.map((r) => (
-                <tr key={r.label}>
-                  <td>{r.label}</td>
-                  <td>{bytes(r.sourceBytes)}</td>
-                  <td>{bytes(r.destBytes)}</td>
-                  <td className={r.ok ? 'ok' : 'fail'}>
-                    {r.ok ? '✓ destination ≥ source' : '✗ destination smaller than source'}
-                  </td>
-                </tr>
               ))}
-            </tbody>
-          </table>
-        </section>
-      )}
+            </div>
+          </section>
+        )}
 
-      <footer>
-        <span className="muted">Destinations are never modified beyond new files. No deletions, ever.</span>
-      </footer>
-    </div>
+        <section className="drives">
+          <DrivePicker
+            title="Origin"
+            tone="source"
+            mounted={mountedOrigins}
+            selected={originVolume}
+            onSelect={setOriginVolume}
+            onEdit={setEditingVolume}
+          />
+          <DrivePicker
+            title="Destination"
+            tone="dest"
+            mounted={mountedDestinations}
+            selected={destVolume}
+            onSelect={setDestVolume}
+            onEdit={setEditingVolume}
+          />
+        </section>
+
+        <ProfilesSection
+          profiles={state.profiles}
+          volumes={state.volumes}
+          onEdit={setEditingVolume}
+        />
+
+        <section className="actions">
+          <button
+            onClick={doPlan}
+            disabled={!canPlan}
+            className={phase === 'done' ? 'primary' : ''}
+          >
+            {phase === 'planning'
+              ? 'Scanning…'
+              : phase === 'done'
+                ? 'Scan origin again'
+                : 'Scan origin'}
+          </button>
+          {plan && phase !== 'copying' && phase !== 'done' && (
+            <button className="primary" onClick={doStart} disabled={totalFilesToCopy === 0}>
+              {totalFilesToCopy === 0
+                ? 'Nothing to transfer'
+                : `Start transfer (${totalFilesToCopy} files, ${bytes(totalBytesToCopy)})`}
+            </button>
+          )}
+          {phase === 'copying' && (
+            <button className="danger" onClick={doCancel}>
+              Cancel
+            </button>
+          )}
+        </section>
+
+        {originProfile && originProfile.folders.length === 0 && (
+          <div className="hint">
+            Origin <code>{originProfile.volumeName}</code> has no folders selected. Edit its profile
+            to pick folders.
+          </div>
+        )}
+
+        {error && <div className="error">Error: {error}</div>}
+
+        {plan && (
+          <section className="plan">
+            <h2>Plan</h2>
+            <p className="muted">
+              Destination: <code>{plan.destBase}</code> · {totalFilesToSkip} file(s) already present
+              will be skipped.
+            </p>
+            <div className="folders">
+              {plan.folders.map((f) => (
+                <div className="folder" key={f.folderRel}>
+                  <div className="folder-head">
+                    <strong>{f.label}</strong>
+                    <span className="muted">
+                      {f.filesToCopy} to copy · {f.filesToSkip} skip · {bytes(f.totalBytesToCopy)}
+                    </span>
+                  </div>
+                  <div className="paths">
+                    <div>
+                      <span className="tag">from</span>
+                      <code>{f.sourceRoot}</code>
+                    </div>
+                    <div>
+                      <span className="tag">to</span>
+                      <code>{f.destRoot}</code>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {(phase === 'copying' || phase === 'done') && progress && (
+          <section className="progress-section">
+            <h2>{phase === 'done' ? 'Transfer complete' : 'Transferring'}</h2>
+            {phase === 'copying' && thumbsEnabled && <ThumbConveyor />}
+            <div className="progress-bar">
+              <div className="progress-fill" style={{ width: `${overallPct}%` }} />
+            </div>
+            <div className="progress-stats">
+              <span>{overallPct.toFixed(1)}%</span>
+              <span>
+                {bytes(progress.bytesCopiedOverall)} / {bytes(progress.totalBytesOverall)}
+              </span>
+              <span>{bytes(progress.bytesPerSecond)}/s</span>
+              <span>Elapsed {duration(progress.elapsedMs / 1000)}</span>
+              <span>ETA {phase === 'done' ? '—' : duration(etaSec)}</span>
+            </div>
+            <div className="current-file muted">
+              {phase === 'copying' && (
+                <>
+                  <span className="tag">{progress.folderLabel}</span>
+                  {progress.currentFile} · {progress.filesCopied + 1}/{progress.totalFiles}
+                </>
+              )}
+            </div>
+          </section>
+        )}
+
+        {report && (
+          <section className="verify">
+            <h2>Verification</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Folder</th>
+                  <th>Source</th>
+                  <th>Destination</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.map((r) => (
+                  <tr key={r.label}>
+                    <td>{r.label}</td>
+                    <td>{bytes(r.sourceBytes)}</td>
+                    <td>{bytes(r.destBytes)}</td>
+                    <td className={r.ok ? 'ok' : 'fail'}>
+                      {r.ok ? '✓ destination ≥ source' : '✗ destination smaller than source'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
+        )}
+
+        <footer>
+          <span className="muted">Destinations are never modified beyond new files. No deletions, ever.</span>
+        </footer>
+      </div>
+    </>
   );
 }
 
@@ -381,36 +454,55 @@ function ProfilesSection({
   volumes: string[];
   onEdit: (v: string) => void;
 }) {
+  const [open, setOpen] = useState(() => readFlag('mt.profilesOpen') === '1');
   const all = Object.values(profiles).sort((a, b) => a.label.localeCompare(b.label));
   if (all.length === 0) return null;
+  const mountedCount = all.filter((p) => volumes.includes(p.volumeName)).length;
+
+  function toggle() {
+    setOpen((o) => {
+      writeFlag('mt.profilesOpen', o ? '0' : '1');
+      return !o;
+    });
+  }
+
   return (
-    <section className="profiles">
-      <h2>All profiles</h2>
-      <div className="profile-list">
-        {all.map((p) => {
-          const mounted = volumes.includes(p.volumeName);
-          return (
-            <div key={p.volumeName} className={`profile ${mounted ? 'mounted' : 'unmounted'}`}>
-              <div className={`role-badge ${p.role}`}>{p.role}</div>
-              <div className="profile-body">
-                <div className="profile-label">{p.label}</div>
-                <div className="muted small">
-                  <code>{p.volumeName}</code>
-                  {mounted ? ' · mounted' : ' · not mounted'}
-                </div>
-                {p.role === 'origin' && (
+    <section className={`profiles ${open ? 'open' : ''}`}>
+      <button className="accordion-head" aria-expanded={open} onClick={toggle}>
+        <h2>
+          All profiles · {all.length} ({mountedCount} mounted)
+        </h2>
+        <span className="chevron" aria-hidden="true">
+          ›
+        </span>
+      </button>
+      <div className="accordion-body">
+        <div className="profile-list">
+          {all.map((p) => {
+            const mounted = volumes.includes(p.volumeName);
+            return (
+              <div key={p.volumeName} className={`profile ${mounted ? 'mounted' : 'unmounted'}`}>
+                <div className={`role-badge ${p.role}`}>{p.role}</div>
+                <div className="profile-body">
+                  <div className="profile-label">{p.label}</div>
                   <div className="muted small">
-                    {p.folders.length} folder(s)
-                    {p.folders.length > 0 ? `: ${p.folders.join(', ')}` : ''}
+                    <code>{p.volumeName}</code>
+                    {mounted ? ' · mounted' : ' · not mounted'}
                   </div>
-                )}
+                  {p.role === 'origin' && (
+                    <div className="muted small">
+                      {p.folders.length} folder(s)
+                      {p.folders.length > 0 ? `: ${p.folders.join(', ')}` : ''}
+                    </div>
+                  )}
+                </div>
+                <button className="link" onClick={() => onEdit(p.volumeName)}>
+                  Edit
+                </button>
               </div>
-              <button className="link" onClick={() => onEdit(p.volumeName)}>
-                Edit
-              </button>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </section>
   );

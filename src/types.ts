@@ -10,10 +10,21 @@ export type Profile = {
   updatedAt: number;
 };
 
+export type NotificationItem = {
+  id: string;
+  kind: 'new-drive';
+  volumeName: string;
+  firstSeenAt: number;
+  dismissedAt: number;
+};
+
 export type AppState = {
   volumes: string[];
   profiles: Record<string, Profile>;
+  notifications: NotificationItem[];
 };
+
+export type FileStart = { absPath: string; name: string };
 
 export type TreeNode = { name: string; path: string; isDir: boolean; hasChildren: boolean };
 
@@ -60,6 +71,9 @@ declare global {
       getState: () => Promise<AppState>;
       saveProfile: (profile: Profile) => Promise<Record<string, Profile>>;
       deleteProfile: (volumeName: string) => Promise<Record<string, Profile>>;
+      dismissNotification: (volumeName: string) => Promise<NotificationItem[]>;
+      removeNotification: (id: string) => Promise<NotificationItem[]>;
+      getThumbnail: (absPath: string) => Promise<string | null>;
       listTree: (absDir: string) => Promise<TreeNode[]>;
       buildPlan: (
         originVolume: string,
@@ -71,6 +85,7 @@ declare global {
       cancelTransfer: () => Promise<void>;
       onState: (cb: (s: AppState) => void) => () => void;
       onProgress: (cb: (p: Progress) => void) => () => void;
+      onFileStart: (cb: (f: FileStart) => void) => () => void;
       onDone: (cb: (r: VerifyReport[]) => void) => () => void;
     };
   }

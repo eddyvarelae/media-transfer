@@ -3,6 +3,8 @@
 A macOS desktop app for videographers to safely offload SD / microSD cards
 to an external SSD. Built with Electron + React + TypeScript.
 
+**Version 2.0.0**
+
 Designed for Sony mirrorless bodies (A6700, ZV-E10, etc.) that write to the
 `DCIM` and `PRIVATE/M4ROOT/{CLIP,THMBNL}` layout, but flexible enough for
 any card via per-drive profiles.
@@ -26,6 +28,10 @@ any card via per-drive profiles.
 - **Verifies** the transfer at the end by comparing source vs destination
   byte totals per folder
 - **Never deletes** from the destination — safe to re-run as often as you want
+- **Notifications bell** in the top bar: dismiss a "New drive detected"
+  card with × and it stays out of the way (across replugs and relaunches);
+  the bell keeps it, with **Label** and **Remove**
+- **Thumbnails ride the progress bar** left to right while files copy
 
 ---
 
@@ -71,7 +77,10 @@ cards. They'll appear under `/Volumes`.
 ### 2. Label new drives
 
 If the app doesn't recognize a drive, it'll show up under **"New drive
-detected"**. Click **Label this drive** to set:
+detected"**. Drives you never want to label (Time Machine, scratch disks)
+can be dismissed with **×**; they move to the bell in the top bar, where
+**Label** (while mounted) and **Remove** stay available. Click **Label this
+drive** to set:
 
 - **Label** — a friendly name
 - **Role** — Origin (copy FROM) or Destination (copy TO)
@@ -90,7 +99,9 @@ Seeded profiles on first run:
 | `SonyZVE10` | Origin      | DCIM, PRIVATE/M4ROOT/CLIP, PRIVATE/M4ROOT/THMBNL | DCIM only |
 | `tars`      | Destination | —                                              | —        |
 
-You can edit or delete any profile later.
+You can edit or delete any profile later. The **All profiles** list is
+collapsed under its header (count + how many are mounted); click it to
+expand. The app remembers your choice.
 
 ### 3. Pick origin + destination
 
@@ -149,6 +160,8 @@ Profiles live at:
 ```
 ~/Library/Application Support/Media Transfer/profiles.json
 ```
+
+Dismissed new-drive notices live next to it in `notifications.json`.
 
 You normally don't need to edit this by hand — use the UI. But you can
 back it up, share it, or reset it by deleting the file (the app re-seeds
