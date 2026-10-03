@@ -4,6 +4,10 @@ contextBridge.exposeInMainWorld('api', {
   getState: () => ipcRenderer.invoke('state:get'),
   saveProfile: (profile: any) => ipcRenderer.invoke('profile:save', profile),
   deleteProfile: (volumeName: string) => ipcRenderer.invoke('profile:delete', volumeName),
+  dismissNotification: (volumeName: string) =>
+    ipcRenderer.invoke('notification:dismiss', volumeName),
+  removeNotification: (id: string) => ipcRenderer.invoke('notification:remove', id),
+  getThumbnail: (absPath: string) => ipcRenderer.invoke('thumb:get', absPath),
   listTree: (absDir: string) => ipcRenderer.invoke('tree:list', absDir),
   buildPlan: (
     originVolume: string,
@@ -22,6 +26,11 @@ contextBridge.exposeInMainWorld('api', {
     const listener = (_: unknown, p: any) => cb(p);
     ipcRenderer.on('transfer:progress', listener);
     return () => ipcRenderer.removeListener('transfer:progress', listener);
+  },
+  onFileStart: (cb: (f: any) => void) => {
+    const listener = (_: unknown, f: any) => cb(f);
+    ipcRenderer.on('transfer:file-start', listener);
+    return () => ipcRenderer.removeListener('transfer:file-start', listener);
   },
   onDone: (cb: (r: any) => void) => {
     const listener = (_: unknown, r: any) => cb(r);
