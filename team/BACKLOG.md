@@ -17,11 +17,11 @@ Maintained by the PM - ordering and scope are theirs alone. Fixed sections below
 
 ## P2
 
-- [ ] **BL-6 (PM proposal, needs Eddy's yes)** - more notification kinds in the bell: transfer complete / failed / cancelled, with the verification summary. Not ordered.
+- [ ] **BL-6 (approved by Eddy 2026-10-02, for after v2.0)** - more notification kinds in the bell: transfer complete / failed / cancelled, with the verification summary. Ordered only once WO-1 ships.
 
 ## Deferred (decided, don't build now)
 
-- Tester seat for v2.0 - Eddy limits testing; Dev evidence caps at `tested`, Eddy witnesses the DMG himself (pending his confirmation, DECISIONS NEEDED 2026-10-02).
+- Tester seat for v2.0 - decided 2026-10-02: light visual pass by the PM from a detached checkout (`observed`), Eddy witnesses the DMG; no functional testing.
 - Designer seat - Dev's Design block covers v2.0; the UI direction came from Eddy directly.
 - Reviewer for UI-only diffs - PM eyes (Economy rule 2); staged only if a diff touches `electron/transfer.ts` copy/skip/verify logic.
 - Automated UI tests / test framework - out for v2.0.

@@ -108,7 +108,7 @@ Canary words: Dev=Kestrel
 
 - Framework: team-framework v2.9 (5c0785b), copied 2026-10-02. PM session: this Mac Mini checkout on `main`. An earlier "MBP - Media Transfer - PM" session exists; Eddy said to ignore it - it is not the PM of record and wrote nothing to this repo.
 - Product: v1.0.2 shipped (single commit 693239c, DMG built by hand). v2.0 is a UI/UX-only release - four items, see `BACKLOG.md` P1 and WO-1 in `channels/dev-questions.md`.
-- Seats: one Dev seat (`MINI - Media Transfer - Dev`, Opus, `--permission-mode auto`, worktree `~/Projects/media-transfer-dev`, branch `dev/v2.0`, booted 2026-10-02 19:1x, RC https://claude.ai/code/session_01APvwHiMC3D1wgnj7EotHvw). Tester, Designer, Cloud unbooted - Eddy limits testing for v2.0; the human witnesses the result.
+- Seats: one Dev seat (`MINI - Media Transfer - Dev`, Opus, `--permission-mode auto`, worktree `~/Projects/media-transfer-dev`, branch `dev/v2.0`, booted 2026-10-02 19:05, RC https://claude.ai/code/session_01APvwHiMC3D1wgnj7EotHvw). Tester, Designer, Cloud unbooted. Verification for v2.0 = PM visual pass from a detached checkout + Eddy witnesses the DMG (DECISIONS 2026-10-02).
 - Reviewer: not staged for UI-only diffs (Economy rule 2). Staged only if a diff touches `electron/transfer.ts` copy/skip/verify logic.
-- Pending from Eddy (DECISIONS NEEDED 2026-10-02): PM canary word; the two standing grants ("PM merges main", "PM deploys" = `npm run package` DMG build); confirm human-witness instead of a Tester seat.
+- Grants in force (DECISIONS 2026-10-02): PM merges main, PM deploys (`npm run package`). PM canary word given 2026-10-02 (lives only in the boot context, never here). Nothing pending from Eddy.
 - "Deploy" for this project means building the DMG (`npm run package` -> `release/`) from the `main` tip; there is no server.
