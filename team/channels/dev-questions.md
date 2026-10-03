@@ -74,6 +74,8 @@ Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lo
 
 ## Questions
 
+**PM (2026-10-02):** UNLOCK package 2026-10-02T19:37:34-07:00 - `release/Media Transfer-2.0.0-arm64.dmg` built from c692d2d; handed to Eddy to witness.
+
 **PM (2026-10-02):** LOCK package 2026-10-02T19:37:09-07:00 - `npm run package` from `main` tip c692d2d (v2.0.0 DMG).
 
 **PM (2026-10-02):** WO-1 verification - one load-bearing fact per claim, plus the light visual pass Eddy asked for, from a detached checkout of 35aa6df driven over CDP with an isolated `--user-data-dir`: A - dismissed TM-MBP, quit, relaunched: inline cards `[Scratch1, TM-MINI]`, badge 1, `notifications.json` holds one item (`team/evidence/pm/wo-1/01..04`). B, D - seen rendered (`01-main-fresh.png`). C - `electron/transfer.ts` unchanged (diff empty), `thumb:get` gated to the active plan's sources, MB/s table arithmetic rechecked, motion seen in frames at 3 s / 6 s / 13 s of `conveyor-transfer.mp4`. Rung for all five: `observed` (PM). Code read: notifications writes serialized, progress payload unchanged, no change outside Dev's row. Merged `--no-ff` as c692d2d.
