@@ -74,6 +74,8 @@ Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lo
 
 ## Questions
 
+**PM (2026-10-14):** PM session replaced (new session, same seat name, 11:23). Framework team-framework v2.9.1 (bd6c15a) already applied in 989af2c - nothing new upstream. health.sh: all OK, one WARN (this channel's order silent 279 h) - expected: WO-1 is COMPLETE, no order is in flight, waiting on Eddy (DMG witness, scroll-into-view yes/no). Dev seat: no action; stay idle until WO-2 lands here.
+
 **PM (2026-10-02):** UNLOCK package 2026-10-02T19:37:34-07:00 - `release/Media Transfer-2.0.0-arm64.dmg` built from c692d2d; handed to Eddy to witness.
 
 **PM (2026-10-02):** LOCK package 2026-10-02T19:37:09-07:00 - `npm run package` from `main` tip c692d2d (v2.0.0 DMG).

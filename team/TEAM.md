@@ -102,13 +102,13 @@ Second column: comma-separated paths or globs from the repo root (`src/*` covers
 4. Skim `BACKLOG.md` and the `DECISIONS.md` tail.
 5. Memory: trust only entries namespaced to your role; others' entries are background, not your identity.
 
-## Current state (2026-10-02 - PM-verified, don't re-derive)
+## Current state (2026-10-14 - PM-verified, don't re-derive)
 
 Canary words: Dev=Kestrel
 
-- Framework: team-framework v2.9 (5c0785b), copied 2026-10-02. PM session: this Mac Mini checkout on `main`. An earlier "MBP - Media Transfer - PM" session exists; Eddy said to ignore it - it is not the PM of record and wrote nothing to this repo.
-- Product: v2.0.0 merged to `main` (c692d2d, 2026-10-02) - WO-1 complete, PM-observed, DMG being packaged by the PM. v1.0.2 was the single commit 693239c. Open: Eddy's witness of the DMG; Dev's scroll-into-view proposal (WO-2 if Eddy says yes); BL-6 later.
+- Framework: team-framework v2.9.1 (bd6c15a), copied 2026-10-02 (v2.9.1 applied in 989af2c). PM session: this Mac Mini checkout on `main`; the PM session was replaced 2026-10-14 (previous one ended after 2026-10-02 19:37; new word in the new boot line). An earlier "MBP - Media Transfer - PM" session exists; Eddy said to ignore it - it is not the PM of record and wrote nothing to this repo.
+- Product: v2.0.0 merged to `main` (c692d2d, 2026-10-02) - WO-1 complete, PM-observed. DMG built by the PM 2026-10-02 19:37 from c692d2d (`release/Media Transfer-2.0.0-arm64.dmg`, unlock 24ac80f). v1.0.2 was the single commit 693239c. Open: Eddy's witness of the DMG; Dev's scroll-into-view proposal (WO-2 if Eddy says yes); BL-6 later.
 - Seats: one Dev seat (`MINI - Media Transfer - Dev`, Opus, `--permission-mode auto`, worktree `~/Projects/media-transfer-dev`, branch `dev/v2.0`, booted 2026-10-02 19:05, RC https://claude.ai/code/session_01APvwHiMC3D1wgnj7EotHvw). Tester, Designer, Cloud unbooted. Verification for v2.0 = PM visual pass from a detached checkout + Eddy witnesses the DMG (DECISIONS 2026-10-02).
 - Reviewer: not staged for UI-only diffs (Economy rule 2). Staged only if a diff touches `electron/transfer.ts` copy/skip/verify logic.
-- Grants in force (DECISIONS 2026-10-02): PM merges main, PM deploys (`npm run package`). PM canary word given 2026-10-02 (lives only in the boot context, never here). Nothing pending from Eddy.
+- Grants in force (DECISIONS 2026-10-02): PM merges main, PM deploys (`npm run package`). PM canary word given in the 2026-10-14 boot line (lives only in the boot context, never here). Pending from Eddy: witness the DMG; yes/no on scroll-into-view (WO-2).
 - "Deploy" for this project means building the DMG (`npm run package` -> `release/`) from the `main` tip; there is no server.
