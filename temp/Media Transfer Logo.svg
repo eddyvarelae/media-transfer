@@ -1,0 +1,26 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Media Transfer — Digital Porters</title>
+
+  <!-- Rounded app canvas -->
+  <rect x="0" y="0" width="1024" height="1024" rx="224" ry="224" fill="#001C36"/>
+
+  <!-- Subtle inner highlight band -->
+  <rect x="0" y="0" width="1024" height="512" rx="224" ry="224" fill="#0A2847" opacity="0.55"/>
+
+  <!-- Digital Porters mountain (scaled from 200x200 source, 4x, centered) -->
+  <g transform="translate(112, 96) scale(4)">
+    <path d="M58.5 97L14 140H186.5L183 132.5L170 127L160 114L144 119.5L135 97L100 60L76 80.5V86L67 100.5L58.5 97Z"
+          fill="#FBF9F7" stroke="#FBF9F7" stroke-width="1"/>
+  </g>
+
+  <!-- Accent sun / highlight -->
+  <circle cx="720" cy="360" r="54" fill="#F3C055"/>
+
+  <!-- Transfer motif: three flowing dots below the mountain -->
+  <g transform="translate(512, 820)">
+    <circle cx="-90" cy="0" r="22" fill="#F3C055" opacity="0.55"/>
+    <circle cx="-30" cy="0" r="22" fill="#F3C055" opacity="0.8"/>
+    <circle cx="30"  cy="0" r="22" fill="#F3C055"/>
+    <circle cx="90"  cy="0" r="22" fill="#FBF9F7"/>
+  </g>
+</svg>
