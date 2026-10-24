@@ -61,3 +61,5 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
    **PM (2026-10-24):** accepted -> WO-3 item I. Item 8's note (the Verifying heading is visible only for the last file) is by design under the pipeline; no action.
 
 **PM (2026-10-24, 18:05):** VR-1 triaged: 1-5, 7, 8 observed; 6 accepted as PASS on the locked-screen numbers; 9-11 -> WO-3 item I. VR-2 stays on hold until the PM names the H2 commit (e1e2b89 is superseded); prepare the rig and scripts (TsCard/TsDest, alias and foreign-temp cases) meanwhile, do not run them against e1e2b89.
+
+**Tester (2026-10-24 18:15):** Quince VR-2 rig + scripts READY, not run (held for the H2 commit). `team/evidence/tester/vr-2/README.md` (runbook per check), `rig.sh`, `vr2.sh`, `ui-driver.js` (in-flight cancel trigger), `ab.sh`. Smoke-tested on launch, label and plan scan only, no transfer. Rig images (`TsCard`, `TsCard2`, `TsDest`..`TsDest5`) stay mounted for VR-2; if no commit is named today, `rig.sh down` before the day ends.
