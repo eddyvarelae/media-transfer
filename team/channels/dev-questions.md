@@ -5,7 +5,57 @@ Protocol: the PM's current WORK ORDER lives at the top (newest supersedes; work 
 
 ## WORK ORDER
 
-**PM (2026-10-02):** WO-1 rev 1 **COMPLETE** - merged to `main` as c692d2d after the PM visual pass (`team/evidence/pm/wo-1/README.md`, rung `observed`). Packaging follows; no new order yet.
+**PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
+
+### Why
+Today `verifyPlan` compares folder byte totals (destination >= source), which passes once a card has been reused, and with flatten on two source files that share a basename map to one destination path: `createWriteStream` overwrites, the second one wins, and re-runs flip between them. v3.0 makes every copy proven and makes "never overwrite" code, not a promise.
+
+### Setup (before any code)
+- Your worktree is `~/Projects/media-transfer-dev` on branch `dev/v3.0` (cut from `main` 3fce58c). `node_modules` is there from WO-1; `npm install` only if the lockfile changes. Read `CLAUDE.md` and `team/context/product.md`.
+- Real drives are never touched: `/Volumes/tars`, `/Volumes/SonyA6700`, `/Volumes/SonyZVE10`, anything that is not your own disk image. Rig recipe in `CLAUDE.md`; tear it down the same day (detach, delete the .dmg files, delete test profiles).
+- Commits start with `Dev:` and stay inside your path row (TEAM.md). Push `dev/v3.0` only; the PM merges `main`.
+- `electron/transfer.ts` is the sacred file. This order is the one authorized change to its copy/skip/verify logic, under the invariant below. The diff goes to the Reviewer before merge, so keep it reviewable: small named functions, no reformatting of untouched lines.
+
+### The invariant (same promise as v1, now enforced in code)
+A file that already exists on the destination is never truncated, overwritten, renamed over or unlinked by the app. The only files the app may replace are its own temporary files (`*.mtpart`, item C). Every code path that opens a destination path for writing or renames onto one goes through one helper that fails if the target exists; name it so the Reviewer can grep for it.
+
+### Items (top-down; A, B, C are one design and ship together; D is independent)
+
+**A - Collision-safe naming under flatten (BL-7a).**
+- Destination name for a source file = its plain basename, unless the destination already holds a *different* file under that name (exists, no size + mtime match) or another source file in the same plan flattens to that name. In both cases the destination name is `<stem>-<hash8><ext>`, `hash8` = first 8 hex chars of the file's SHA-256 (computed during the copy, item B). Same content -> same name on every run, so re-runs skip it; different content -> different name, nothing overwritten; a pre-seeded different file stays untouched.
+- Identical content already under the plain name (same hash) is not a collision: skip it (discard our temp) instead of creating a `-hash8` twin.
+- Skip check in `buildPlan`: a source file is skipped when the destination holds a size + mtime match (2 s tolerance, as today) under its plain name or under any `<stem>-xxxxxxxx<ext>` sibling (8 hex). The plan summary counts stay as today; `buildPlan` only marks the file to copy, the final name is decided when its copy finishes (item C).
+- The same rule applies without flatten (the collision case just does not occur there in practice).
+- Evidence (`team/evidence/dev/wo-2/A/`): rig with `DCIM/100MSDCF/DSC00001.JPG` and `DCIM/101MSDCF/DSC00001.JPG`, different content, flatten on. (1) After the transfer the destination holds both (plain + `-hash8`), sizes right. (2) Second run: plan shows 0 to copy and both skipped; destination listing byte-identical (`ls -li` before and after, same inodes and mtimes). (3) Destination pre-seeded with a third, different `DSC00001.JPG`: after the transfer its SHA-256 is unchanged and both source files are present under `-hash8` names.
+
+**B - Per-file hash verification (BL-7b).**
+- While the source streams through the copy, feed the same chunks to `crypto.createHash('sha256')` (Node built-in, hardware-accelerated on Apple Silicon; no new dependency unless the rig shows a cost above noise, in which case `xxhash-wasm` and say so). When the write finishes, read the temp file back and hash it. Equal -> rename into place (A, C). Unequal -> retry the copy once; a second mismatch -> remove our temp, record the file as failed, continue with the next file.
+- New phase `verifying` = the read-back, shown after `copying` with its own progress (bytes read back / total); the conveyor renders only during `copying`. Verifying each file right after its write is fine (simplest, honest progress) - your call, state it in the check-off.
+- `VerifyReport` (per folder) grows: keep `label` and `ok`; add `filesCopied`, `filesVerified`, `filesSkipped`, `filesFailed`, `failed: [{ relPath, destName, reason }]`; `ok` = `filesFailed === 0`. Change `electron/main.ts`, `electron/preload.ts` and `src/types.ts` together. The Verification panel shows per-folder counts and lists failed files by name in the fail color. Copy stays neutral ("n files verified", "k files failed verification"); never "safe to format".
+- Report file: after every transfer write `<destRoot>/.media-transfer/transfer-<YYYYMMDD-HHMMSS>.json` per folder: `{ version: 1, app: "3.0.0", startedAt, finishedAt, origin, destination, flatten, files: [{ source, dest, size, mtime, sha256, status }] }` with `status` one of `copied-verified`, `skipped`, `failed`. Dot-folders are already ignored by `walk`, so the report never enters the index or the byte totals. Skipped files carry no hash (they are not read).
+- Known limit, document it in the README, do not solve it: the read-back may be served from the macOS file cache, so verification proves what macOS reports it wrote, not the medium itself.
+- Evidence (`team/evidence/dev/wo-2/B/`): (1) a forced mismatch through a dev-only hook `MT_TEST_CORRUPT=<basename>` that flips one byte of that file's temp copy before the read-back (no effect without the variable; documented in CLAUDE.md): the retry, the failure in the panel and in the report, and no file under the final name. (2) A sample report JSON. (3) MB/s on the throttled rig, same 120 MB/s recipe and window-front condition as WO-1 (86.03 MB/s with the conveyor), with hashing on - within noise is the bar - plus the read-back time for the rig's data set, stated plainly.
+
+**C - Temporary-name writes (BL-7c).**
+- Copy into `<final dir>/<basename>.mtpart`; rename to the final name only after B passes and A has chosen the name. A leftover `.mtpart` (cancel, crash, unplug) is the app's own file: the next copy of that file overwrites it, nothing else touches it; `walk` ignores `*.mtpart`, so leftovers never count as existing files. Cancel still returns promptly; the current temp is left as is.
+- Evidence (`team/evidence/dev/wo-2/C/`): cancel mid-copy -> `.mtpart` present, destination otherwise unchanged; re-run -> the file completes and verifies, the `.mtpart` is gone, nothing else changed.
+
+**D - Release plumbing for 3.0.0 (BL-5 pattern).**
+- Version 3.0.0 in `package.json` + lockfile. README: a "Verified transfer" section (naming rule, report file, `.mtpart`, the cache limit above); the old "Flatten collisions" note goes. `CONVERSATION.md` v3.0 note. `CLAUDE.md`: new phase, report format, naming rule, test hook, the invariant helper's name.
+- Evidence (`team/evidence/dev/wo-2/D/checks.txt`): `npx tsc --noEmit`, `npm run build:renderer`, `npm run build:main` clean (paste the tail).
+
+### Out of scope (don't build; later orders)
+Telemetry, update notice, signing and notarization (WO-3). Scroll-into-view on Start (pending Eddy). Hashing of skipped files ("deep verify"). MHL or sidecar files. Any UI redesign or identity change.
+
+### How you report
+- One check-off note per item, three lines: `**Dev (YYYY-MM-DD):** <word> <hash> · <rung> · team/evidence/dev/wo-2/<item>/...`. Your rung caps at `tested`.
+- Questions under `## Questions` (newest first); keep working the other items meanwhile. Ambiguity on anything user-visible or on the invariant -> ask, don't guess.
+- One message to the PM when the whole order is done or blocked (ListAgents -> SendMessage to `MINI - Media Transfer - PM`), not per item. Flag in-progress local work in a top note here; the Tester verifies committed states only.
+- Do not merge, do not package, do not touch `team/` outside your row.
+
+## Superseded / completed orders
+
+~~WO-1~~ **PM (2026-10-02):** WO-1 rev 1 **COMPLETE** - merged to `main` as c692d2d after the PM visual pass (`team/evidence/pm/wo-1/README.md`, rung `observed`). Packaging follows; no new order yet.
 
 **PM (2026-10-02):** WO-1 rev 1 - **Media Transfer v2.0, UI/UX release.** Framework v2.9 (5c0785b). Your canary word is in your boot line; every note here and every message to the PM starts with it.
 
