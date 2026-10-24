@@ -58,11 +58,21 @@ export type Progress = {
   elapsedMs: number;
 };
 
+export type VerifyProgress = {
+  folderLabel: string;
+  currentFile: string;
+  bytesVerifiedOverall: number;
+  totalBytesOverall: number;
+};
+
 export type VerifyReport = {
   label: string;
-  sourceBytes: number;
-  destBytes: number;
   ok: boolean;
+  filesCopied: number;
+  filesVerified: number;
+  filesSkipped: number;
+  filesFailed: number;
+  failed: { relPath: string; destName: string; reason: string }[];
 };
 
 declare global {
@@ -85,6 +95,7 @@ declare global {
       cancelTransfer: () => Promise<void>;
       onState: (cb: (s: AppState) => void) => () => void;
       onProgress: (cb: (p: Progress) => void) => () => void;
+      onVerify: (cb: (v: VerifyProgress) => void) => () => void;
       onFileStart: (cb: (f: FileStart) => void) => () => void;
       onDone: (cb: (r: VerifyReport[]) => void) => () => void;
     };

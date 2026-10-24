@@ -6,7 +6,7 @@ macOS Electron 29 + React 18 + TypeScript app that offloads camera SD cards to a
 
 - **Never touch real drives.** `/Volumes/tars` (Eddy's destination SSD), `/Volumes/SonyA6700`, `/Volumes/SonyZVE10`, and any other real card or disk (`Scratch1`, `TM-*`, ...) are never a test origin or destination. Tests use disposable disk images (rig below).
 - **Never edit the packaged app's data:** `~/Library/Application Support/Media Transfer/` (`profiles.json`, `notifications.json`). A schema change migrates in place and keeps every profile.
-- **Never change the copy/skip/verify logic** in `electron/transfer.ts` (`buildPlan`, `executePlan`, `verifyPlan`). The destination is never deleted from or overwritten beyond new files.
+- **Never change the copy/skip/verify logic** in `electron/transfer.ts` (`buildPlan`, `executePlan` and its helpers) without a work order and a Reviewer pass. The invariant: a file that already exists on the destination is never truncated, overwritten, renamed over or unlinked. The only files the app may replace are its own `*.mtpart` temporaries. **Every destination open-for-write and every rename onto a destination path goes through a `noClobber*` function in `electron/noclobber.ts`** (grep `noClobber`); nothing else in the code opens a destination path for writing.
 - `build/icon.*` and the app identity (name, logo, palette) are Eddy's calls.
 
 ## Run modes
@@ -46,12 +46,24 @@ Two dev instances share the dev `userData`. The second one cannot open the Local
 | `transfer:start` / `transfer:cancel` | invoke | `VerifyReport[]` / void |
 | `transfer:progress` | main -> renderer, per 1 MB chunk | `Progress` (shape frozen) |
 | `transfer:file-start` | main -> renderer, first progress event of each file | `{ absPath, name }` (source path) |
-| `transfer:done` | main -> renderer | `VerifyReport[]` |
+| `transfer:verify` | main -> renderer, read-back progress, throttled to ~10/s (always sent at 100 %) | `{ folderLabel, currentFile, bytesVerifiedOverall, totalBytesOverall }` |
+| `transfer:done` | main -> renderer | `VerifyReport[]` per folder: `{ label, ok, filesCopied, filesVerified, filesSkipped, filesFailed, failed: [{ relPath, destName, reason }] }`, `ok = filesFailed === 0` |
 | `thumb:get(absPath)` | invoke | 96 px data URL or `null`. Only for source files of the active plan (never the destination). QuickLook via `nativeImage.createThumbnailFromPath`, 3 s timeout, LRU 200. |
 
 ## New-drive notification rules
 
 A volume shows inline under "New drive detected" only while it is mounted, unlabeled and not dismissed. × creates the persisted entry; it survives unplug/replug and relaunch. The bell badge = number of entries. Label is enabled only while mounted. Remove drops the entry (if the drive is still mounted and unlabeled, its card comes back). Saving a profile removes the entry.
+
+## Verified transfer (v3.0)
+
+- **Per file** (`executePlan` in `electron/transfer.ts`): copy into `<final dir>/<basename>.mtpart` while hashing (SHA-256, `node:crypto`, each chunk hashed in a `setImmediate` so it overlaps the next card read), then read the temp back and hash it in the worker thread of `electron/hasher.ts` (inline worker source, nothing extra to package). Match -> `utimes`, then the final name (below) via `noClobberRename`. Mismatch -> copy once more and re-check; a second mismatch removes the temp, and the file is `failed`. Copy and read-back are a one-deep pipeline: file i copies while file i-1 is read back; two files that share a temp name are never in flight together.
+- **Naming rule** (`placeVerified`): the plain name if it is free; identical content already there (same size + SHA-256) is a skip and our temp is dropped; otherwise `<stem>-<hash8><ext>` (first 8 hex of the SHA-256) under the same rules; if both names hold different files the file fails. With flatten, the first of two same-named files copied takes the plain name.
+- **Skip** (`buildPlan`): size + mtime (2 s) match under the plain name or any `<stem>-xxxxxxxx<ext>` sibling. `walk` ignores dot-entries (so `.media-transfer/`) and `*.mtpart`.
+- **Phases** (renderer): `copying -> verifying -> done`. `verifying` = every byte copied, last read-backs pending. The read-back bar shows bytes read back / total throughout.
+- **Report**: `<destRoot>/.media-transfer/transfer-<YYYYMMDD-HHMMSS>.json` per folder after every transfer, including cancelled ones (files not reached are absent): `{ version: 1, app, startedAt, finishedAt, origin, destination, flatten, files: [{ source, dest, size, mtime, sha256?, status, reason? }] }`, `status` = `copied-verified` | `skipped` | `failed`. Plan skips carry no hash. Written with `noClobberWriteFile`; a same-second name gets `-2`, `-3`, ...
+- **Cancel** is checked per 1 MB chunk (copy and read-back) and returns at once; the current `.mtpart` is left, and the next copy of that file replaces it.
+- **Test hook** `MT_TEST_CORRUPT=<basename>` (env var, dev only): flips byte 0 of that file's temp before every read-back, so both attempts mismatch and the file fails. No effect without the variable. `MT_TEST_CORRUPT=DSC00002.JPG npx electron . --user-data-dir=<scratch>`.
+- **Known limit**: the read-back may be served from the macOS file cache; verification proves what macOS reports it wrote, not the medium.
 
 ## Thumbnail conveyor
 
@@ -59,9 +71,11 @@ A volume shows inline under "New drive detected" only while it is mounted, unlab
 
 ## Test rig (disk images only)
 
+Keep the `.dmg` files in the session scratchpad, not `~`. Claude Code's safety check refuses `rm -r` of a folder at the top of any volume (`/Volumes/TestDest/TestCard`), so clear rig destinations by their deeper paths (`.../TestCard/DCIM`) or use a fresh image. `team/evidence/dev/wo-2/harness.ts` drives `buildPlan` + `executePlan` headless against `TestCard` -> `TestDest*` only.
+
 ```sh
-hdiutil create -size 1500m -fs ExFAT -volname TestCard ~/tmp-testcard.dmg && hdiutil attach ~/tmp-testcard.dmg
-hdiutil create -size 3000m -fs APFS  -volname TestDest ~/tmp-testdest.dmg && hdiutil attach ~/tmp-testdest.dmg
+hdiutil create -size 1500m -fs ExFAT -volname TestCard <scratch>/testcard.dmg && hdiutil attach <scratch>/testcard.dmg
+hdiutil create -size 3000m -fs APFS  -volname TestDest <scratch>/testdest.dmg && hdiutil attach <scratch>/testdest.dmg
 mkdir -p /Volumes/TestCard/DCIM/100MSDCF /Volumes/TestCard/PRIVATE/M4ROOT/{CLIP,THMBNL}
 # JPGs: ffmpeg -f lavfi -i "testsrc2=size=3000x2000:rate=1,noise=alls=40:allf=t" -frames:v 24 -q:v 2 frame%02d.jpg
 # MP4:  ffmpeg -f lavfi -i "mandelbrot=size=1920x1080:rate=30" -t 6 -c:v libx264 -b:v 60M clip.mp4
