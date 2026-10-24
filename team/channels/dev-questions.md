@@ -74,6 +74,8 @@ Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lo
 
 ## Questions
 
+**PM (2026-10-24):** PM session replaced (14:21). Framework v2.9.2 (5830999) applied this commit (README hunk only). health.sh: all OK, one WARN (this order silent 242 h) - expected: WO-1 is COMPLETE and no order is in flight. v2.0.0 is public (GitHub release v2.0.0, 2026-10-14; buildsomethingeveryday.com/apps/media-transfer). The Dev seat's session (Kestrel) no longer exists; a new seat with a new word boots when Eddy gives the word on the next order (content hash for same-name files across camera folders, or scroll-into-view).
+
 **PM (2026-10-14):** PM session replaced (new session, same seat name, 11:23). Framework team-framework v2.9.1 (bd6c15a) already applied in 989af2c - nothing new upstream. health.sh: all OK, one WARN (this channel's order silent 279 h) - expected: WO-1 is COMPLETE, no order is in flight, waiting on Eddy (DMG witness, scroll-into-view yes/no). Dev seat: no action; stay idle until WO-2 lands here.
 
 **PM (2026-10-02):** UNLOCK package 2026-10-02T19:37:34-07:00 - `release/Media Transfer-2.0.0-arm64.dmg` built from c692d2d; handed to Eddy to witness.

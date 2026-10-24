@@ -102,13 +102,14 @@ Second column: comma-separated paths or globs from the repo root (`src/*` covers
 4. Skim `BACKLOG.md` and the `DECISIONS.md` tail.
 5. Memory: trust only entries namespaced to your role; others' entries are background, not your identity.
 
-## Current state (2026-10-14 - PM-verified, don't re-derive)
+## Current state (2026-10-24 - PM-verified, don't re-derive)
 
-Canary words: Dev=Kestrel
+Canary words: Dev=Kestrel (that seat's session is gone; the word is kept so the probe reads its 2026-10-02 notes; a new word goes in the next Dev boot line)
 
-- Framework: team-framework v2.9.1 (bd6c15a), copied 2026-10-02 (v2.9.1 applied in 989af2c). PM session: this Mac Mini checkout on `main`; the PM session was replaced 2026-10-14 (previous one ended after 2026-10-02 19:37; new word in the new boot line). An earlier "MBP - Media Transfer - PM" session exists; Eddy said to ignore it - it is not the PM of record and wrote nothing to this repo.
-- Product: v2.0.0 merged to `main` (c692d2d, 2026-10-02) - WO-1 complete, PM-observed. DMG built by the PM 2026-10-02 19:37 from c692d2d (`release/Media Transfer-2.0.0-arm64.dmg`, unlock 24ac80f). v1.0.2 was the single commit 693239c. Open: Eddy's witness of the DMG; Dev's scroll-into-view proposal (WO-2 if Eddy says yes); BL-6 later.
-- Seats: one Dev seat (`MINI - Media Transfer - Dev`, Opus, `--permission-mode auto`, worktree `~/Projects/media-transfer-dev`, branch `dev/v2.0`, booted 2026-10-02 19:05, RC https://claude.ai/code/session_01APvwHiMC3D1wgnj7EotHvw). Tester, Designer, Cloud unbooted. Verification for v2.0 = PM visual pass from a detached checkout + Eddy witnesses the DMG (DECISIONS 2026-10-02).
-- Reviewer: not staged for UI-only diffs (Economy rule 2). Staged only if a diff touches `electron/transfer.ts` copy/skip/verify logic.
-- Grants in force (DECISIONS 2026-10-02): PM merges main, PM deploys (`npm run package`). PM canary word given in the 2026-10-14 boot line (lives only in the boot context, never here). Pending from Eddy: witness the DMG; yes/no on scroll-into-view (WO-2).
-- "Deploy" for this project means building the DMG (`npm run package` -> `release/`) from the `main` tip; there is no server.
+- Framework: team-framework v2.9.2 (5830999), applied 2026-10-24 (README hunk only; all other framework-owned files already byte-identical). PM session: this Mac Mini checkout on `main`, session replaced 2026-10-24 14:21 (previous one 2026-10-14). The old "MBP - Media Transfer - PM" session is not the PM of record (DECISIONS 2026-10-02).
+- Product: v2.0.0 on `main` (c692d2d, 2026-10-02), DMG built by the PM 2026-10-02 19:37 and **published by Eddy as GitHub release v2.0.0 on 2026-10-14**, served from buildsomethingeveryday.com/apps/media-transfer. The DMG-witness item is closed by that act. 3011b1d (Eddy, 2026-10-23) added `temp/Media Transfer Logo.svg` only.
+- Next feature, announced by Eddy (Día 17 video, 2026-10-21), **not yet ordered**: content hash so two files with the same name in different camera folders (100MSDCF / 101MSDCF restart) are both backed up. Today's behaviour (`electron/transfer.ts`): with flatten on, both map to the same `relPath`; `createWriteStream` overwrites, so the second one wins and re-runs flip. Touches sacred copy/skip/verify logic -> Reviewer mandatory; a tester (Mario, a photographer friend) is an outsider -> Tester activation criteria hit.
+- Seats: none alive. The Dev worktree `~/Projects/media-transfer-dev` still exists on `dev/v2.0` at 35aa6df (clean); reuse or re-cut from `main` at the next order. Tester, Designer, Cloud unbooted.
+- Reviewer: not staged for UI-only diffs (Economy rule 2). Mandatory for any diff to `electron/transfer.ts`.
+- Grants in force (DECISIONS 2026-10-02): PM merges main, PM deploys (`npm run package`, "deploy" = DMG from the `main` tip; there is no server). PM canary word lives only in the boot line.
+- Pending from Eddy: (1) word to start the content-hash feature (WO-2 candidate), (2) yes/no on scroll-into-view on Start, (3) whether `temp/Media Transfer Logo.svg` is the new app identity (identity is his call; `build/icon.*` untouched).
