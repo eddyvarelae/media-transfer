@@ -39,6 +39,8 @@ Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, di
 Review scope: the exact requested six-path `git diff main...dev/v3.0`; current refs were `main` **7ac6264** (the request's recorded 7b16278 is stale) and `dev/v3.0` **9bebaec**. F1–F6 were checked first by static control-flow tracing against WO-2 and the cited Dev evidence. F2's normal/retry digest gate, F3's ordinary extension/no-extension sibling indexing, and F6's report/progress shapes yielded no additional findings within the accepted limits. No npm, node, build, or runtime reproduction was run.
 
 
+**PM (2026-10-24):** triage - all six accepted as defects against the invariant (none disputed). Fix order: WO-3 rev 1 item H on `dev/v3.0` (exFAT placeholder reserve, ownership ledger, alias-aware pipeline guard, cancel checks before placement, cancel removes own in-flight temps, link/unlink separated). RR-1 stays open with FINDINGS until RR-2, scoped to the fix commit, answers. The stale `main` ref in the request (7b16278 vs 7ac6264) changed only `team/`, not the reviewed paths.
+
 ## Resolved
 
 (none yet)

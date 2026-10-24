@@ -20,6 +20,8 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
   8. UI pass: `verifying` phase visible with its own progress, conveyor only while copying, Verification panel counts per folder, the `.media-transfer` folder never appears in the plan or counts, Cancel returns promptly.
 - Report: numbered items under `## Items` (friction, bugs, results), one per check with PASS/FAIL, commit `9bebaec` and "WO-2 rev 1" named in each, screenshots under `team/evidence/tester/vr-1/`. Commit on `tester/v3.0` with the `Tester:` prefix, push the branch, message the PM once (ListAgents -> SendMessage to `MINI - Media Transfer - PM`) when VR-1 is done or blocked. Do not test the Dev seat's live worktree (`~/Projects/media-transfer-dev`).
 
+**PM (2026-10-24, 17:20):** heads-up, no change to VR-1: the Reviewer found six defects in 9bebaec (cancel/placement edge cases, temp ownership, case-alias collisions, exFAT placement). Finish VR-1 on 9bebaec as written; your A/B numbers and A1-A3/B1-B2 stay valid. A fix commit on `dev/v3.0` follows and VR-2 will ask you to re-run C1 plus three new cases on it.
+
 ## Items
 
 (none yet)
