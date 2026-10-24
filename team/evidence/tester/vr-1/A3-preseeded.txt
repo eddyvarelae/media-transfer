@@ -1,0 +1,26 @@
+# A3 - VR-1, commit 9bebaec (WO-2 rev 1). /Volumes/TestDest3 pre-seeded with a third, different DSC00001.JPG, 2026-10-24T16:43:51-07:00
+## before
+total 8872
+20 -rw-r--r--  1 varela  staff  4539892 Oct 24 16:43:51 2026 DSC00001.JPG
+8a5defeeed0023211fc7310637bdc32160cfd908d33f3e1bb086bd9effb69312  /Volumes/TestDest3/TestCard/DCIM/DSC00001.JPG
+## card
+-rwx------  1 varela  staff  4537421 Oct 24 16:41:04 2026 /Volumes/TestCard/DCIM/100MSDCF/DSC00001.JPG
+-rwx------  1 varela  staff  4537649 Oct 24 16:41:06 2026 /Volumes/TestCard/DCIM/101MSDCF/DSC00001.JPG
+3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035  /Volumes/TestCard/DCIM/100MSDCF/DSC00001.JPG
+b0cd854bcaf35f681dc0aa6140884e89e384b749800f687c0ea42b3b3edf0e52  /Volumes/TestCard/DCIM/101MSDCF/DSC00001.JPG
+## driver result
+(first driver call printed nothing and started no transfer - the DCIM listing above stayed at 1 file; re-ran it at once, output below)
+{
+ "nothingToCopy": true,
+ "destBase": "/Volumes/TestDest/TestCard"
+}
+{"destBase": "/Volumes/TestDest3/TestCard", "bytes": 1086719010, "elapsedMs": 1232, "verifiedBytes": 1086719010,
+ "rows": ["DCIM\t203\t203\t0\t✓ 203 files verified", "CLIP\t6\t6\t0\t✓ 6 files verified", "THMBNL\t3\t3\t0\t✓ 3 files verified"], "failedList": []}
+## after: DSC00001*
+ 21 -rw-r--r--  1 varela  staff  4537421 Oct 24 16:41:04 2026 /Volumes/TestDest3/TestCard/DCIM/DSC00001-3de55bfb.JPG
+625 -rw-r--r--  1 varela  staff  4537649 Oct 24 16:41:06 2026 /Volumes/TestDest3/TestCard/DCIM/DSC00001-b0cd854b.JPG
+ 20 -rw-r--r--  1 varela  staff  4539892 Oct 24 16:43:51 2026 /Volumes/TestDest3/TestCard/DCIM/DSC00001.JPG
+3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035  /Volumes/TestDest3/TestCard/DCIM/DSC00001-3de55bfb.JPG
+b0cd854bcaf35f681dc0aa6140884e89e384b749800f687c0ea42b3b3edf0e52  /Volumes/TestDest3/TestCard/DCIM/DSC00001-b0cd854b.JPG
+8a5defeeed0023211fc7310637bdc32160cfd908d33f3e1bb086bd9effb69312  /Volumes/TestDest3/TestCard/DCIM/DSC00001.JPG
+## files in DCIM: 204

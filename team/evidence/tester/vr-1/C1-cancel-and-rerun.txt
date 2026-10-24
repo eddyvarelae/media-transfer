@@ -1,0 +1,128 @@
+# C1 - VR-1, commit 9bebaec (WO-2 rev 1). Throttled card (slowserve 120 MB/s, read-only http attach), /Volumes/TestDest5 holding a full prior run with its CLIP folder removed, so the plan copies CLIP only.
+## cancel run: Cancel clicked once C0001.MP4 had >= 20 MB copied (ui.js driver)
+{
+ "cancelAt": 256,
+ "doneAt": 307,
+ "cancelToIdleMs": 51,
+ "rows": [
+  "DCIM\t0\t0\t203\t\u2713 0 files verified",
+  "CLIP\t0\t0\t0\t\u2713 0 files verified"
+ ],
+ "endText": "TRANSFER COMPLETE\n14.9%\n23.0 MB / 154 MB\n92.7 MB/s\nElapsed 0s\nETA \u2014\nRead back 0.0%\n0 B / 154 MB read back",
+ "h2seen": [
+  {
+   "t": 13,
+   "h2": "Transferring",
+   "conveyor": true,
+   "cur": "CLIPC0001.MP4 \u00b7 1/6"
+  },
+  {
+   "t": 271,
+   "h2": "Transfer complete",
+   "conveyor": false,
+   "cur": ""
+  }
+ ]
+}
+[{'t': 256, 'event': 'Cancel clicked', 'currentFile': 'C0001.MP4', 'bytesCopiedFolder': 24117248}]
+## destination before vs after the cancel (inode, size, path; full ls -ldiT listings in c1-*.txt next to this file)
+1c1,5
+< 18 128 .
+---
+> 18 160 .
+> 665 128 ./CLIP
+> 667 96 ./CLIP/.media-transfer
+> 668 264 ./CLIP/.media-transfer/transfer-20261024-164651.json
+> 666 24117248 ./CLIP/C0001.MP4.mtpart
+3c7
+< 629 96 ./DCIM/.media-transfer
+---
+> 629 128 ./DCIM/.media-transfer
+4a9
+> 664 47355 ./DCIM/.media-transfer/transfer-20261024-164651.json
+## the reports the cancelled run wrote
+{
+  "version": 1,
+  "app": "3.0.0",
+  "startedAt": "2026-10-24T23:46:51.865Z",
+  "finishedAt": "2026-10-24T23:46:52.134Z",
+  "origin": "/Volumes/TestCard/PRIVATE/M4ROOT/CLIP",
+  "destination": "/Volumes/TestDest5/TestCard/CLIP",
+  "flatten": false,
+  "files": []
+}
+(DCIM/.media-transfer/transfer-20261024-164651.json: 203 entries, all skipped; no THMBNL report from the cancelled run)
+
+## re-run
+{
+ "planText": "PLAN\n\nDestination: /Volumes/TestDest5/TestCard \u00b7 206 file(s) already present will be skipped.\n\nDCIM\n0 to copy \u00b7 203 skip \u00b7 0 B\nFROM\n/Volumes/TestCard/DCIM\nTO\n/Volumes/TestDest5/TestCard/DCIM\nCLIP\n6 to copy \u00b7 0 skip \u00b7 154 MB\nFROM\n/Volumes/TestCard/PRIVATE/M4ROOT/CLIP\nTO\n/Volumes/TestDest5/TestCard/CLIP\nTHMBNL\n0 to copy \u00b7 3 skip \u00b7 0 B\nFROM\n/Volumes/TestCard/PRIVATE/M4ROOT/THMBNL\nTO\n/Volumes/TestDest5/TestCard/THMBNL",
+ "rows": [
+  "DCIM\t0\t0\t203\t\u2713 0 files verified",
+  "CLIP\t6\t6\t0\t\u2713 6 files verified",
+  "THMBNL\t0\t0\t3\t\u2713 0 files verified"
+ ],
+ "h2seen": [
+  {
+   "t": 15,
+   "h2": "Transferring",
+   "conveyor": true,
+   "cur": "CLIPC0001.MP4 \u00b7 1/6"
+  },
+  {
+   "t": 1726,
+   "h2": "Verifying",
+   "conveyor": false,
+   "cur": "CLIPverifying C0003.MP4"
+  },
+  {
+   "t": 1758,
+   "h2": "Transfer complete",
+   "conveyor": false,
+   "cur": ""
+  }
+ ],
+ "MBps": 93.9
+}
+## destination before vs after the re-run (stat: inode size mtime path)
+2,3c2,3
+< 665 128 2026-10-24T16:46:52 ./CLIP
+< 667 96 2026-10-24T16:46:52 ./CLIP/.media-transfer
+---
+> 665 288 2026-10-24T16:47:31 ./CLIP
+> 667 128 2026-10-24T16:47:31 ./CLIP/.media-transfer
+5c5,11
+< 666 24117248 2026-10-24T16:46:52 ./CLIP/C0001.MP4.mtpart
+---
+> 688 2216 2026-10-24T16:47:31 ./CLIP/.media-transfer/transfer-20261024-164729.json
+> 670 52364033 2026-10-24T16:41:06 ./CLIP/C0001.MP4
+> 671 53 2026-10-24T16:41:06 ./CLIP/C0001M01.XML
+> 674 52875827 2026-10-24T16:41:06 ./CLIP/C0002.MP4
+> 677 53 2026-10-24T16:41:06 ./CLIP/C0002M01.XML
+> 680 56723410 2026-10-24T16:41:06 ./CLIP/C0003.MP4
+> 683 53 2026-10-24T16:41:06 ./CLIP/C0003M01.XML
+7c13
+< 629 128 2026-10-24T16:46:51 ./DCIM/.media-transfer
+---
+> 629 160 2026-10-24T16:47:29 ./DCIM/.media-transfer
+9a16
+> 669 47355 2026-10-24T16:47:29 ./DCIM/.media-transfer/transfer-20261024-164729.json
+214c221
+< 662 96 2026-10-24T16:46:12 ./THMBNL/.media-transfer
+---
+> 662 128 2026-10-24T16:47:31 ./THMBNL/.media-transfer
+215a223
+> 689 996 2026-10-24T16:47:31 ./THMBNL/.media-transfer/transfer-20261024-164729.json
+## .mtpart left on the image: 0
+## card vs destination CLIP, shasum -a 256
+acbdf116c6501367c906b56fec55a081d4102fcbf07969cd69cbfab2c907bf4e  C0001.MP4
+db28306529f43e0cc327d7c3c4095828906c0ed010cde5675340761f8872e6da  C0001M01.XML
+b29cb059f7ba1881c7d43ede337b9f8371fb73d82c150c67ea5a77cd5411c6a2  C0002.MP4
+aa1743acf50b6d43284b99d3cebea020675c4be212f427e28dbfa928c37a5a14  C0002M01.XML
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  C0003.MP4
+5860c11d33c5cf8da51663672747e4680d170f194e0b43d52237d40bb0e30e8a  C0003M01.XML
+acbdf116c6501367c906b56fec55a081d4102fcbf07969cd69cbfab2c907bf4e  C0001.MP4
+db28306529f43e0cc327d7c3c4095828906c0ed010cde5675340761f8872e6da  C0001M01.XML
+b29cb059f7ba1881c7d43ede337b9f8371fb73d82c150c67ea5a77cd5411c6a2  C0002.MP4
+aa1743acf50b6d43284b99d3cebea020675c4be212f427e28dbfa928c37a5a14  C0002M01.XML
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  C0003.MP4
+5860c11d33c5cf8da51663672747e4680d170f194e0b43d52237d40bb0e30e8a  C0003M01.XML

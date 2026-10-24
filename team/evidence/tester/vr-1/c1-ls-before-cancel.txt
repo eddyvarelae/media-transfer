@@ -1,0 +1,213 @@
+ 18 drwxr-xr-x    4 varela  staff      128 Oct 24 16:46:42 2026 .
+ 19 drwxr-xr-x  206 varela  staff     6592 Oct 24 16:46:11 2026 ./DCIM
+629 drwxr-xr-x    3 varela  staff       96 Oct 24 16:46:11 2026 ./DCIM/.media-transfer
+630 -rw-r--r--    1 varela  staff    66031 Oct 24 16:46:11 2026 ./DCIM/.media-transfer/transfer-20261024-164601.json
+624 -rw-r--r--    1 varela  staff  4537649 Oct 24 16:41:06 2026 ./DCIM/DSC00001-b0cd854b.JPG
+ 20 -rw-r--r--    1 varela  staff  4537421 Oct 24 16:41:04 2026 ./DCIM/DSC00001.JPG
+ 21 -rw-r--r--    1 varela  staff  4538944 Oct 24 16:41:04 2026 ./DCIM/DSC00002.JPG
+ 24 -rw-r--r--    1 varela  staff  4539489 Oct 24 16:41:04 2026 ./DCIM/DSC00101.JPG
+ 27 -rw-r--r--    1 varela  staff  4540451 Oct 24 16:41:04 2026 ./DCIM/DSC00102.JPG
+ 30 -rw-r--r--    1 varela  staff  4542172 Oct 24 16:41:04 2026 ./DCIM/DSC00103.JPG
+ 33 -rw-r--r--    1 varela  staff  4542880 Oct 24 16:41:04 2026 ./DCIM/DSC00104.JPG
+ 36 -rw-r--r--    1 varela  staff  4541105 Oct 24 16:41:04 2026 ./DCIM/DSC00105.JPG
+ 39 -rw-r--r--    1 varela  staff  4542059 Oct 24 16:41:04 2026 ./DCIM/DSC00106.JPG
+ 42 -rw-r--r--    1 varela  staff  4542646 Oct 24 16:41:04 2026 ./DCIM/DSC00107.JPG
+ 45 -rw-r--r--    1 varela  staff  4539356 Oct 24 16:41:04 2026 ./DCIM/DSC00108.JPG
+ 48 -rw-r--r--    1 varela  staff  4538343 Oct 24 16:41:04 2026 ./DCIM/DSC00109.JPG
+ 51 -rw-r--r--    1 varela  staff  4539808 Oct 24 16:41:04 2026 ./DCIM/DSC00110.JPG
+ 54 -rw-r--r--    1 varela  staff  4539631 Oct 24 16:41:04 2026 ./DCIM/DSC00111.JPG
+ 57 -rw-r--r--    1 varela  staff  4538513 Oct 24 16:41:04 2026 ./DCIM/DSC00112.JPG
+ 60 -rw-r--r--    1 varela  staff  4537797 Oct 24 16:41:04 2026 ./DCIM/DSC00113.JPG
+ 63 -rw-r--r--    1 varela  staff  4539718 Oct 24 16:41:04 2026 ./DCIM/DSC00114.JPG
+ 66 -rw-r--r--    1 varela  staff  4541371 Oct 24 16:41:04 2026 ./DCIM/DSC00115.JPG
+ 69 -rw-r--r--    1 varela  staff  4541893 Oct 24 16:41:04 2026 ./DCIM/DSC00116.JPG
+ 72 -rw-r--r--    1 varela  staff  4541139 Oct 24 16:41:04 2026 ./DCIM/DSC00117.JPG
+ 75 -rw-r--r--    1 varela  staff  4541642 Oct 24 16:41:04 2026 ./DCIM/DSC00118.JPG
+ 78 -rw-r--r--    1 varela  staff  4542021 Oct 24 16:41:04 2026 ./DCIM/DSC00119.JPG
+ 81 -rw-r--r--    1 varela  staff  4537864 Oct 24 16:41:04 2026 ./DCIM/DSC00120.JPG
+ 84 -rw-r--r--    1 varela  staff  4537760 Oct 24 16:41:04 2026 ./DCIM/DSC00121.JPG
+ 87 -rw-r--r--    1 varela  staff  4538144 Oct 24 16:41:04 2026 ./DCIM/DSC00122.JPG
+ 90 -rw-r--r--    1 varela  staff  4539036 Oct 24 16:41:04 2026 ./DCIM/DSC00123.JPG
+ 93 -rw-r--r--    1 varela  staff  4538423 Oct 24 16:41:04 2026 ./DCIM/DSC00124.JPG
+ 96 -rw-r--r--    1 varela  staff  4538044 Oct 24 16:41:04 2026 ./DCIM/DSC00125.JPG
+ 99 -rw-r--r--    1 varela  staff  4540291 Oct 24 16:41:04 2026 ./DCIM/DSC00126.JPG
+102 -rw-r--r--    1 varela  staff  4542549 Oct 24 16:41:04 2026 ./DCIM/DSC00127.JPG
+105 -rw-r--r--    1 varela  staff  4542340 Oct 24 16:41:04 2026 ./DCIM/DSC00128.JPG
+108 -rw-r--r--    1 varela  staff  4541634 Oct 24 16:41:04 2026 ./DCIM/DSC00129.JPG
+111 -rw-r--r--    1 varela  staff  4543188 Oct 24 16:41:04 2026 ./DCIM/DSC00130.JPG
+114 -rw-r--r--    1 varela  staff  4540931 Oct 24 16:41:04 2026 ./DCIM/DSC00131.JPG
+117 -rw-r--r--    1 varela  staff  4539480 Oct 24 16:41:04 2026 ./DCIM/DSC00132.JPG
+120 -rw-r--r--    1 varela  staff  4537481 Oct 24 16:41:04 2026 ./DCIM/DSC00133.JPG
+123 -rw-r--r--    1 varela  staff  4540256 Oct 24 16:41:04 2026 ./DCIM/DSC00134.JPG
+126 -rw-r--r--    1 varela  staff  4539783 Oct 24 16:41:04 2026 ./DCIM/DSC00135.JPG
+129 -rw-r--r--    1 varela  staff  4538666 Oct 24 16:41:04 2026 ./DCIM/DSC00136.JPG
+132 -rw-r--r--    1 varela  staff  4537526 Oct 24 16:41:04 2026 ./DCIM/DSC00137.JPG
+135 -rw-r--r--    1 varela  staff  4540295 Oct 24 16:41:05 2026 ./DCIM/DSC00138.JPG
+138 -rw-r--r--    1 varela  staff  4542427 Oct 24 16:41:05 2026 ./DCIM/DSC00139.JPG
+141 -rw-r--r--    1 varela  staff  4542376 Oct 24 16:41:05 2026 ./DCIM/DSC00140.JPG
+144 -rw-r--r--    1 varela  staff  4541570 Oct 24 16:41:05 2026 ./DCIM/DSC00141.JPG
+147 -rw-r--r--    1 varela  staff  4541987 Oct 24 16:41:05 2026 ./DCIM/DSC00142.JPG
+150 -rw-r--r--    1 varela  staff  4541678 Oct 24 16:41:05 2026 ./DCIM/DSC00143.JPG
+153 -rw-r--r--    1 varela  staff  4538983 Oct 24 16:41:05 2026 ./DCIM/DSC00144.JPG
+156 -rw-r--r--    1 varela  staff  4538449 Oct 24 16:41:05 2026 ./DCIM/DSC00145.JPG
+159 -rw-r--r--    1 varela  staff  4540674 Oct 24 16:41:05 2026 ./DCIM/DSC00146.JPG
+162 -rw-r--r--    1 varela  staff  4538793 Oct 24 16:41:05 2026 ./DCIM/DSC00147.JPG
+165 -rw-r--r--    1 varela  staff  4538395 Oct 24 16:41:05 2026 ./DCIM/DSC00148.JPG
+168 -rw-r--r--    1 varela  staff  4538578 Oct 24 16:41:05 2026 ./DCIM/DSC00149.JPG
+171 -rw-r--r--    1 varela  staff  4540082 Oct 24 16:41:05 2026 ./DCIM/DSC00150.JPG
+174 -rw-r--r--    1 varela  staff  4542312 Oct 24 16:41:05 2026 ./DCIM/DSC00151.JPG
+177 -rw-r--r--    1 varela  staff  4542128 Oct 24 16:41:05 2026 ./DCIM/DSC00152.JPG
+180 -rw-r--r--    1 varela  staff  4542384 Oct 24 16:41:05 2026 ./DCIM/DSC00153.JPG
+183 -rw-r--r--    1 varela  staff  4543221 Oct 24 16:41:05 2026 ./DCIM/DSC00154.JPG
+186 -rw-r--r--    1 varela  staff  4542861 Oct 24 16:41:05 2026 ./DCIM/DSC00155.JPG
+189 -rw-r--r--    1 varela  staff  4538186 Oct 24 16:41:05 2026 ./DCIM/DSC00156.JPG
+192 -rw-r--r--    1 varela  staff  4537305 Oct 24 16:41:05 2026 ./DCIM/DSC00157.JPG
+195 -rw-r--r--    1 varela  staff  4537615 Oct 24 16:41:05 2026 ./DCIM/DSC00158.JPG
+198 -rw-r--r--    1 varela  staff  4539760 Oct 24 16:41:05 2026 ./DCIM/DSC00159.JPG
+201 -rw-r--r--    1 varela  staff  4539542 Oct 24 16:41:05 2026 ./DCIM/DSC00160.JPG
+204 -rw-r--r--    1 varela  staff  4538768 Oct 24 16:41:05 2026 ./DCIM/DSC00161.JPG
+207 -rw-r--r--    1 varela  staff  4540329 Oct 24 16:41:05 2026 ./DCIM/DSC00162.JPG
+210 -rw-r--r--    1 varela  staff  4541055 Oct 24 16:41:05 2026 ./DCIM/DSC00163.JPG
+213 -rw-r--r--    1 varela  staff  4543091 Oct 24 16:41:05 2026 ./DCIM/DSC00164.JPG
+216 -rw-r--r--    1 varela  staff  4541319 Oct 24 16:41:05 2026 ./DCIM/DSC00165.JPG
+219 -rw-r--r--    1 varela  staff  4542966 Oct 24 16:41:05 2026 ./DCIM/DSC00166.JPG
+222 -rw-r--r--    1 varela  staff  4541906 Oct 24 16:41:05 2026 ./DCIM/DSC00167.JPG
+225 -rw-r--r--    1 varela  staff  4539128 Oct 24 16:41:05 2026 ./DCIM/DSC00168.JPG
+228 -rw-r--r--    1 varela  staff  4537866 Oct 24 16:41:05 2026 ./DCIM/DSC00169.JPG
+231 -rw-r--r--    1 varela  staff  4539268 Oct 24 16:41:05 2026 ./DCIM/DSC00170.JPG
+234 -rw-r--r--    1 varela  staff  4538775 Oct 24 16:41:05 2026 ./DCIM/DSC00171.JPG
+237 -rw-r--r--    1 varela  staff  4538001 Oct 24 16:41:05 2026 ./DCIM/DSC00172.JPG
+240 -rw-r--r--    1 varela  staff  4538007 Oct 24 16:41:05 2026 ./DCIM/DSC00173.JPG
+243 -rw-r--r--    1 varela  staff  4540004 Oct 24 16:41:05 2026 ./DCIM/DSC00174.JPG
+246 -rw-r--r--    1 varela  staff  4541928 Oct 24 16:41:05 2026 ./DCIM/DSC00175.JPG
+249 -rw-r--r--    1 varela  staff  4542078 Oct 24 16:41:05 2026 ./DCIM/DSC00176.JPG
+252 -rw-r--r--    1 varela  staff  4542225 Oct 24 16:41:05 2026 ./DCIM/DSC00177.JPG
+255 -rw-r--r--    1 varela  staff  4542449 Oct 24 16:41:05 2026 ./DCIM/DSC00178.JPG
+258 -rw-r--r--    1 varela  staff  4541477 Oct 24 16:41:05 2026 ./DCIM/DSC00179.JPG
+261 -rw-r--r--    1 varela  staff  4538072 Oct 24 16:41:05 2026 ./DCIM/DSC00180.JPG
+264 -rw-r--r--    1 varela  staff  4538165 Oct 24 16:41:05 2026 ./DCIM/DSC00181.JPG
+267 -rw-r--r--    1 varela  staff  4539683 Oct 24 16:41:05 2026 ./DCIM/DSC00182.JPG
+270 -rw-r--r--    1 varela  staff  4540205 Oct 24 16:41:05 2026 ./DCIM/DSC00183.JPG
+273 -rw-r--r--    1 varela  staff  4538781 Oct 24 16:41:05 2026 ./DCIM/DSC00184.JPG
+276 -rw-r--r--    1 varela  staff  4537906 Oct 24 16:41:05 2026 ./DCIM/DSC00185.JPG
+279 -rw-r--r--    1 varela  staff  4541134 Oct 24 16:41:05 2026 ./DCIM/DSC00186.JPG
+282 -rw-r--r--    1 varela  staff  4541147 Oct 24 16:41:05 2026 ./DCIM/DSC00187.JPG
+285 -rw-r--r--    1 varela  staff  4541444 Oct 24 16:41:05 2026 ./DCIM/DSC00188.JPG
+288 -rw-r--r--    1 varela  staff  4541586 Oct 24 16:41:05 2026 ./DCIM/DSC00189.JPG
+291 -rw-r--r--    1 varela  staff  4542195 Oct 24 16:41:05 2026 ./DCIM/DSC00190.JPG
+294 -rw-r--r--    1 varela  staff  4541901 Oct 24 16:41:05 2026 ./DCIM/DSC00191.JPG
+297 -rw-r--r--    1 varela  staff  4539890 Oct 24 16:41:05 2026 ./DCIM/DSC00192.JPG
+300 -rw-r--r--    1 varela  staff  4537345 Oct 24 16:41:05 2026 ./DCIM/DSC00193.JPG
+303 -rw-r--r--    1 varela  staff  4538274 Oct 24 16:41:05 2026 ./DCIM/DSC00194.JPG
+306 -rw-r--r--    1 varela  staff  4539065 Oct 24 16:41:05 2026 ./DCIM/DSC00195.JPG
+309 -rw-r--r--    1 varela  staff  4538274 Oct 24 16:41:05 2026 ./DCIM/DSC00196.JPG
+312 -rw-r--r--    1 varela  staff  4537739 Oct 24 16:41:05 2026 ./DCIM/DSC00197.JPG
+315 -rw-r--r--    1 varela  staff  4540483 Oct 24 16:41:05 2026 ./DCIM/DSC00198.JPG
+318 -rw-r--r--    1 varela  staff  4542305 Oct 24 16:41:05 2026 ./DCIM/DSC00199.JPG
+321 -rw-r--r--    1 varela  staff  4541732 Oct 24 16:41:05 2026 ./DCIM/DSC00200.JPG
+324 -rw-r--r--    1 varela  staff  4541855 Oct 24 16:41:05 2026 ./DCIM/DSC00201.JPG
+327 -rw-r--r--    1 varela  staff  4543355 Oct 24 16:41:05 2026 ./DCIM/DSC00202.JPG
+330 -rw-r--r--    1 varela  staff  4542049 Oct 24 16:41:05 2026 ./DCIM/DSC00203.JPG
+333 -rw-r--r--    1 varela  staff  4537526 Oct 24 16:41:05 2026 ./DCIM/DSC00204.JPG
+336 -rw-r--r--    1 varela  staff  4538153 Oct 24 16:41:05 2026 ./DCIM/DSC00205.JPG
+339 -rw-r--r--    1 varela  staff  4538590 Oct 24 16:41:05 2026 ./DCIM/DSC00206.JPG
+342 -rw-r--r--    1 varela  staff  4539188 Oct 24 16:41:05 2026 ./DCIM/DSC00207.JPG
+345 -rw-r--r--    1 varela  staff  4539067 Oct 24 16:41:05 2026 ./DCIM/DSC00208.JPG
+348 -rw-r--r--    1 varela  staff  4538590 Oct 24 16:41:05 2026 ./DCIM/DSC00209.JPG
+351 -rw-r--r--    1 varela  staff  4541198 Oct 24 16:41:05 2026 ./DCIM/DSC00210.JPG
+354 -rw-r--r--    1 varela  staff  4541839 Oct 24 16:41:05 2026 ./DCIM/DSC00211.JPG
+357 -rw-r--r--    1 varela  staff  4541638 Oct 24 16:41:05 2026 ./DCIM/DSC00212.JPG
+360 -rw-r--r--    1 varela  staff  4542383 Oct 24 16:41:05 2026 ./DCIM/DSC00213.JPG
+363 -rw-r--r--    1 varela  staff  4543382 Oct 24 16:41:05 2026 ./DCIM/DSC00214.JPG
+366 -rw-r--r--    1 varela  staff  4542205 Oct 24 16:41:05 2026 ./DCIM/DSC00215.JPG
+369 -rw-r--r--    1 varela  staff  4539706 Oct 24 16:41:05 2026 ./DCIM/DSC00216.JPG
+372 -rw-r--r--    1 varela  staff  4538121 Oct 24 16:41:05 2026 ./DCIM/DSC00217.JPG
+375 -rw-r--r--    1 varela  staff  4539370 Oct 24 16:41:05 2026 ./DCIM/DSC00218.JPG
+378 -rw-r--r--    1 varela  staff  4539138 Oct 24 16:41:05 2026 ./DCIM/DSC00219.JPG
+381 -rw-r--r--    1 varela  staff  4538663 Oct 24 16:41:05 2026 ./DCIM/DSC00220.JPG
+384 -rw-r--r--    1 varela  staff  4538611 Oct 24 16:41:05 2026 ./DCIM/DSC00221.JPG
+387 -rw-r--r--    1 varela  staff  4540812 Oct 24 16:41:05 2026 ./DCIM/DSC00222.JPG
+390 -rw-r--r--    1 varela  staff  4541903 Oct 24 16:41:05 2026 ./DCIM/DSC00223.JPG
+393 -rw-r--r--    1 varela  staff  4542841 Oct 24 16:41:05 2026 ./DCIM/DSC00224.JPG
+396 -rw-r--r--    1 varela  staff  4541880 Oct 24 16:41:05 2026 ./DCIM/DSC00225.JPG
+399 -rw-r--r--    1 varela  staff  4542253 Oct 24 16:41:05 2026 ./DCIM/DSC00226.JPG
+402 -rw-r--r--    1 varela  staff  4541561 Oct 24 16:41:05 2026 ./DCIM/DSC00227.JPG
+405 -rw-r--r--    1 varela  staff  4540026 Oct 24 16:41:05 2026 ./DCIM/DSC00228.JPG
+408 -rw-r--r--    1 varela  staff  4538990 Oct 24 16:41:05 2026 ./DCIM/DSC00229.JPG
+411 -rw-r--r--    1 varela  staff  4538617 Oct 24 16:41:05 2026 ./DCIM/DSC00230.JPG
+414 -rw-r--r--    1 varela  staff  4539812 Oct 24 16:41:05 2026 ./DCIM/DSC00231.JPG
+417 -rw-r--r--    1 varela  staff  4538931 Oct 24 16:41:05 2026 ./DCIM/DSC00232.JPG
+420 -rw-r--r--    1 varela  staff  4538523 Oct 24 16:41:05 2026 ./DCIM/DSC00233.JPG
+423 -rw-r--r--    1 varela  staff  4540668 Oct 24 16:41:05 2026 ./DCIM/DSC00234.JPG
+426 -rw-r--r--    1 varela  staff  4542545 Oct 24 16:41:05 2026 ./DCIM/DSC00235.JPG
+429 -rw-r--r--    1 varela  staff  4542033 Oct 24 16:41:05 2026 ./DCIM/DSC00236.JPG
+432 -rw-r--r--    1 varela  staff  4541206 Oct 24 16:41:05 2026 ./DCIM/DSC00237.JPG
+435 -rw-r--r--    1 varela  staff  4542623 Oct 24 16:41:05 2026 ./DCIM/DSC00238.JPG
+438 -rw-r--r--    1 varela  staff  4541722 Oct 24 16:41:05 2026 ./DCIM/DSC00239.JPG
+441 -rw-r--r--    1 varela  staff  4539271 Oct 24 16:41:05 2026 ./DCIM/DSC00240.JPG
+444 -rw-r--r--    1 varela  staff  4538356 Oct 24 16:41:05 2026 ./DCIM/DSC00241.JPG
+447 -rw-r--r--    1 varela  staff  4540163 Oct 24 16:41:05 2026 ./DCIM/DSC00242.JPG
+450 -rw-r--r--    1 varela  staff  4538522 Oct 24 16:41:05 2026 ./DCIM/DSC00243.JPG
+453 -rw-r--r--    1 varela  staff  4537925 Oct 24 16:41:05 2026 ./DCIM/DSC00244.JPG
+456 -rw-r--r--    1 varela  staff  4539947 Oct 24 16:41:05 2026 ./DCIM/DSC00245.JPG
+459 -rw-r--r--    1 varela  staff  4539548 Oct 24 16:41:05 2026 ./DCIM/DSC00246.JPG
+462 -rw-r--r--    1 varela  staff  4542701 Oct 24 16:41:05 2026 ./DCIM/DSC00247.JPG
+465 -rw-r--r--    1 varela  staff  4541654 Oct 24 16:41:05 2026 ./DCIM/DSC00248.JPG
+468 -rw-r--r--    1 varela  staff  4541536 Oct 24 16:41:05 2026 ./DCIM/DSC00249.JPG
+471 -rw-r--r--    1 varela  staff  4541981 Oct 24 16:41:05 2026 ./DCIM/DSC00250.JPG
+474 -rw-r--r--    1 varela  staff  4541747 Oct 24 16:41:06 2026 ./DCIM/DSC00251.JPG
+477 -rw-r--r--    1 varela  staff  4538623 Oct 24 16:41:06 2026 ./DCIM/DSC00252.JPG
+480 -rw-r--r--    1 varela  staff  4537083 Oct 24 16:41:06 2026 ./DCIM/DSC00253.JPG
+483 -rw-r--r--    1 varela  staff  4539566 Oct 24 16:41:06 2026 ./DCIM/DSC00254.JPG
+486 -rw-r--r--    1 varela  staff  4540178 Oct 24 16:41:06 2026 ./DCIM/DSC00255.JPG
+489 -rw-r--r--    1 varela  staff  4539279 Oct 24 16:41:06 2026 ./DCIM/DSC00256.JPG
+492 -rw-r--r--    1 varela  staff  4538808 Oct 24 16:41:06 2026 ./DCIM/DSC00257.JPG
+495 -rw-r--r--    1 varela  staff  4540151 Oct 24 16:41:06 2026 ./DCIM/DSC00258.JPG
+498 -rw-r--r--    1 varela  staff  4541162 Oct 24 16:41:06 2026 ./DCIM/DSC00259.JPG
+501 -rw-r--r--    1 varela  staff  4542437 Oct 24 16:41:06 2026 ./DCIM/DSC00260.JPG
+504 -rw-r--r--    1 varela  staff  4540786 Oct 24 16:41:06 2026 ./DCIM/DSC00261.JPG
+507 -rw-r--r--    1 varela  staff  4542676 Oct 24 16:41:06 2026 ./DCIM/DSC00262.JPG
+510 -rw-r--r--    1 varela  staff  4541501 Oct 24 16:41:06 2026 ./DCIM/DSC00263.JPG
+513 -rw-r--r--    1 varela  staff  4538449 Oct 24 16:41:06 2026 ./DCIM/DSC00264.JPG
+516 -rw-r--r--    1 varela  staff  4538718 Oct 24 16:41:06 2026 ./DCIM/DSC00265.JPG
+519 -rw-r--r--    1 varela  staff  4540134 Oct 24 16:41:06 2026 ./DCIM/DSC00266.JPG
+522 -rw-r--r--    1 varela  staff  4540018 Oct 24 16:41:06 2026 ./DCIM/DSC00267.JPG
+525 -rw-r--r--    1 varela  staff  4538035 Oct 24 16:41:06 2026 ./DCIM/DSC00268.JPG
+528 -rw-r--r--    1 varela  staff  4538331 Oct 24 16:41:06 2026 ./DCIM/DSC00269.JPG
+531 -rw-r--r--    1 varela  staff  4539892 Oct 24 16:41:06 2026 ./DCIM/DSC00270.JPG
+534 -rw-r--r--    1 varela  staff  4542418 Oct 24 16:41:06 2026 ./DCIM/DSC00271.JPG
+537 -rw-r--r--    1 varela  staff  4541959 Oct 24 16:41:06 2026 ./DCIM/DSC00272.JPG
+540 -rw-r--r--    1 varela  staff  4541533 Oct 24 16:41:06 2026 ./DCIM/DSC00273.JPG
+543 -rw-r--r--    1 varela  staff  4543816 Oct 24 16:41:06 2026 ./DCIM/DSC00274.JPG
+546 -rw-r--r--    1 varela  staff  4541122 Oct 24 16:41:06 2026 ./DCIM/DSC00275.JPG
+549 -rw-r--r--    1 varela  staff  4539645 Oct 24 16:41:06 2026 ./DCIM/DSC00276.JPG
+552 -rw-r--r--    1 varela  staff  4538289 Oct 24 16:41:06 2026 ./DCIM/DSC00277.JPG
+555 -rw-r--r--    1 varela  staff  4539786 Oct 24 16:41:06 2026 ./DCIM/DSC00278.JPG
+558 -rw-r--r--    1 varela  staff  4539681 Oct 24 16:41:06 2026 ./DCIM/DSC00279.JPG
+561 -rw-r--r--    1 varela  staff  4538299 Oct 24 16:41:06 2026 ./DCIM/DSC00280.JPG
+564 -rw-r--r--    1 varela  staff  4539270 Oct 24 16:41:06 2026 ./DCIM/DSC00281.JPG
+567 -rw-r--r--    1 varela  staff  4540921 Oct 24 16:41:06 2026 ./DCIM/DSC00282.JPG
+570 -rw-r--r--    1 varela  staff  4541964 Oct 24 16:41:06 2026 ./DCIM/DSC00283.JPG
+573 -rw-r--r--    1 varela  staff  4542306 Oct 24 16:41:06 2026 ./DCIM/DSC00284.JPG
+576 -rw-r--r--    1 varela  staff  4542458 Oct 24 16:41:06 2026 ./DCIM/DSC00285.JPG
+579 -rw-r--r--    1 varela  staff  4542941 Oct 24 16:41:06 2026 ./DCIM/DSC00286.JPG
+582 -rw-r--r--    1 varela  staff  4541574 Oct 24 16:41:06 2026 ./DCIM/DSC00287.JPG
+585 -rw-r--r--    1 varela  staff  4538252 Oct 24 16:41:06 2026 ./DCIM/DSC00288.JPG
+588 -rw-r--r--    1 varela  staff  4538503 Oct 24 16:41:06 2026 ./DCIM/DSC00289.JPG
+591 -rw-r--r--    1 varela  staff  4539882 Oct 24 16:41:06 2026 ./DCIM/DSC00290.JPG
+594 -rw-r--r--    1 varela  staff  4537214 Oct 24 16:41:06 2026 ./DCIM/DSC00291.JPG
+597 -rw-r--r--    1 varela  staff  4538604 Oct 24 16:41:06 2026 ./DCIM/DSC00292.JPG
+600 -rw-r--r--    1 varela  staff  4538538 Oct 24 16:41:06 2026 ./DCIM/DSC00293.JPG
+603 -rw-r--r--    1 varela  staff  4539955 Oct 24 16:41:06 2026 ./DCIM/DSC00294.JPG
+606 -rw-r--r--    1 varela  staff  4542310 Oct 24 16:41:06 2026 ./DCIM/DSC00295.JPG
+609 -rw-r--r--    1 varela  staff  4542667 Oct 24 16:41:06 2026 ./DCIM/DSC00296.JPG
+612 -rw-r--r--    1 varela  staff  4541536 Oct 24 16:41:06 2026 ./DCIM/DSC00297.JPG
+615 -rw-r--r--    1 varela  staff  4542638 Oct 24 16:41:06 2026 ./DCIM/DSC00298.JPG
+618 -rw-r--r--    1 varela  staff  4542093 Oct 24 16:41:06 2026 ./DCIM/DSC00299.JPG
+621 -rw-r--r--    1 varela  staff  4538509 Oct 24 16:41:06 2026 ./DCIM/DSC00300.JPG
+652 drwxr-xr-x    6 varela  staff      192 Oct 24 16:46:12 2026 ./THMBNL
+662 drwxr-xr-x    3 varela  staff       96 Oct 24 16:46:12 2026 ./THMBNL/.media-transfer
+663 -rw-r--r--    1 varela  staff     1272 Oct 24 16:46:12 2026 ./THMBNL/.media-transfer/transfer-20261024-164601.json
+653 -rw-r--r--    1 varela  staff  1025967 Oct 24 16:41:06 2026 ./THMBNL/C0001T01.JPG
+654 -rw-r--r--    1 varela  staff  1026515 Oct 24 16:41:06 2026 ./THMBNL/C0002T01.JPG
+657 -rw-r--r--    1 varela  staff  1026654 Oct 24 16:41:06 2026 ./THMBNL/C0003T01.JPG

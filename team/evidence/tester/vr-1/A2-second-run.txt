@@ -1,0 +1,36 @@
+# A2 - VR-1, commit 9bebaec (WO-2 rev 1). Second run onto the A1 destination, 2026-10-24T16:43:35-07:00
+## driver result
+{
+ "nothingToCopy": true,
+ "destBase": "/Volumes/TestDest/TestCard"
+}
+## plan as shown in the app (PLAN section text + action buttons)
+PLAN
+
+Destination: /Volumes/TestDest/TestCard · 212 file(s) already present will be skipped.
+
+DCIM
+0 to copy · 203 skip · 0 B
+FROM
+/Volumes/TestCard/DCIM
+TO
+/Volumes/TestDest/TestCard/DCIM
+CLIP
+0 to copy · 6 skip · 0 B
+FROM
+/Volumes/TestCard/PRIVATE/M4ROOT/CLIP
+TO
+/Volumes/TestDest/TestCard/CLIP
+THMBNL
+0 to copy · 3 skip · 0 B
+FROM
+/Volumes/TestCard/PRIVATE/M4ROOT/THMBNL
+TO
+/Volumes/TestDest/TestCard/THMBNL
+[actions] Scan origin | Nothing to transfer (disabled)
+
+Note: with 0 to copy the app offers no Start, so no transfer runs and no new report is written in the app path.
+
+## diff of ls -ldiT (every path under /Volumes/TestDest/TestCard) before vs after
+(diff exit 0)
+entries before:      222, after:      222

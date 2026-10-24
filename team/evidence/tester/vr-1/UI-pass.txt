@@ -1,0 +1,11 @@
+# UI pass - VR-1, commit 9bebaec (WO-2 rev 1). Production-like build (file://dist), throttled card, observed via ui-driver.js
+- Verifying phase: has its own progress bar ("Read back x%", second bar) running alongside the copy bar from the 4th file on.
+  The "Verifying" heading itself shows only after the last byte is copied, for as long as the last file's read-back takes:
+  CLIP re-run (last file C0003.MP4, 57 MB): Transferring 15 ms -> Verifying 1726 ms -> Transfer complete 1758 ms = 32 ms visible.
+  Full 212-file run (last file a 1 MB THMBNL JPG): never caught at 50 ms sampling. Conveyor off during Verifying (observed).
+- Conveyor only while copying: present from t=51 ms while "Transferring", gone at "Verifying" and "Transfer complete" (C1 + full run timelines).
+- Verification panel per-folder counts: Folder / Copied / Verified / Skipped / Status (B1-panel-failed-file.png, A1/A3/C1 rows).
+- .media-transfer never in the plan or counts: A2 plan 212 skip / 0 to copy with three report folders present; C1 re-run plan
+  CLIP 6 to copy with a .mtpart present, DCIM 203 skip + THMBNL 3 skip (= 212 card files, no report or temp counted).
+- Cancel returns promptly: Cancel at 256 ms -> buttons idle at 307 ms (51 ms; transfer:done arrives within one sample).
+Raw: ../vr-1/C1-cancel-and-rerun.txt (timelines), A2-second-run.txt.

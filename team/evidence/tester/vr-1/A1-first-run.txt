@@ -1,0 +1,43 @@
+# A1 - VR-1, commit 9bebaec (WO-2 rev 1). Flatten on (DCIM), empty /Volumes/TestDest, run in the app over CDP 2026-10-24T16:43:14-07:00
+## driver result
+{
+ "thumbs": true,
+ "destBase": "/Volumes/TestDest/TestCard",
+ "bytes": 1086719010,
+ "elapsedMs": 1292,
+ "MBps": 841.1,
+ "wallMs": 1309,
+ "verifiedBytes": 1086719010,
+ "verifyPhaseSeenAt": null,
+ "tiles": 2,
+ "phases": [
+  null,
+  "Transferring"
+ ],
+ "planText": null,
+ "rows": [
+  "DCIM\t203\t203\t0\t✓ 203 files verified",
+  "CLIP\t6\t6\t0\t✓ 6 files verified",
+  "THMBNL\t3\t3\t0\t✓ 3 files verified"
+ ],
+ "failedList": []
+}
+## source hashes
+3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035  /Volumes/TestCard/DCIM/100MSDCF/DSC00001.JPG
+b0cd854bcaf35f681dc0aa6140884e89e384b749800f687c0ea42b3b3edf0e52  /Volumes/TestCard/DCIM/101MSDCF/DSC00001.JPG
+## destination DSC00001*
+-rw-r--r--  1 varela  staff  4537649 Oct 24 16:41 /Volumes/TestDest/TestCard/DCIM/DSC00001-b0cd854b.JPG
+-rw-r--r--  1 varela  staff  4537421 Oct 24 16:41 /Volumes/TestDest/TestCard/DCIM/DSC00001.JPG
+b0cd854bcaf35f681dc0aa6140884e89e384b749800f687c0ea42b3b3edf0e52  /Volumes/TestDest/TestCard/DCIM/DSC00001-b0cd854b.JPG
+3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035  /Volumes/TestDest/TestCard/DCIM/DSC00001.JPG
+## counts
+DCIM: 203 files
+CLIP: 6 files
+THMBNL: 3 files
+## .mtpart on image:
+## .media-transfer
+/Volumes/TestDest/TestCard/CLIP/.media-transfer
+/Volumes/TestDest/TestCard/DCIM/.media-transfer
+/Volumes/TestDest/TestCard/THMBNL/.media-transfer
+## full-set hash compare (card vs dest, by name; DCIM 101MSDCF file compared to -hash8 name)
+compare done

@@ -1,0 +1,17 @@
+# B3 - VR-1, commit 9bebaec (WO-2 rev 1) vs v2.0 (main 6adf4ca exported, product code identical to c692d2d)
+Rig: card image served by slowserve.mjs at 120 MB/s (:8766), attached read-only over http, cold re-attach before every run;
+fresh app launch per run, same isolated userData, destination /Volumes/TestDest6 cleared before every run; 3 rounds alternating v2, v3.
+Driver: B3-driver.js (Dev's transfer-driver.js + destination select); script: B3-ab.sh; raw: B3-ab.jsonl.
+
+CONDITION (not the one VR-1 asked for): ioreg reported CGSSessionScreenIsLocked=Yes for every run, and the frontmost
+process was Terminal (pid 372), not the app - the "set frontmost" call did not bring the window up. So this is the
+same condition as Dev's numbers (screen locked, window not front), NOT "screen unlocked, window front".
+
+| | run 1 | run 2 | run 3 | mean | spread |
+|---|---|---|---|---|---|
+| v2.0 MB/s | 95.0 | 94.9 | 95.0 | (95.0+94.9+95.0)/3 = 94.97 | 94.9..95.0 |
+| v3.0 MB/s | 94.3 | 96.1 | 93.9 | (94.3+96.1+93.9)/3 = 94.77 | 93.9..96.1 |
+Mean change v2 -> v3: (94.77-94.97)/94.97 = -0.2 %. Wall mean 11,466 -> 11,490 ms (+24 ms).
+Within spread: yes against v3's own run-to-run spread (2.2 MB/s); v2's spread was only 0.1 MB/s, so 3 runs cannot
+separate a ~0.2 MB/s effect. Dev's -1.8 % (same condition) is not reproduced; my number is smaller, not larger.
+Every v3 run: 212/212 verified. Every v2 run: DCIM "destination smaller than source" (the flatten overwrite WO-2 fixes).
