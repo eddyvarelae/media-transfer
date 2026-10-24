@@ -48,7 +48,9 @@ Protocol: the PM's current WORK ORDER lives at the top (newest supersedes; work 
 - README (Privacy, Updates, the new bell kinds, gear panel), `CONVERSATION.md` v3.0 note extended, `CLAUDE.md` (settings.json, telemetry-queue.json, `telemetry/`, env overrides and test hooks, release steps, IPC additions). Version stays 3.0.0.
 - Evidence (`team/evidence/dev/wo-3/F/checks.txt`): `npx tsc --noEmit`, both builds, and `telemetry/` `tsc` clean.
 
-**G - App icon (BL-11)** - appended by the PM when Eddy picks an option from `team/evidence/pm/logo/`: render the chosen SVG to `build/icon.png` (1024), `build/icon.iconset/` and `build/icon.icns` (`iconutil`), keep the SVG as `build/icon-src.svg`. Not before.
+**G - App icon (BL-11): Eddy picked option 2, "Card to drive" (`team/evidence/pm/logo/option-2.svg`, DECISIONS 2026-10-24).**
+- Render it to `build/icon.png` (1024), the full `build/icon.iconset/` and `build/icon.icns` (`iconutil -c icns`); keep the source as `build/icon-src.svg`. The 16 px slots (`icon_16x16.png`, and `icon_16x16@2x` / `icon_32x32.png` at 32 px) may use a simplified drawing of the same motif (card, arrow, drive; drop the mountain and the card's inner detail) so Finder lists stay legible; every other size renders from the full SVG. Rendering: `qlmanage` + `sips` as the PM's draft did (`team/evidence/pm/logo/README.md` explains the transparency trick) or `rsvg-convert` if you install librsvg for your worktree only.
+- Evidence (`team/evidence/dev/wo-3/G/`): the iconset as a contact sheet, and a screenshot of the icon in the Dock from an unsigned local package.
 
 ### Out of scope
 Any change to `electron/transfer.ts` beyond WO-2 findings; an own dashboard (the raw table is the source of truth, later); a `GET /latest` endpoint (electron-updater covers updates); EU PostHog; signing in CI (the PM signs locally).

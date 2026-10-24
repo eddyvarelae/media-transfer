@@ -18,7 +18,7 @@ Maintained by the PM - ordering and scope are theirs alone. Fixed sections below
 ## P2
 
 - [ ] **BL-6 (approved by Eddy 2026-10-02)** - more notification kinds in the bell: transfer complete / failed / cancelled, with the verification summary. WO-3 rev 1 item A.
-- [ ] **BL-11 New app identity (Eddy 2026-10-24)** - icon between the Digital Porters logo and "transferring"; the PM renders 2-3 options under `team/evidence/pm/logo/`, Eddy picks, then a Dev item replaces `build/icon.*` (Dev row gets `build/*` at that point). `temp/Media Transfer Logo.svg` rejected.
+- [ ] **BL-11 New app identity** - Eddy picked option 2 "Card to drive" (`team/evidence/pm/logo/option-2.svg`, 2026-10-24) from the PM's three drafts; WO-3 rev 1 item G renders `build/icon.*` from it. `temp/Media Transfer Logo.svg` rejected.
 
 ## Deferred (decided, don't build now)
 
