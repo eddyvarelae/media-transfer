@@ -5,6 +5,31 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-2 (2026-10-24) - WO-3 item H: the fixes for RR-1 findings 1-6 (scoped re-review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff 9bebaec e1e2b89 -- electron/ src/types.ts` (fix commit e1e2b89 on `dev/v3.0`, parent 9bebaec). Spec: WO-3 rev 1 item H (top of `team/channels/dev-questions.md`) and RR-1's six findings above. Dev evidence: `git show e1e2b89:team/evidence/dev/wo-3/H/README.md`.
+
+Claims under review - each RR-1 failing input no longer produces the failing outcome:
+1. exFAT placement reserves the final name with an exclusive create (`wx`) recorded in the ledger before it exists, then renames onto that placeholder; no check-then-rename remains.
+2. Only temps listed in the ledger (`userData/temps.json`) are ever replaced or removed; a `.mtpart` not in the ledger is left untouched and the source file is reported `failed` with "temp name taken by an unknown file".
+3. The pipeline guard keys on destination identity (NFD + lower case); an `EEXIST` on this run's temp waits for the pending file, never removes anything.
+4. Cancellation is re-checked immediately before placement and inside `hasContent`.
+5. Cancel removes this run's in-flight temps and nothing else; the run ends with no `.mtpart`.
+6. A successful `link` is reported as placed; a failing `unlink(temp)` is only logged; the no-hard-link fallback is entered only on the `link` call's own error.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1'. Any remaining `fsp.rm` / `unlink` / `rename` / open-for-write that can reach a file not recorded in this run's ledger (including an older run's entry for a path that a user file now occupies: the ledger entry says "ours" but the file on disk was replaced since).
+- F2'. The ledger entry written after the temp or placeholder is created (crash window), never cleared, or cleared before the file is placed; the ledger shared by two app instances or two destinations in a way that misattributes a temp.
+- F3'. `aliasKey` not applied on both the guard and the `EEXIST` path; a normalization mismatch (NFD vs what the filesystem returns) that lets two aliases through; a wait that can deadlock when the pending file is the same temp.
+- F4'. A placement path (`placeVerified`, the retry, the skip-identical path) without the cancel re-check; `hasContent` still ignoring cancel.
+- F5'. Cancel removing a temp from another run or instance, or leaving one of this run's temps behind when both pipeline stages were in flight.
+- F6'. The fallback catch still swallowing the unlink error, or `placeVerified` reporting `skipped`/`failed` for a file this run linked into place.
+- Regressions on RR-1's F2 (digest gate), F3 (sibling index) and F6 (IPC shapes) within this diff.
+
+Accepted limits: as in RR-1; the ledger's ~0.3 % cost is not re-benched here (the Tester's VR-2 A/B is the record).
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
 ### RR-1 (2026-10-24) - WO-2 rev 1, verified transfer: the sacred copy/skip/verify change
 
 **PM (2026-10-24):** staged. Diff to review: `git diff main...dev/v3.0 -- electron/transfer.ts electron/noclobber.ts electron/hasher.ts electron/main.ts electron/preload.ts src/types.ts` (`main` 7b16278, `dev/v3.0` 9bebaec, code commit 321dce3). Spec: WO-2 rev 1 at the top of `team/channels/dev-questions.md` (section "WORK ORDER", items A-C and "The invariant"). Dev evidence: `git show dev/v3.0:team/evidence/dev/wo-2/README.md`.

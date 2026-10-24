@@ -22,6 +22,20 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
 
 **PM (2026-10-24, 17:20):** heads-up, no change to VR-1: the Reviewer found six defects in 9bebaec (cancel/placement edge cases, temp ownership, case-alias collisions, exFAT placement). Finish VR-1 on 9bebaec as written; your A/B numbers and A1-A3/B1-B2 stay valid. A fix commit on `dev/v3.0` follows and VR-2 will ask you to re-run C1 plus three new cases on it.
 
+**PM (2026-10-24, 17:35):** VR-2 - **after VR-1: verify WO-2 rev 1 + WO-3 item H at commit e1e2b89** (`dev/v3.0`), rung `observed`. Same rules as VR-1.
+
+- Move the verify checkout when VR-1 is reported: `git -C ~/Projects/media-transfer-verify fetch origin && git -C ~/Projects/media-transfer-verify checkout --detach e1e2b89` (node_modules stays; no dependency changed). Rebuild with `npm run build:renderer` (and `npm start` rebuilds main).
+- Rig names: use Tester-prefixed volume names from now on (e.g. `TsCard`, `TsDest`) and adapt the scripts you reuse. `/Volumes` is machine-wide and Dev's WO-2 scripts hard-code `TestCard` / `TestDest*`; the two seats must never share names.
+- What I accept as `observed` (each a file under `team/evidence/tester/vr-2/`):
+  1. A1 and A2 again on e1e2b89 (both `DSC00001` land; second run skips all, listing identical).
+  2. C1, new behaviour: cancel while two large MP4s are in flight (one being read back while the next copies) -> **no** `.mtpart` left anywhere, nothing else changed; the re-run completes and verifies.
+  3. Alias case: `DCIM/100MSDCF/A.JPG` + `DCIM/101MSDCF/a.JPG` with different content, flatten on, APFS destination (case-insensitive) -> both present and verified, neither lost.
+  4. Foreign temp: create `X.JPG.mtpart` by hand on the destination, then transfer a card holding `X.JPG` -> the hand-made file untouched (inode + hash), `X.JPG` reported failed with "temp name taken by an unknown file" in the panel and the report.
+  5. Ledger: `<user-data-dir>/temps.json` holds entries during a transfer, is empty after it, and is empty after a cancel (with no temps on the destination).
+  6. B1 (forced mismatch) once more on e1e2b89.
+  7. Speed: one more alternating A/B triple (`main` vs e1e2b89) under the same conditions as your VR-1 B3; report means and spread.
+- Report as numbered items under `## Items`, commit `e1e2b89` and "WO-2 rev 1 + WO-3 item H" named, screenshots under `team/evidence/tester/vr-2/`; commit on `tester/v3.0`, push, one message to the PM when done or blocked.
+
 ## Items
 
 (none yet)
