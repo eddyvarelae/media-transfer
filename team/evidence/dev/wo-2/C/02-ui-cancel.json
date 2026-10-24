@@ -1,0 +1,32 @@
+{
+ "cancelledAt": {
+  "file": "C0001.MP4",
+  "copiedMB": 22
+ },
+ "cancelToDoneMs": 20,
+ "report": [
+  {
+   "label": "DCIM",
+   "ok": true,
+   "filesCopied": 0,
+   "filesVerified": 0,
+   "filesSkipped": 203,
+   "filesFailed": 0,
+   "failed": []
+  },
+  {
+   "label": "CLIP",
+   "ok": true,
+   "filesCopied": 0,
+   "filesVerified": 0,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  }
+ ]
+}
+total 43008
+drwxr-xr-x  4 varela  staff       128 Oct 24 16:27 .
+drwxr-xr-x  4 varela  staff       128 Oct 24 16:27 ..
+drwxr-xr-x  3 varela  staff        96 Oct 24 16:27 .media-transfer
+-rw-r--r--  1 varela  staff  22020096 Oct 24 16:27 C0001.MP4.mtpart

@@ -1,0 +1,2 @@
+checksum mismatch, attempt 1 of 2: /Volumes/TestCard/DCIM/100MSDCF/DSC00002.JPG
+checksum mismatch, attempt 2 of 2: /Volumes/TestCard/DCIM/100MSDCF/DSC00002.JPG

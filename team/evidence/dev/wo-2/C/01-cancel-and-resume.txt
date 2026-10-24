@@ -1,0 +1,73 @@
+# C final code - TestDest7 (THMBNL already transferred), CLIP folder
+## source
+total 332736
+-rwx------  1 varela  staff  56723410 Oct 24 15:50 C0001.MP4
+-rwx------  1 varela  staff        16 Oct 24 15:50 C0001M01.XML
+-rwx------  1 varela  staff  56723410 Oct 24 15:50 C0002.MP4
+-rwx------  1 varela  staff        16 Oct 24 15:50 C0002M01.XML
+-rwx------  1 varela  staff  56723410 Oct 24 15:51 C0003.MP4
+-rwx------  1 varela  staff        16 Oct 24 15:51 C0003M01.XML
+
+## run 1, cancelled after 20 MB copied
+ "ms": 228,
+ "copied": 20971520,
+ "verified": 0,
+ "report": [
+  {
+   "label": "CLIP",
+   "ok": true,
+   "filesCopied": 0,
+   "filesVerified": 0,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  }
+ ]
+}
+
+## destination CLIP after cancel (ls -liaT)
+total 40960
+31 drwxr-xr-x  4 varela  staff       128 Oct 24 16:26:26 2026 .
+18 drwxr-xr-x  4 varela  staff       128 Oct 24 16:26:26 2026 ..
+33 drwxr-xr-x  3 varela  staff        96 Oct 24 16:26:26 2026 .media-transfer
+32 -rw-r--r--  1 varela  staff  20971520 Oct 24 16:26:26 2026 C0001.MP4.mtpart
+
+## run 2
+ "ms": 1550,
+ "copied": 170170278,
+ "verified": 170170278,
+ "report": [
+  {
+   "label": "CLIP",
+   "ok": true,
+   "filesCopied": 6,
+   "filesVerified": 6,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  }
+ ]
+}
+
+## destination CLIP after run 2 (ls -liaT)
+total 332400
+31 drwxr-xr-x  9 varela  staff       288 Oct 24 16:26:28 2026 .
+18 drwxr-xr-x  4 varela  staff       128 Oct 24 16:26:26 2026 ..
+33 drwxr-xr-x  4 varela  staff       128 Oct 24 16:26:28 2026 .media-transfer
+35 -rw-r--r--  1 varela  staff  56723410 Oct 24 15:50:49 2026 C0001.MP4
+36 -rw-r--r--  1 varela  staff        16 Oct 24 15:50:49 2026 C0001M01.XML
+39 -rw-r--r--  1 varela  staff  56723410 Oct 24 15:50:56 2026 C0002.MP4
+42 -rw-r--r--  1 varela  staff        16 Oct 24 15:50:56 2026 C0002M01.XML
+45 -rw-r--r--  1 varela  staff  56723410 Oct 24 15:51:03 2026 C0003.MP4
+48 -rw-r--r--  1 varela  staff        16 Oct 24 15:51:03 2026 C0003M01.XML
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/TestDest7/TestCard/CLIP/C0001.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/TestDest7/TestCard/CLIP/C0002.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/TestDest7/TestCard/CLIP/C0003.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/TestCard/PRIVATE/M4ROOT/CLIP/C0001.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/TestCard/PRIVATE/M4ROOT/CLIP/C0002.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/TestCard/PRIVATE/M4ROOT/CLIP/C0003.MP4
+
+## rest of the destination (THMBNL) before vs after both runs
+IDENTICAL (inodes, sizes, mtimes)
+## .mtpart files left on TestDest7:
+       0

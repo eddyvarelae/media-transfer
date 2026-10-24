@@ -53,6 +53,21 @@ Telemetry, update notice, signing and notarization (WO-3). Scroll-into-view on S
 - One message to the PM when the whole order is done or blocked (ListAgents -> SendMessage to `MINI - Media Transfer - PM`), not per item. Flag in-progress local work in a top note here; the Tester verifies committed states only.
 - Do not merge, do not package, do not touch `team/` outside your row.
 
+### Check-offs (WO-2 rev 1)
+
+**Dev (2026-10-24):** Basalt - worktree state: everything committed and pushed on `dev/v3.0`; no in-progress local work. Rig torn down (all images detached, .dmg files deleted, isolated userData with the rig profiles deleted; the dev and packaged userData were never used).
+
+**Dev (2026-10-24):** Basalt A/BL-7a 321dce3 · tested · `team/evidence/dev/wo-2/A/` + `team/evidence/dev/wo-2/README.md`
+Plain + `-9f054d15`; run 2 skips both, all 203 `ls -liT` lines identical; pre-seeded file keeps inode and hash. The in-plan rule is applied at placement time (the first copied takes the plain name); see the README.
+
+**Dev (2026-10-24):** Basalt B/BL-7b 321dce3 · tested · `team/evidence/dev/wo-2/B/` (panel, log, report, bench table in the README)
+Forced mismatch: retry logged, failure in panel + report, no final file. Speed is NOT within noise: -1.8 % (95.90 -> 94.17 MB/s, +0.2 s per 1.09 GB) vs v2.0 in the same session; screen locked, so not WO-1's window-front condition. See the question below.
+
+**Dev (2026-10-24):** Basalt C/BL-7c 321dce3 · tested · `team/evidence/dev/wo-2/C/`
+Cancel leaves only `<name>.mtpart`; re-run completes, verifies, removes it, nothing else changed; UI cancel returns in 20 ms mid-MP4. Invariant helper: `electron/noclobber.ts` (grep `noClobber`).
+
+**Dev (2026-10-24):** Basalt D/BL-5 321dce3 · tested · `team/evidence/dev/wo-2/D/checks.txt`
+
 ## Superseded / completed orders
 
 ~~WO-1~~ **PM (2026-10-02):** WO-1 rev 1 **COMPLETE** - merged to `main` as c692d2d after the PM visual pass (`team/evidence/pm/wo-1/README.md`, rung `observed`). Packaging follows; no new order yet.
@@ -123,6 +138,13 @@ Throttled 120 MB/s rig, window front: strip off 86.07 vs on 86.03 MB/s (mean of 
 Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lockfile edit can be dropped.
 
 ## Questions
+
+**Dev (2026-10-24):** Basalt - WO-2 hand-over: three notes for the PM.
+1. **Speed bar not met (decision for the PM / Eddy).** The final v3.0 is 1.8 % slower than v2.0 on the throttled rig (94.17 vs 95.90 MB/s mean of 3, alternating runs). The sequential first version was -6.9 %. Pipelining (read-back of file i-1 while file i copies), a read-back worker and deferred hashing brought it to -1.8 %. Bisecting puts ~1 % on hashing the copy and ~0.5 % on the read-back. The order's fallback is `xxhash-wasm`. I did not switch, because it changes the user-visible naming rule (`-hash8` = SHA-256 prefix), the report's `sha256` field and the invariant's collision math; that's the order's text, not mine to rewrite. Options: (a) accept -1.8 % (about 13 s on a 64 GB card at 90 MB/s); (b) order xxhash (xxh64/xxh128) for both the check and the name, and I'll measure it; (c) SHA-256 for the name, xxhash for the read-back check only (two hashes per file, the copy-side cost stays). Dev recommends (a): SHA-256 is the format other tools (shasum, MHL) can check.
+2. **The window-front condition was not reproducible:** the Mini's screen was locked the whole session (`loginwindow` frontmost), so my numbers are same-session v2.0 vs v3.0 A/B under that condition, not a re-run against WO-1's 86.03. The Tester can rerun `team/evidence/dev/wo-2/B/ab.sh` with the screen unlocked.
+3. **Additions beyond the letter of the order**, for the Reviewer: failed entries in the report JSON carry `reason` (and the source `sha256` when the cause is a mismatch); a cancelled transfer still writes the report for the folders it reached; `electron/hasher.ts` (inline worker source, nothing new to package); the corrupt hook flips the byte before *every* read-back so the retry also fails; a short `console.warn` per mismatch. `directorySize` is now unused but left in place (untouched lines).
+
+~~**Dev (2026-10-24):** Basalt - WO-2 rev 1 picked up. Worktree `~/Projects/media-transfer-dev` (`dev/v3.0`) is LIVE with in-progress local work until my done note; the Tester verifies committed states only.~~ Done 2026-10-24; see the check-offs.
 
 **PM (2026-10-24):** PM session replaced (14:21). Framework v2.9.2 (5830999) applied this commit (README hunk only). health.sh: all OK, one WARN (this order silent 242 h) - expected: WO-1 is COMPLETE and no order is in flight. v2.0.0 is public (GitHub release v2.0.0, 2026-10-14; buildsomethingeveryday.com/apps/media-transfer). The Dev seat's session (Kestrel) no longer exists; a new seat with a new word boots when Eddy gives the word on the next order (content hash for same-name files across camera folders, or scroll-into-view).
 
