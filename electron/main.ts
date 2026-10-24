@@ -17,6 +17,7 @@ import {
   removeNewDrive,
 } from './notifications';
 import { getThumbnail } from './thumbnails';
+import { setLedgerFile } from './noclobber';
 
 let win: BrowserWindow | null = null;
 let activePlan: TransferPlan | null = null;
@@ -66,6 +67,8 @@ async function broadcastState() {
 }
 
 app.whenReady().then(() => {
+  // Ownership ledger: the only temps and placeholders the app may ever replace or remove.
+  setLedgerFile(path.join(app.getPath('userData'), 'temps.json'));
   createWindow();
 
   broadcastState();

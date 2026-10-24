@@ -176,10 +176,12 @@ removed from or overwritten on the destination.
   tolerance) against the plain name and any `-hash8` sibling. Skipped
   files are not read again.
 - **Temporary files.** Each file is written as `<name>.mtpart` and renamed
-  to its final name only after the read-back matches. If a transfer is
-  cancelled, crashes or the drive is unplugged, a `.mtpart` may be left
-  behind; it is never counted as copied, and the next transfer of that
-  file replaces it.
+  to its final name only after the read-back matches. Cancel removes the
+  temporary files of that transfer. A crash or an unplugged drive can leave
+  one behind; it is never counted as copied, and the next transfer to that
+  folder removes it. The app only ever removes temporary files it recorded
+  as its own (`temps.json` next to the profiles): a `.mtpart` file it did not
+  create is left alone, and that one file is reported as failed.
 - **Mismatch.** A read-back that doesn't match is copied once more; a
   second mismatch removes the temporary file and marks the file failed.
 - **Report file.** After every transfer each folder gets
