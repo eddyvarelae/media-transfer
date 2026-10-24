@@ -10,7 +10,8 @@
     "build:main": "esbuild electron/main.ts electron/preload.ts --bundle --platform=node --target=node20 --external:electron --outdir=dist-electron --format=cjs",
     "start": "npm run build:main && electron .",
     "dev:electron": "npm run build:main && electron .",
-    "package": "npm run build:renderer && npm run build:main && electron-builder --mac"
+    "package": "npm run build:renderer && npm run build:main && electron-builder --mac",
+    "icon": "electron build/render-icon.cjs"
   },
   "build": {
     "appId": "com.digitalporters.mediatransfer",
@@ -19,9 +20,14 @@
     "files": ["dist/**/*", "dist-electron/**/*", "build/icon.png", "package.json"],
     "mac": {
       "category": "public.app-category.photography",
-      "target": "dmg",
-      "icon": "build/icon.icns"
-    }
+      "target": ["dmg", "zip"],
+      "icon": "build/icon.icns",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "publish": { "provider": "github", "owner": "eddyvarelae", "repo": "media-transfer" }
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
@@ -35,6 +41,7 @@
     "vite": "^5.0.0"
   },
   "dependencies": {
+    "electron-updater": "6.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }

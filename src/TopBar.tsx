@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import type { NewDriveItem, NotificationItem, TransferItem, UpdateItem } from './types';
+import type {
+  NewDriveItem,
+  NotificationItem,
+  Settings,
+  SettingsPatch,
+  TransferItem,
+  UpdateItem,
+} from './types';
 import { ago, duration } from './format';
+import { SettingsMenu } from './Privacy';
 
 type Props = {
   notifications: NotificationItem[];
@@ -8,6 +16,8 @@ type Props = {
   onLabel: (volumeName: string) => void;
   onRemove: (id: string) => void;
   onInstallUpdate: () => void;
+  settings: Settings | null;
+  onSettings: (patch: SettingsPatch) => void;
 };
 
 function isUpdate(n: NotificationItem): n is UpdateItem {
@@ -24,6 +34,8 @@ export default function TopBar({
   onLabel,
   onRemove,
   onInstallUpdate,
+  settings,
+  onSettings,
 }: Props) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -50,48 +62,51 @@ export default function TopBar({
         <div className="brand" title="Profiles per drive · select folders · safe offload">
           Media Transfer
         </div>
-        <div className="bell-wrap" ref={wrapRef}>
-          <button
-            className={`bell ${open ? 'open' : ''}`}
-            aria-label={`Notifications (${count})`}
-            aria-expanded={open}
-            onClick={() => setOpen((o) => !o)}
-          >
-            <BellIcon />
-            {count > 0 && <span className="badge">{count}</span>}
-          </button>
-          {open && (
-            <div className="notif-panel" role="dialog" aria-label="Notifications">
-              <div className="notif-head">Notifications</div>
-              {items.length === 0 ? (
-                <div className="notif-empty">No notifications</div>
-              ) : (
-                items.map((n) =>
-                  n.kind === 'new-drive' ? (
-                    <NewDriveRow
-                      key={n.id}
-                      n={n}
-                      mounted={volumes.includes(n.volumeName)}
-                      onLabel={() => {
-                        setOpen(false);
-                        onLabel(n.volumeName);
-                      }}
-                      onRemove={() => onRemove(n.id)}
-                    />
-                  ) : isUpdate(n) ? (
-                    <UpdateRow
-                      key={n.id}
-                      n={n}
-                      onInstall={onInstallUpdate}
-                      onRemove={() => onRemove(n.id)}
-                    />
-                  ) : (
-                    <TransferRow key={n.id} n={n} onRemove={() => onRemove(n.id)} />
-                  ),
-                )
-              )}
-            </div>
-          )}
+        <div className="topbar-actions">
+          <SettingsMenu settings={settings} onChange={onSettings} />
+          <div className="bell-wrap" ref={wrapRef}>
+            <button
+              className={`bell ${open ? 'open' : ''}`}
+              aria-label={`Notifications (${count})`}
+              aria-expanded={open}
+              onClick={() => setOpen((o) => !o)}
+            >
+              <BellIcon />
+              {count > 0 && <span className="badge">{count}</span>}
+            </button>
+            {open && (
+              <div className="notif-panel" role="dialog" aria-label="Notifications">
+                <div className="notif-head">Notifications</div>
+                {items.length === 0 ? (
+                  <div className="notif-empty">No notifications</div>
+                ) : (
+                  items.map((n) =>
+                    n.kind === 'new-drive' ? (
+                      <NewDriveRow
+                        key={n.id}
+                        n={n}
+                        mounted={volumes.includes(n.volumeName)}
+                        onLabel={() => {
+                          setOpen(false);
+                          onLabel(n.volumeName);
+                        }}
+                        onRemove={() => onRemove(n.id)}
+                      />
+                    ) : isUpdate(n) ? (
+                      <UpdateRow
+                        key={n.id}
+                        n={n}
+                        onInstall={onInstallUpdate}
+                        onRemove={() => onRemove(n.id)}
+                      />
+                    ) : (
+                      <TransferRow key={n.id} n={n} onRemove={() => onRemove(n.id)} />
+                    ),
+                  )
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

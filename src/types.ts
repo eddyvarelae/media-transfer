@@ -43,10 +43,24 @@ export type UpdateItem = {
 
 export type NotificationItem = NewDriveItem | TransferItem | UpdateItem;
 
+export type Settings = {
+  version: 1;
+  installId: string;
+  telemetry: 'unasked' | 'on' | 'off';
+  updateCheck: boolean;
+};
+
+export type SettingsPatch = {
+  telemetry?: 'on' | 'off';
+  updateCheck?: boolean;
+  resetInstallId?: boolean;
+};
+
 export type AppState = {
   volumes: string[];
   profiles: Record<string, Profile>;
   notifications: NotificationItem[];
+  settings: Settings | null;
 };
 
 export type FileStart = { absPath: string; name: string };
@@ -109,6 +123,9 @@ declare global {
       dismissNotification: (volumeName: string) => Promise<NotificationItem[]>;
       removeNotification: (id: string) => Promise<NotificationItem[]>;
       installUpdate: () => Promise<void>;
+      getSettings: () => Promise<Settings>;
+      setSettings: (patch: SettingsPatch) => Promise<Settings>;
+      openExternal: (url: string) => Promise<void>;
       getThumbnail: (absPath: string) => Promise<string | null>;
       listTree: (absDir: string) => Promise<TreeNode[]>;
       buildPlan: (

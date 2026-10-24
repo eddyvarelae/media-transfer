@@ -4,12 +4,14 @@ import type {
   PlanSummary,
   Profile,
   Progress,
+  SettingsPatch,
   VerifyProgress,
   VerifyReport,
 } from './types';
 import { bytes, duration } from './format';
 import ProfileEditor from './ProfileEditor';
 import TopBar from './TopBar';
+import { ConsentModal } from './Privacy';
 import ThumbConveyor from './ThumbConveyor';
 
 type Phase = 'idle' | 'planning' | 'ready' | 'copying' | 'verifying' | 'done' | 'error';
@@ -38,6 +40,7 @@ export default function App() {
     volumes: [],
     profiles: {},
     notifications: [],
+    settings: null,
   });
   const [dismissing, setDismissing] = useState<Set<string>>(new Set());
   const [editingVolume, setEditingVolume] = useState<string | null>(null);
@@ -175,6 +178,17 @@ export default function App() {
     }
   }
 
+  async function changeSettings(patch: SettingsPatch) {
+    const next = await window.api.setSettings(patch);
+    setState((s) => ({ ...s, settings: next }));
+  }
+
+  // First launch: ask once; closing without choosing = off.
+  const consent =
+    state.settings?.telemetry === 'unasked' ? (
+      <ConsentModal onChoose={(on) => void changeSettings({ telemetry: on ? 'on' : 'off' })} />
+    ) : null;
+
   async function removeNotification(id: string) {
     const next = await window.api.removeNotification(id);
     setState((s) => ({ ...s, notifications: next }));
@@ -213,6 +227,8 @@ export default function App() {
       onLabel={setEditingVolume}
       onRemove={removeNotification}
       onInstallUpdate={() => window.api.installUpdate()}
+      settings={state.settings}
+      onSettings={changeSettings}
     />
   );
 
@@ -220,6 +236,7 @@ export default function App() {
     return (
       <>
         {topBar}
+        {consent}
         <div className="app">
           <header>
             <h1>Edit profile</h1>
@@ -242,6 +259,7 @@ export default function App() {
   return (
     <>
       {topBar}
+      {consent}
       <div className="app">
 
         {unknownVolumes.length > 0 && (

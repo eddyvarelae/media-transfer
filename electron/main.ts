@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import path from 'node:path';
 import {
   listVolumes,
@@ -23,6 +23,7 @@ import { getThumbnail } from './thumbnails';
 import { setLedgerFile } from './noclobber';
 import { loadSettings, updateSettings, SettingsPatch } from './settings';
 import { track, flush, dropQueue, noteLaunchVersion, flushBeforeQuit } from './telemetry';
+import { startUpdates, updateItems, removeUpdateItem, installNow } from './updates';
 
 let win: BrowserWindow | null = null;
 let activePlan: TransferPlan | null = null;
@@ -64,7 +65,12 @@ async function readState() {
   ]);
   const now = Date.now();
   for (const v of volumes) if (!firstSeen.has(v)) firstSeen.set(v, now);
-  return { volumes, profiles: data.profiles, notifications: notes.items, settings };
+  return {
+    volumes,
+    profiles: data.profiles,
+    notifications: [...notes.items, ...updateItems()],
+    settings,
+  };
 }
 
 async function broadcastState() {
@@ -80,6 +86,11 @@ app.whenReady().then(() => {
   broadcastState();
   setInterval(broadcastState, 2000);
   void launchTelemetry();
+  startUpdates({
+    enabled: async () => (await loadSettings()).updateCheck,
+    changed: () => void broadcastState(),
+    available: (version) => void track('update_available', { version }).then(flush),
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
@@ -115,6 +126,12 @@ ipcMain.handle('state:get', async () => readState());
 
 ipcMain.handle('settings:get', async () => loadSettings());
 
+// The renderer may open exactly one external page: the privacy note.
+const PRIVACY_URL = 'https://github.com/eddyvarelae/media-transfer/blob/main/PRIVACY.md';
+ipcMain.handle('shell:openExternal', async (_e, url: string) => {
+  if (url === PRIVACY_URL) await shell.openExternal(url);
+});
+
 ipcMain.handle('settings:set', async (_e, patch: SettingsPatch) => {
   const before = await loadSettings();
   const after = await updateSettings(patch);
@@ -143,13 +160,20 @@ ipcMain.handle('profile:delete', async (_e, volumeName: string) => {
 ipcMain.handle('notification:dismiss', async (_e, volumeName: string) => {
   const data = await dismissNewDrive(volumeName, firstSeen.get(volumeName) ?? Date.now());
   broadcastState();
-  return data.items;
+  return [...data.items, ...updateItems()];
 });
 
 ipcMain.handle('notification:remove', async (_e, id: string) => {
+  removeUpdateItem(id);
   const data = await removeNotification(id);
   broadcastState();
-  return data.items;
+  return [...data.items, ...updateItems()];
+});
+
+ipcMain.handle('update:install', async () => {
+  await flushBeforeQuit();
+  quitFlushed = true;
+  installNow();
 });
 
 // Thumbnails come from the origin card only: the path must be a source file of the active plan.

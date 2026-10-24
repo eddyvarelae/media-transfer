@@ -8,6 +8,9 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.invoke('notification:dismiss', volumeName),
   removeNotification: (id: string) => ipcRenderer.invoke('notification:remove', id),
   installUpdate: () => ipcRenderer.invoke('update:install'),
+  getSettings: () => ipcRenderer.invoke('settings:get'),
+  setSettings: (patch: any) => ipcRenderer.invoke('settings:set', patch),
+  openExternal: (url: string) => ipcRenderer.invoke('shell:openExternal', url),
   getThumbnail: (absPath: string) => ipcRenderer.invoke('thumb:get', absPath),
   listTree: (absDir: string) => ipcRenderer.invoke('tree:list', absDir),
   buildPlan: (
