@@ -22,4 +22,4 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
 
 ## Items
 
-(none yet)
+**Tester (2026-10-24 16:40):** Quince VR-1 started against 9bebaec (WO-2 rev 1), verify checkout `~/Projects/media-transfer-verify`. Rig: disk images in my scratchpad only. Finish note follows here.
