@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "app": "3.0.0",
+  "startedAt": "2026-10-24T23:43:00.588Z",
+  "finishedAt": "2026-10-24T23:43:01.875Z",
+  "origin": "/Volumes/TestCard/PRIVATE/M4ROOT/CLIP",
+  "destination": "/Volumes/TestDest/TestCard/CLIP",
+  "flatten": false,
+  "files": [
+    {
+      "source": "/Volumes/TestCard/PRIVATE/M4ROOT/CLIP/C0001.MP4",
+      "dest": "/Volumes/TestDest/TestCard/CLIP/C0001.MP4",
+      "size": 52364033,
+      "mtime": "2026-10-24T23:41:06.520Z",
+      "sha256": "acbdf116c6501367c906b56fec55a081d4102fcbf07969cd69cbfab2c907bf4e",
+      "status": "copied-verified"
+    },
+    {
+      "source": "/Volumes/TestCard/PRIVATE/M4ROOT/CLIP/C0001M01.XML",
+      "dest": "/Volumes/TestDest/TestCard/CLIP/C0001M01.XML",
+      "size": 53,
+      "mtime": "2026-10-24T23:41:06.520Z",
+      "sha256": "db28306529f43e0cc327d7c3c4095828906c0ed010cde5675340761f8872e6da",
+      "status": "copied-verified"
+    },
+    {
+      "source": "/Volumes/TestCard/PRIVATE/M4ROOT/CLIP/C0002.MP4",
+      "dest": "/Volumes/TestDest/TestCard/CLIP/C0002.MP4",
+      "size": 52875827,
+      "mtime": "2026-10-24T23:41:06.580Z",
+      "sha256": "b29cb059f7ba1881c7d43ede337b9f8371fb73d82c150c67ea5a77cd5411c6a2",
+      "status": "copied-verified"
+    },
+    {
+      "source": "/Volumes/TestCard/PRIVATE/M4ROOT/CLIP/C0002M01.XML",
+      "dest": "/Volumes/TestDest/TestCard/CLIP/C0002M01.XML",
+      "size": 53,
+      "mtime": "2026-10-24T23:41:06.580Z",
+      "sha256": "aa1743acf50b6d43284b99d3cebea020675c4be212f427e28dbfa928c37a5a14",
+      "status": "copied-verified"
+    },
+    {
+      "source": "/Volumes/TestCard/PRIVATE/M4ROOT/CLIP/C0003.MP4",
+      "dest": "/Volumes/TestDest/TestCard/CLIP/C0003.MP4",
+      "size": 56723410,
+      "mtime": "2026-10-24T23:41:06.610Z",
+      "sha256": "86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd",
+      "status": "copied-verified"
+    },
+    {
+      "source": "/Volumes/TestCard/PRIVATE/M4ROOT/CLIP/C0003M01.XML",
+      "dest": "/Volumes/TestDest/TestCard/CLIP/C0003M01.XML",
+      "size": 53,
+      "mtime": "2026-10-24T23:41:06.610Z",
+      "sha256": "5860c11d33c5cf8da51663672747e4680d170f194e0b43d52237d40bb0e30e8a",
+      "status": "copied-verified"
+    }
+  ]
+}

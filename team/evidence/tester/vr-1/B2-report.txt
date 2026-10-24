@@ -1,0 +1,19 @@
+# B2 - VR-1, commit 9bebaec (WO-2 rev 1). Reports from the clean A1 run on /Volumes/TestDest; every copied-verified hash recomputed from the destination file (hashlib sha256 == shasum -a 256)
+
+## /Volumes/TestDest/TestCard/DCIM/.media-transfer/transfer-20261024-164300.json
+{'version': 1, 'app': '3.0.0', 'startedAt': '2026-10-24T23:43:00.588Z', 'finishedAt': '2026-10-24T23:43:01.681Z', 'origin': '/Volumes/TestCard/DCIM', 'destination': '/Volumes/TestDest/TestCard/DCIM', 'flatten': True}
+files: 203 statuses: {'copied-verified': 203} hash mismatches vs destination: 0
+keys of an entry: ['dest', 'mtime', 'sha256', 'size', 'source', 'status']
+sample entry: {'source': '/Volumes/TestCard/DCIM/100MSDCF/DSC00001.JPG', 'dest': '/Volumes/TestDest/TestCard/DCIM/DSC00001.JPG', 'size': 4537421, 'mtime': '2026-10-24T23:41:04.660Z', 'sha256': '3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035', 'status': 'copied-verified'}
+
+## /Volumes/TestDest/TestCard/CLIP/.media-transfer/transfer-20261024-164300.json
+{'version': 1, 'app': '3.0.0', 'startedAt': '2026-10-24T23:43:00.588Z', 'finishedAt': '2026-10-24T23:43:01.875Z', 'origin': '/Volumes/TestCard/PRIVATE/M4ROOT/CLIP', 'destination': '/Volumes/TestDest/TestCard/CLIP', 'flatten': False}
+files: 6 statuses: {'copied-verified': 6} hash mismatches vs destination: 0
+keys of an entry: ['dest', 'mtime', 'sha256', 'size', 'source', 'status']
+sample entry: {'source': '/Volumes/TestCard/PRIVATE/M4ROOT/CLIP/C0001.MP4', 'dest': '/Volumes/TestDest/TestCard/CLIP/C0001.MP4', 'size': 52364033, 'mtime': '2026-10-24T23:41:06.520Z', 'sha256': 'acbdf116c6501367c906b56fec55a081d4102fcbf07969cd69cbfab2c907bf4e', 'status': 'copied-verified'}
+
+## /Volumes/TestDest/TestCard/THMBNL/.media-transfer/transfer-20261024-164300.json
+{'version': 1, 'app': '3.0.0', 'startedAt': '2026-10-24T23:43:00.588Z', 'finishedAt': '2026-10-24T23:43:01.882Z', 'origin': '/Volumes/TestCard/PRIVATE/M4ROOT/THMBNL', 'destination': '/Volumes/TestDest/TestCard/THMBNL', 'flatten': False}
+files: 3 statuses: {'copied-verified': 3} hash mismatches vs destination: 0
+keys of an entry: ['dest', 'mtime', 'sha256', 'size', 'source', 'status']
+sample entry: {'source': '/Volumes/TestCard/PRIVATE/M4ROOT/THMBNL/C0001T01.JPG', 'dest': '/Volumes/TestDest/TestCard/THMBNL/C0001T01.JPG', 'size': 1025967, 'mtime': '2026-10-24T23:41:06.530Z', 'sha256': '8e4eae159d1dd6fc26f20186c1f6512abfebb194c9b1725ecb61c016bc5ff855', 'status': 'copied-verified'}

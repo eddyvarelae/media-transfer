@@ -1,0 +1,44 @@
+# B1 - VR-1, commit 9bebaec (WO-2 rev 1). App launched with MT_TEST_CORRUPT=DSC00002.JPG, fresh /Volumes/TestDest4, 2026-10-24T16:44:51-07:00
+## driver result
+{
+ "thumbs": true,
+ "destBase": "/Volumes/TestDest4/TestCard",
+ "bytes": 1086719010,
+ "elapsedMs": 1301,
+ "MBps": 835.3,
+ "wallMs": 1306,
+ "verifiedBytes": 1086719010,
+ "verifyPhaseSeenAt": null,
+ "tiles": 2,
+ "phases": [
+  null,
+  "Transferring"
+ ],
+ "planText": null,
+ "rows": [
+  "DCIM\t203\t202\t0\t✗ 1 file failed verification",
+  "CLIP\t6\t6\t0\t✓ 6 files verified",
+  "THMBNL\t3\t3\t0\t✓ 3 files verified"
+ ],
+ "failedList": [
+  "DCIM100MSDCF/DSC00002.JPG · checksum mismatch after retry"
+ ]
+}
+## Verification panel DOM + computed colour of the failed row
+{
+ "html": "<section class=\"verify\"><h2>Verification</h2><table><thead><tr><th>Folder</th><th>Copied</th><th>Verified</th><th>Skipped</th><th>Status</th></tr></thead><tbody><tr><td>DCIM</td><td>203</td><td>202</td><td>0</td><td class=\"fail\">✗ 1 file failed verification</td></tr><tr><td>CLIP</td><td>6</td><td>6</td><td>0</td><td class=\"ok\">✓ 6 files verified</td></tr><tr><td>THMBNL</td><td>3</td><td>3</td><td>0</td><td class=\"ok\">✓ 3 files verified</td></tr></tbody></table><ul class=\"failed-files\"><li class=\"fail\"><span class=\"tag\">DCIM</span><code>100MSDCF/DSC00002.JPG</code> · checksum mismatch after retry</li></ul></section>",
+ "liColor": "rgb(255, 107, 107)",
+ "failVar": "#ff6b6b"
+}
+## main-process log (stdout+stderr of electron)
+
+DevTools listening on ws://127.0.0.1:9231/devtools/browser/3e622edf-0c46-4f99-9181-9f3e777022e8
+checksum mismatch, attempt 1 of 2: /Volumes/TestCard/DCIM/100MSDCF/DSC00002.JPG
+checksum mismatch, attempt 2 of 2: /Volumes/TestCard/DCIM/100MSDCF/DSC00002.JPG
+## destination
+DCIM files: 202
+DSC00002* on image: 0
+.mtpart on image: 0
+## report /Volumes/TestDest4/TestCard/DCIM/.media-transfer/transfer-20261024-164429.json, failed entries:
+[{'source': '/Volumes/TestCard/DCIM/100MSDCF/DSC00002.JPG', 'dest': '/Volumes/TestDest4/TestCard/DCIM/DSC00002.JPG', 'size': 4538944, 'mtime': '2026-10-24T23:41:04.670Z', 'sha256': '9f054d157f1e5be2f2075b0924656c8b1ff05d2581747f142fbe4d4dfc7a583d', 'status': 'failed', 'reason': 'checksum mismatch after retry'}]
+statuses {'copied-verified': 202, 'failed': 1}
