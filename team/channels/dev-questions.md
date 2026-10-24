@@ -5,6 +5,59 @@ Protocol: the PM's current WORK ORDER lives at the top (newest supersedes; work 
 
 ## WORK ORDER
 
+**PM (2026-10-24):** WO-3 rev 1 - **Media Transfer v3.0, telemetry + updates + bell (BL-8, BL-9, BL-6, BL-12, BL-10 app side).** Framework v2.9.2. Canary word as in your boot line. WO-2 is complete at `tested` and frozen under verification (RR-1 Reviewer, VR-1 Tester); findings from those fold into this order as items, not revisions.
+
+### Setup
+- Branch `dev/v3.0-telemetry` cut from `dev/v3.0` 9bebaec. WO-2 fixes (if the Reviewer or Tester find any) go on `dev/v3.0` and you merge `dev/v3.0` into this branch; the PM merges the verified WO-2 commit to `main` first, this order later. Push this branch only.
+- Decided context (DECISIONS 2026-10-24, `team/context/product.md` Infrastructure): own AWS member account `media-transfer` (profile `media-transfer`, us-east-1), endpoint `https://media-transfer-api.buildsomethingeveryday.com`, raw events in DynamoDB forwarded to PostHog US Cloud, Apple Developer ID signing + notarization in the PM's packaging step, electron-updater via GitHub Releases. Telemetry is opt-in and the app keeps working identically offline or with it off.
+- Grants pending from Eddy when this is written: (1) whether you may deploy a `dev` stage of the telemetry stack in the project account for testing - until it lands, do items A, B, D, E first and keep C to code + local checks; (2) the Hostinger API token (production DNS, PM's step) and the PostHog key (`sst secret set`, Eddy's step) are not yours to obtain - never ask for a secret, never paste one.
+- Your path row now includes `telemetry/*`, `build/*`, `PRIVACY.md`. Everything else as in WO-2 (disk images only, `Dev:` commits, no merge, no package).
+
+### Items (top-down)
+
+**A - Bell kinds + scroll (BL-6, BL-12).**
+- Notification kinds `transfer-done`, `transfer-failed`, `transfer-cancelled` persisted in `notifications.json` like `new-drive` entries (`{ id, kind, at, origin, destination, summary: { copied, verified, skipped, failed, failedNames (max 10), durationMs } }`, keep the newest 50 of these kinds). Row: title, origin -> destination, the counts, relative time, failed names when any; a Remove action; no Label. Badge counts them like today.
+- On Start, scroll the progress section into view (one line; Dev's 2026-10-02 proposal).
+- Evidence (`team/evidence/dev/wo-3/A/`): screenshots of the three kinds in the panel from rig runs (done, cancelled, failed via `MT_TEST_CORRUPT`), and one of the progress section in view right after Start at 1040x780 with the Plan expanded.
+
+**B - Consent, settings, event client (BL-8, app side).**
+- `userData/settings.json` `{ version: 1, installId (uuid v4, created on first run), telemetry: "unasked" | "on" | "off", updateCheck: true }`. IPC `settings:get` / `settings:set(partial)`; mirror in `preload.ts` and `src/types.ts`; `state:get`/`state:update` carry `settings`.
+- First launch (`telemetry === "unasked"`): a modal in the app's visual language - title "Help improve Media Transfer?", the exact list of what is sent (below) and what is never sent (file names, paths, volume or drive names, user or computer names, location beyond country), two buttons "Send anonymous stats" / "No thanks" (equal weight, no dark pattern), a "What is sent" link that opens `PRIVACY.md` on GitHub. Closing without choosing = `off`. A gear icon in the top bar opens a small panel: the telemetry toggle, the "Check for updates automatically" toggle, "Reset anonymous id", "What is sent" link.
+- Events (main process, `electron/telemetry.ts`): `app_launched` (version, macOS version, arch, locale, profiles count), `transfer_started` (folders count, files to copy, bytes to copy, flatten on/off), `transfer_finished` (files copied / verified / skipped / failed, bytes, duration ms, MB/s), `transfer_failed` (stage, error type - never the message if it could hold a path), `transfer_cancelled` (bytes done, duration), `update_available` / `update_installed` (version), `telemetry_toggled` (on/off). Common envelope: `{ installId, app: { name: "media-transfer", version }, os: { platform, release, arch }, sentAt, events: [{ name, at, props }] }`. Nothing else, ever; the Reviewer will grep the props.
+- Client: batch, `POST <endpoint>/v1/events` (constant in one place, `MT_TELEMETRY_URL` env override for the dev stage), 5 s timeout, retry with backoff (1 min, 5 min, 30 min), on-disk queue `userData/telemetry-queue.json` max 500 events (oldest dropped), flushed at launch, after each transfer and on quit (best effort, never blocks quit > 1 s). Sends nothing unless `telemetry === "on"`. Never on the copy path, never awaited by the UI.
+- Evidence (`team/evidence/dev/wo-3/B/`): screenshots of the modal and the gear panel; a captured request body from a rig transfer (dev stage if granted, else a local `node` stub server) showing the envelope; a grep proving no file name, path or volume name reaches `props`; the offline check (endpoint unreachable: transfer unaffected, queue persisted, flushed later).
+
+**C - Telemetry stack (`telemetry/`, BL-8 server side).**
+- A separate npm project in `telemetry/` (own `package.json`, SST v4 as VS Extensiones uses, `sst.config.ts` app `media-transfer-telemetry`, stages `dev` and `production`, profile `media-transfer`, us-east-1). Nothing from it enters the Electron app's `node_modules` or the DMG.
+- `POST /v1/events`: API Gateway HTTP API + one Node 20 Lambda. Validate (JSON, body <= 64 KB, <= 100 events, known event names, props values scalar only, `installId` uuid), reject with 400 otherwise. Store every event in DynamoDB table `events` (pk `installId`, sk `<at>#<name>#<uuid>`, plus `receivedAt`, `app`, `os`, `props`; on-demand billing; point-in-time recovery on; no TTL - the raw store never expires). Then forward the batch to PostHog (`https://us.i.posthog.com/batch`, `api_key` from SST secret `PosthogKey`, `distinct_id = installId`, event names as-is, `$set` nothing), 3 s timeout; a PostHog failure is logged and does not fail the request (DynamoDB is the record). Reply 202. Route throttle: 10 rps, burst 20. Logs carry counts only, never bodies.
+- Custom domain: production only, `media-transfer-api.buildsomethingeveryday.com`, per the `hybrid-react-stack` skill recipe (ACM certificate, validation CNAME and the API CNAME on Hostinger via its API). Write the two DNS steps as a script `telemetry/scripts/dns.sh` that reads `HOSTINGER_API_TOKEN` from `telemetry/.env.local` (gitignored); the PM runs it at production deploy. The `dev` stage uses the raw execute-api URL.
+- `telemetry/README.md`: deploy steps for the PM (`npx sst deploy --stage production`), the secret command for Eddy (`npx sst secret set PosthogKey --stage production` reading stdin), the DNS script, how to query DynamoDB for a day of events (one `aws dynamodb query` example), and how to point the app at a stage.
+- Evidence (`team/evidence/dev/wo-3/C/`): if the dev stage is granted - `curl` of a valid batch -> 202 and the item in DynamoDB (`aws dynamodb get-item`), an invalid batch -> 400, the same event visible in PostHog (screenshot, Eddy's org - only if the PM hands you a dev key; otherwise the forward is exercised against a local stub and said so); if not granted - `sst diff`/`tsc` of the stack, the Lambda unit-exercised with a local stub DynamoDB call mocked, and a note that the first real deploy is the PM's.
+
+**D - Privacy note (BL-8).**
+- `PRIVACY.md` at the repo root: what is sent (the list in B, verbatim), when, where it goes (Eddy's AWS account, kept indefinitely; PostHog, 1 year), what is never sent, how to turn it off, how to reset the id, that the app makes no other network call except the update check (E). README: a short "Privacy" section linking it. A 6-line version for the website page in `team/context/privacy-website-blurb.md`... no - that is the PM's lane: put it at the end of `PRIVACY.md` under "Short version" and the PM lifts it.
+- Evidence: the file; the Reviewer reads it against B's event list.
+
+**E - Signing, notarization, auto-update (BL-10, app side; the PM signs).**
+- `package.json` build config: `mac.target: ["dmg", "zip"]`, `hardenedRuntime: true`, `gatekeeperAssess: false`, `entitlements` + `entitlementsInherit` = `build/entitlements.mac.plist` with electron-builder's documented defaults for Electron (allow-jit, allow-unsigned-executable-memory, allow-dyld-environment-variables, disable-library-validation), notarization configured the way the installed electron-builder (24.x) documents it, driven by env at packaging time (`APPLE_KEYCHAIN_PROFILE=media-transfer-notary` if 24.x honors it, else `APPLE_ID` / `APPLE_APP_SPECIFIC_PASSWORD` / `APPLE_TEAM_ID` - verify in the installed version's docs and write the exact env the PM must set into CLAUDE.md), `publish: { provider: "github", owner: "eddyvarelae", repo: "media-transfer" }`. `electron-updater` as a dependency.
+- Main process: at launch (packaged only) and every 6 h, `autoUpdater.checkForUpdates()` with `autoDownload: true`, `autoInstallOnAppQuit: true`; `update-available` -> bell entry `update-available` (version, "Downloading..."), `update-downloaded` -> entry `update-downloaded` with a "Restart to install" button -> `quitAndInstall()`; errors logged (unsigned or dev builds will error - swallow, never a dialog); respects the `updateCheck` setting. Telemetry events in B.
+- Release steps for the PM in CLAUDE.md: `npm run package` (signs + notarizes when the identity and profile exist), then `gh release create v<version> release/*.dmg release/*.zip release/latest-mac.yml --title ... --notes ...` keeping electron-builder's file names (the v2.0.0 asset was renamed to `media-transfer.dmg`; that breaks the updater's lookup - never rename).
+- Evidence (`team/evidence/dev/wo-3/E/`): an unsigned local package (`CSC_IDENTITY_AUTO_DISCOVERY=false npm run package`) producing dmg + zip + `latest-mac.yml`, the yml pasted; a code read of the updater flow; the bell entries rendered with a simulated `update-downloaded` (a dev hook `MT_TEST_UPDATE=1` that emits the two events without a network call). The end-to-end update (v3.0.0 -> v3.0.1) is verified by the Tester on signed builds after packaging, not by you.
+
+**F - Release plumbing.**
+- README (Privacy, Updates, the new bell kinds, gear panel), `CONVERSATION.md` v3.0 note extended, `CLAUDE.md` (settings.json, telemetry-queue.json, `telemetry/`, env overrides and test hooks, release steps, IPC additions). Version stays 3.0.0.
+- Evidence (`team/evidence/dev/wo-3/F/checks.txt`): `npx tsc --noEmit`, both builds, and `telemetry/` `tsc` clean.
+
+**G - App icon (BL-11)** - appended by the PM when Eddy picks an option from `team/evidence/pm/logo/`: render the chosen SVG to `build/icon.png` (1024), `build/icon.iconset/` and `build/icon.icns` (`iconutil`), keep the SVG as `build/icon-src.svg`. Not before.
+
+### Out of scope
+Any change to `electron/transfer.ts` beyond WO-2 findings; an own dashboard (the raw table is the source of truth, later); a `GET /latest` endpoint (electron-updater covers updates); EU PostHog; signing in CI (the PM signs locally).
+
+### How you report
+As WO-2: one three-line check-off per item under `### Check-offs (WO-3 rev 1)`, questions under `## Questions` without stalling, one message to the PM when done or blocked. Flag the live worktree in a top note while in progress.
+
+**PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
+
 **PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
 
 ### Why
@@ -123,6 +176,8 @@ Throttled 120 MB/s rig, window front: strip off 86.07 vs on 86.03 MB/s (mean of 
 Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lockfile edit can be dropped.
 
 ## Questions
+
+**PM (2026-10-24):** answers to the hand-over notes. (1) **Speed: option (a) accepted.** Your three v2.0 runs spread 0.6 MB/s and v3.0's 0.2; the 1.7 MB/s gap is real and costs 0.2 s per 1.09 GB (about 13 s on a 64 GB card at 90 MB/s). SHA-256 stays: the name rule and the report are checkable with `shasum -a 256`, and a second hash format buys back at most 1 %. Logged in the state and reported to Eddy, who can overrule. (2) The Tester reruns the A/B with the screen unlocked (VR-1). (3) The additions are fine and are in RR-1's accepted limits. PM check of the load-bearing facts: every write/rename/unlink in `transfer.ts` goes through `noclobber.ts` (lines 402-647), `main.ts` has no destination writes, the `settle()` guard covers same-name temps, and A3's pre-seeded file keeps inode 20 and hash `8cf66588…`. Staged RR-1 for the Reviewer; booted the Tester (VR-1 at 9bebaec). WO-2 is frozen; WO-3 is your order now.
 
 **PM (2026-10-24):** PM session replaced (14:21). Framework v2.9.2 (5830999) applied this commit (README hunk only). health.sh: all OK, one WARN (this order silent 242 h) - expected: WO-1 is COMPLETE and no order is in flight. v2.0.0 is public (GitHub release v2.0.0, 2026-10-14; buildsomethingeveryday.com/apps/media-transfer). The Dev seat's session (Kestrel) no longer exists; a new seat with a new word boots when Eddy gives the word on the next order (content hash for same-name files across camera folders, or scroll-into-view).
 
