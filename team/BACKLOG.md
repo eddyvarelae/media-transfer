@@ -7,10 +7,12 @@ Maintained by the PM - ordering and scope are theirs alone. Fixed sections below
 
 (none)
 
-## P1 - v2.0 (all in WO-1, `channels/dev-questions.md`)
+## P1 - next release (v3.0 candidates; NOT ordered yet - WO-2 and WO-3 wait for Eddy's go; scope here is the PM's recommendation of 2026-10-24)
 
-(all shipped - see Done)
-
+- [ ] **BL-7 Verified transfer (WO-2 candidate)** - (a) collision-safe flatten naming: two source files that flatten to the same name get deterministic distinct names (folder suffix), and an existing destination file is never opened for writing; (b) per-file hash computed while the source streams through the copy, destination read back and compared, per-file result in the Verification panel, report saved next to the destination folder; (c) copy to a temporary name, rename on finish. Today `verifyPlan` only checks folder bytes dest >= source, which passes once the card has been reused. Touches `electron/transfer.ts` -> Reviewer mandatory; Mario (outside tester) -> Tester seat.
+- [ ] **BL-8 Usage telemetry, opt-in (WO-3 candidate)** - first-launch consent, settings toggle, events (launch, transfer started/finished/failed/cancelled with counts, bytes, duration, flatten, verification result, error type and stage, app + macOS version), random resettable install id; never file names, paths, volume names, user or host names. App posts only to Eddy's domain; SST v4 stack in this repo (Lambda + DynamoDB raw store + forward to PostHog), own AWS member account `media-transfer`, stage `production`, region us-east-1. Privacy note in README and on the website page. The endpoint URL is baked into every install (no auto-update), so it is a custom domain from day one, never a raw execute-api URL.
+- [ ] **BL-9 Update notice (WO-3 candidate)** - on launch the app asks the endpoint for the latest version (one call, app version only); if newer, a bell notification "Update available" with a Download button to the release page. Free; needs no signing. Pairs with BL-6.
+- [ ] **BL-10 Signed + notarized build with real auto-update (decision pending: Apple Developer Program fee)** - Developer ID signing + notarization in the PM's packaging step (certificate in Eddy's login keychain, notarization credentials stored once by Eddy with `xcrun notarytool store-credentials`, referenced by profile name), `zip` target added, `electron-updater` with the GitHub Releases provider, release assets keep electron-builder's names (`latest-mac.yml` must match). Also removes the macOS 15+ "Open Anyway" friction for every downloader. Existing unsigned installs still update by hand once.
 
 ## P2
 
