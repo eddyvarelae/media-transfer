@@ -1,0 +1,50 @@
+# H.5 cancel with two large files in flight (BIG/A.MP4 read back while BIG/B.MP4 copies), DevHDest (APFS)
+## plan [{"toCopy":["A.MP4","B.MP4"],"toSkip":0}]
+## at first chunk of B.MP4 - destination and ledger:
+total 110792
+drwxr-xr-x  4 varela  staff       128 Oct 24 16:46 .
+drwxr-xr-x  3 varela  staff        96 Oct 24 16:46 ..
+-rw-r--r--  1 varela  staff  56723410 Oct 24 16:46 A.MP4.mtpart
+-rw-r--r--  1 varela  staff         0 Oct 24 16:46 B.MP4.mtpart
+
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/DevHDest/DevHCard/BIG/A.MP4.mtpart",
+   "destRoot": "/Volumes/DevHDest/DevHCard/BIG",
+   "runId": "7980af3d-034b-4d53-9d88-fe04706dc62e",
+   "createdAt": "2026-10-24T23:46:47.138Z"
+  },
+  {
+   "path": "/Volumes/DevHDest/DevHCard/BIG/B.MP4.mtpart",
+   "destRoot": "/Volumes/DevHDest/DevHCard/BIG",
+   "runId": "7980af3d-034b-4d53-9d88-fe04706dc62e",
+   "createdAt": "2026-10-24T23:46:47.732Z"
+  }
+ ]
+}
+## report [
+ {
+  "label": "BIG",
+  "ok": true,
+  "filesCopied": 0,
+  "filesVerified": 0,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 0
+drwxr-xr-x  3 varela  staff  96 Oct 24 16:46 .
+drwxr-xr-x  3 varela  staff  96 Oct 24 16:46 ..
+drwxr-xr-x  3 varela  staff  96 Oct 24 16:46 .media-transfer
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+## any .mtpart on DevHDest:
+       0

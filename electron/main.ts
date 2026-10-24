@@ -20,6 +20,7 @@ import {
   TransferKind,
 } from './notifications';
 import { getThumbnail } from './thumbnails';
+import { setLedgerFile } from './noclobber';
 import { loadSettings, updateSettings, SettingsPatch } from './settings';
 import { track, flush, dropQueue, noteLaunchVersion, flushBeforeQuit } from './telemetry';
 
@@ -72,6 +73,8 @@ async function broadcastState() {
 }
 
 app.whenReady().then(() => {
+  // Ownership ledger: the only temps and placeholders the app may ever replace or remove.
+  setLedgerFile(path.join(app.getPath('userData'), 'temps.json'));
   createWindow();
 
   broadcastState();

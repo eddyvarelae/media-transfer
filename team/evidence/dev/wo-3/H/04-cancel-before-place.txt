@@ -1,0 +1,27 @@
+# H.4 cancel requested as the read-back of an empty file starts (no chunk ever checks cancel)
+## plan [{"toCopy":["E.JPG"],"toSkip":0}]
+## cancel requested as the read-back of E.JPG starts
+## report [
+ {
+  "label": "EMPTY",
+  "ok": true,
+  "filesCopied": 0,
+  "filesVerified": 0,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 0
+drwxr-xr-x  3 varela  staff   96 Oct 24 16:47 .
+drwxr-xr-x  6 varela  staff  192 Oct 24 16:47 ..
+drwxr-xr-x  3 varela  staff   96 Oct 24 16:47 .media-transfer
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+## E.JPG or E.JPG.mtpart on the destination:
+0

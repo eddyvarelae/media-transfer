@@ -6,7 +6,7 @@ macOS Electron 29 + React 18 + TypeScript app that offloads camera SD cards to a
 
 - **Never touch real drives.** `/Volumes/tars` (Eddy's destination SSD), `/Volumes/SonyA6700`, `/Volumes/SonyZVE10`, and any other real card or disk (`Scratch1`, `TM-*`, ...) are never a test origin or destination. Tests use disposable disk images (rig below).
 - **Never edit the packaged app's data:** `~/Library/Application Support/Media Transfer/` (`profiles.json`, `notifications.json`). A schema change migrates in place and keeps every profile.
-- **Never change the copy/skip/verify logic** in `electron/transfer.ts` (`buildPlan`, `executePlan` and its helpers) without a work order and a Reviewer pass. The invariant: a file that already exists on the destination is never truncated, overwritten, renamed over or unlinked. The only files the app may replace are its own `*.mtpart` temporaries. **Every destination open-for-write and every rename onto a destination path goes through a `noClobber*` function in `electron/noclobber.ts`** (grep `noClobber`); nothing else in the code opens a destination path for writing.
+- **Never change the copy/skip/verify logic** in `electron/transfer.ts` (`buildPlan`, `executePlan` and its helpers) without a work order and a Reviewer pass. The invariant: a file that already exists on the destination is never truncated, overwritten, renamed over or unlinked. The only files the app may replace or remove are the ones the **ownership ledger** (`userData/temps.json`) says it created: its `*.mtpart` temporaries and 0-byte placeholders. A name ending in `.mtpart` proves nothing. **Every destination open-for-write, rename and unlink goes through a `noClobber*` function in `electron/noclobber.ts`** (grep `noClobber`); nothing else in the code opens a destination path for writing.
 - `build/icon.*` and the app identity (name, logo, palette) are Eddy's calls.
 
 ## Run modes
@@ -28,6 +28,7 @@ macOS Electron 29 + React 18 + TypeScript app that offloads camera SD cards to a
 |---|---|---|
 | `profiles.json` `{ version: 1, profiles: { [volumeName]: Profile } }` | `~/Library/Application Support/media-transfer/` | `~/Library/Application Support/Media Transfer/` (sacred) |
 | `notifications.json` `{ version: 1, items: [{ id, kind: "new-drive", volumeName, firstSeenAt, dismissedAt }] }` | same dir | same dir |
+| `temps.json` `{ version: 1, temps: [{ path, destRoot, runId, createdAt }] }`: the ownership ledger (WO-3 H). An entry is written before its temp or placeholder is created and removed after placement or drop; usually empty between transfers | same dir | same dir |
 | Renderer `localStorage`: `mt.profilesOpen` (`"1"`/`"0"`, accordion state), `mt.thumbs` (`"off"` hides the thumbnail strip; used for speed A/B only) | `.../media-transfer/Local Storage/` | `.../Media Transfer/Local Storage/` |
 
 Two dev instances share the dev `userData`. The second one cannot open the Local Storage LevelDB lock, so its `localStorage` is memory-only and isn't saved on quit. For an isolated test run, use `electron . --user-data-dir=<scratch dir>` (redirects `profiles.json` and `notifications.json` too).
@@ -61,7 +62,8 @@ A volume shows inline under "New drive detected" only while it is mounted, unlab
 - **Skip** (`buildPlan`): size + mtime (2 s) match under the plain name or any `<stem>-xxxxxxxx<ext>` sibling. `walk` ignores dot-entries (so `.media-transfer/`) and `*.mtpart`.
 - **Phases** (renderer): `copying -> verifying -> done`. `verifying` = every byte copied, last read-backs pending. The read-back bar shows bytes read back / total throughout.
 - **Report**: `<destRoot>/.media-transfer/transfer-<YYYYMMDD-HHMMSS>.json` per folder after every transfer, including cancelled ones (files not reached are absent): `{ version: 1, app, startedAt, finishedAt, origin, destination, flatten, files: [{ source, dest, size, mtime, sha256?, status, reason? }] }`, `status` = `copied-verified` | `skipped` | `failed`. Plan skips carry no hash. Written with `noClobberWriteFile`; a same-second name gets `-2`, `-3`, ...
-- **Cancel** is checked per 1 MB chunk (copy and read-back) and returns at once; the current `.mtpart` is left, and the next copy of that file replaces it.
+- **Cancel** is checked per 1 MB chunk (copy and read-back), again before placement and inside the collision hash, and returns at once; once the in-flight copy and read-back have returned, this run's temps are removed, so a cancel leaves no `.mtpart`. A crash or unplug can leave temps; the next transfer to the same folder removes them (ledger entries of other runs), and a leftover placeholder only while it is still empty.
+- **Ownership** (`noclobber.ts`, WO-3 H): a temp name that exists but is not in the ledger is a foreign file: never replaced or removed, and that source file is reported `failed` with "temp name taken by an unknown file". Placement: `link(temp, final)` where hard links work (once the link succeeds the file is placed; a failing temp unlink is only logged and the next cleanup removes it); on exFAT (`ENOTSUP`) the final name is reserved with an exclusive `open(wx)` placeholder recorded in the ledger first, then the temp is renamed onto that placeholder. The pipeline settles when two files' destinations are aliases (`aliasKey`: NFD + lower case), and an `EEXIST` on a temp of this run waits for the file in flight instead of removing anything.
 - **Test hook** `MT_TEST_CORRUPT=<basename>` (env var, dev only): flips byte 0 of that file's temp before every read-back, so both attempts mismatch and the file fails. No effect without the variable. `MT_TEST_CORRUPT=DSC00002.JPG npx electron . --user-data-dir=<scratch>`.
 - **Known limit**: the read-back may be served from the macOS file cache; verification proves what macOS reports it wrote, not the medium.
 
@@ -71,7 +73,7 @@ A volume shows inline under "New drive detected" only while it is mounted, unlab
 
 ## Test rig (disk images only)
 
-Keep the `.dmg` files in the session scratchpad, not `~`. Claude Code's safety check refuses `rm -r` of a folder at the top of any volume (`/Volumes/TestDest/TestCard`), so clear rig destinations by their deeper paths (`.../TestCard/DCIM`) or use a fresh image. `team/evidence/dev/wo-2/harness.ts` drives `buildPlan` + `executePlan` headless against `TestCard` -> `TestDest*` only.
+Keep the `.dmg` files in the session scratchpad, not `~`. **Volume names are per seat:** the Tester's rig also mounts `TestCard` / `TestDest*`, so the Dev seat uses its own prefix (`DevH*` in WO-3 H) and checks `hdiutil info` before attaching or detaching anything. Claude Code's safety check refuses `rm -r` of a folder at the top of any volume (`/Volumes/TestDest/TestCard`), so clear rig destinations by their deeper paths (`.../TestCard/DCIM`) or use a fresh image. `team/evidence/dev/wo-2/harness.ts` drives `buildPlan` + `executePlan` headless against `TestCard` -> `TestDest*` only.
 
 ```sh
 hdiutil create -size 1500m -fs ExFAT -volname TestCard <scratch>/testcard.dmg && hdiutil attach <scratch>/testcard.dmg

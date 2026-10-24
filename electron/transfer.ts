@@ -1,11 +1,15 @@
-import crypto from 'node:crypto';
+import crypto, { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import {
   ClobberError,
   TEMP_SUFFIX,
+  TempBusyError,
+  aliasKey,
   isOwnTemp,
+  noClobberCleanup,
+  noClobberDropRun,
   noClobberDropTemp,
   noClobberPatchTemp,
   noClobberRename,
@@ -274,6 +278,9 @@ export type VerifyReport = {
   failed: { relPath: string; destName: string; reason: string }[];
 };
 
+// One transfer into one destination folder: what the copy and placement helpers need to know.
+type Run = { runId: string; destRoot: string; shouldCancel: () => boolean };
+
 // Dev-only hook: MT_TEST_CORRUPT=<basename> flips one byte of that file's temp copy before the read-back.
 const TEST_CORRUPT = process.env.MT_TEST_CORRUPT || '';
 
@@ -289,11 +296,14 @@ export async function executePlan(
   let bytesVerifiedOverall = 0;
   const startedAt = Date.now();
   const reports: VerifyReport[] = [];
+  const runId = randomUUID();
 
   await fsp.mkdir(plan.destBase, { recursive: true });
 
   for (const folder of plan.folders) {
     await fsp.mkdir(folder.destRoot, { recursive: true });
+    await noClobberCleanup(folder.destRoot, runId);
+    const run: Run = { runId, destRoot: folder.destRoot, shouldCancel };
     let bytesCopiedFolder = 0;
     let filesCopied = 0;
     const records: FileRecord[] = folder.toSkip.map((f) => ({
@@ -303,8 +313,9 @@ export async function executePlan(
     let cancelled = false;
 
     // One-deep pipeline: file i is copied off the card while file i-1 is read back from the
-    // destination. Two files that share a temp name (flatten) are never in flight together.
-    type Pending = { temp: string; done: Promise<FileRecord | 'cancelled'> };
+    // destination. Two files whose destinations may be the same entry (same name, or a case or
+    // Unicode alias on APFS / exFAT) are never in flight together.
+    type Pending = { key: string; done: Promise<FileRecord | 'cancelled'> };
     let pending = null as Pending | null;
     let verifiedDone = bytesVerifiedOverall;
     const settle = async () => {
@@ -323,13 +334,14 @@ export async function executePlan(
       const plainDest = path.join(folder.destRoot, file.relPath);
       const temp = plainDest + TEMP_SUFFIX;
       await fsp.mkdir(path.dirname(plainDest), { recursive: true });
-      if (pending?.temp === temp) await settle();
+      if (pending?.key === aliasKey(plainDest)) await settle();
 
       let copied: string | 'cancelled' | FileRecord;
       try {
         copied = await copyToTemp(
           file,
           temp,
+          run,
           (chunk) => {
             bytesCopiedFolder += chunk;
             bytesCopiedOverall += chunk;
@@ -352,7 +364,7 @@ export async function executePlan(
               file.absPath,
             );
           },
-          shouldCancel,
+          settle,
         );
       } catch (e) {
         copied = await failedRecord(file, plainDest, temp, e);
@@ -377,15 +389,18 @@ export async function executePlan(
           totalBytesOverall,
         });
       };
-      const verifying = verifyAndPlace(file, plainDest, temp, copied, onReadBack, shouldCancel);
+      const verifying = verifyAndPlace(file, plainDest, temp, copied, onReadBack, run);
       const done: Pending['done'] = verifying.then((outcome) => {
         verifiedDone += file.size;
         bytesVerifiedOverall = verifiedDone;
         return outcome;
       });
-      pending = { temp, done };
+      pending = { key: aliasKey(plainDest), done };
     }
     await settle();
+    // Nothing of this run stays in flight: on cancel that removes the temps that were being
+    // copied or read back; otherwise only temps whose unlink failed after placement.
+    await noClobberDropRun(runId);
 
     reports.push(summarize(folder, records));
     await writeTransferReport(folder, appVersion, startedAt, records);
@@ -404,15 +419,26 @@ async function failedRecord(file: FileEntry, plainDest: string, temp: string, e:
   return { ...fileFacts(file, plainDest), status: 'failed' as const, reason };
 }
 
-/** Copies one file into its temp (`<plain>.mtpart`) while hashing it. Resolves the source SHA-256. */
+/**
+ * Copies one file into its temp (`<plain>.mtpart`) while hashing it. Resolves the source SHA-256.
+ * A temp name held by this run's own file in flight (an alias the key missed) is waited out once.
+ */
 async function copyToTemp(
   file: FileEntry,
   temp: string,
+  run: Run,
   onCopyChunk: (bytes: number) => void,
-  shouldCancel: () => boolean,
+  waitInFlight: () => Promise<void> = async () => {},
 ): Promise<string | 'cancelled'> {
-  const ws = await noClobberTempStream(temp);
-  const sha256 = await copyHashing(file.absPath, ws, onCopyChunk, shouldCancel);
+  let ws: fs.WriteStream;
+  try {
+    ws = await noClobberTempStream(temp, run.destRoot, run.runId);
+  } catch (e) {
+    if (!(e instanceof TempBusyError)) throw e;
+    await waitInFlight();
+    ws = await noClobberTempStream(temp, run.destRoot, run.runId);
+  }
+  const sha256 = await copyHashing(file.absPath, ws, onCopyChunk, run.shouldCancel);
   return sha256 === null ? 'cancelled' : sha256;
 }
 
@@ -427,13 +453,14 @@ async function verifyAndPlace(
   temp: string,
   sha256: string,
   onReadBack: (bytesSoFar: number) => void,
-  shouldCancel: () => boolean,
+  run: Run,
 ): Promise<FileRecord | 'cancelled'> {
   const facts = fileFacts(file, plainDest);
   try {
     for (let attempt = 1; attempt <= 2; attempt++) {
       if (attempt === 2) {
-        const again = await copyToTemp(file, temp, () => {}, shouldCancel);
+        await noClobberDropTemp(temp);
+        const again = await copyToTemp(file, temp, run, () => {});
         if (again === 'cancelled') return 'cancelled';
         if (again !== sha256) throw new Error('source changed during the transfer');
       }
@@ -441,15 +468,16 @@ async function verifyAndPlace(
 
       onReadBack(0);
       let readBack = 0;
-      const back = await hashFile(temp, (n) => onReadBack((readBack += n)), shouldCancel);
-      if (back === null) return 'cancelled';
+      const back = await hashFile(temp, (n) => onReadBack((readBack += n)), run.shouldCancel);
+      if (back === null || run.shouldCancel()) return 'cancelled';
       if (back === sha256) {
         try {
           await fsp.utimes(temp, new Date(file.mtimeMs), new Date(file.mtimeMs));
         } catch {
           /* non-fatal */
         }
-        return { ...pick(facts), ...(await placeVerified(temp, plainDest, sha256, file.size)) };
+        const placed = await placeVerified(temp, plainDest, sha256, file.size, run);
+        return placed === 'cancelled' ? placed : { ...pick(facts), ...placed };
       }
       console.warn(`checksum mismatch, attempt ${attempt} of 2: ${file.absPath}`);
     }
@@ -473,20 +501,24 @@ async function placeVerified(
   plainDest: string,
   sha256: string,
   size: number,
-): Promise<{ dest: string; sha256: string; status: FileStatus; reason?: string }> {
+  run: Run,
+): Promise<{ dest: string; sha256: string; status: FileStatus; reason?: string } | 'cancelled'> {
   const hashedDest = hashedName(plainDest, sha256);
   for (const dest of [plainDest, hashedDest]) {
+    if (run.shouldCancel()) return 'cancelled';
     const existing = await statOrNull(dest);
     if (!existing) {
       try {
-        await noClobberRename(temp, dest);
+        await noClobberRename(temp, dest, run.destRoot, run.runId);
         return { dest, sha256, status: 'copied-verified' };
       } catch (e) {
         if (!(e instanceof ClobberError)) throw e;
         // Someone created it since the stat: treat it like an existing file below.
       }
     }
-    if (await hasContent(dest, size, sha256)) {
+    const same = await hasContent(dest, size, sha256, run.shouldCancel);
+    if (same === null) return 'cancelled';
+    if (same) {
       await noClobberDropTemp(temp);
       return { dest, sha256, status: 'skipped' };
     }
@@ -509,11 +541,17 @@ async function statOrNull(p: string): Promise<fs.Stats | null> {
   }
 }
 
-// True when `p` is a regular file with exactly this size and SHA-256 (read-only).
-async function hasContent(p: string, size: number, sha256: string): Promise<boolean> {
+// True when `p` is a regular file with exactly this size and SHA-256 (read-only); null on cancel.
+async function hasContent(
+  p: string,
+  size: number,
+  sha256: string,
+  shouldCancel: () => boolean,
+): Promise<boolean | null> {
   const st = await statOrNull(p);
   if (!st || !st.isFile() || st.size !== size) return false;
-  return (await hashFile(p, () => {}, () => false)) === sha256;
+  const digest = await hashFile(p, () => {}, shouldCancel);
+  return digest === null || shouldCancel() ? null : digest === sha256;
 }
 
 async function flipOneByte(temp: string): Promise<void> {

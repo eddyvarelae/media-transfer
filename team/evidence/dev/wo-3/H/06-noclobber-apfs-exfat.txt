@@ -1,0 +1,65 @@
+DevHDest {
+  hardLinks: 'link ok',
+  placeOnFreeName: 'ok',
+  placedContent: 'AAA',
+  tempGone: true,
+  placeOntoExisting: 'ClobberError',
+  existingContent: 'keep me',
+  cleanupOfRun1Temp: 'own leftover removed',
+  crashedEmptyPlaceholder: 'removed',
+  crashedFilledPlaceholder: 'kept: renamed before the crash',
+  ledgerEntriesLeft: 0
+}
+DevHDestX {
+  hardLinks: 'ENOTSUP',
+  placeOnFreeName: 'ok',
+  placedContent: 'AAA',
+  tempGone: true,
+  placeOntoExisting: 'ClobberError',
+  existingContent: 'keep me',
+  cleanupOfRun1Temp: 'own leftover removed',
+  crashedEmptyPlaceholder: 'removed',
+  crashedFilledPlaceholder: 'kept: renamed before the crash',
+  ledgerEntriesLeft: 0
+}
+
+# full transfers onto exFAT (DevHDestX): placement via placeholder
+## plan [{"toCopy":["A.MP4","B.MP4"],"toSkip":0}]
+## report [
+ {
+  "filesCopied": 2,
+  "filesVerified": 2,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+ }
+]
+## destination after
+total 154432
+drwx------  1 varela  staff     32768 Oct 24 16:47 .
+drwx------  1 varela  staff     32768 Oct 24 16:47 ..
+drwx------  1 varela  staff     32768 Oct 24 16:47 .media-transfer
+-rwx------  1 varela  staff  56723410 Oct 24 16:46 A.MP4
+-rwx------  1 varela  staff  22188711 Oct 24 16:46 B.MP4
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+## destination after
+total 576
+drwx------  1 varela  staff   32768 Oct 24 16:47 .
+drwx------  1 varela  staff   32768 Oct 24 16:47 ..
+drwx------  1 varela  staff   32768 Oct 24 16:47 .media-transfer
+-rwx------  1 varela  staff   43078 Oct 24 16:46 A.JPG
+-rwx------  1 varela  staff  120735 Oct 24 16:46 a-12696f3b.JPG
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/DevHDestX/DevHCard/BIG/A.MP4
+b422a2e91b7e01b3655c97d9bd9ccdd171a0af2400846ae76dc3a3a37373c7c4  /Volumes/DevHDestX/DevHCard/BIG/B.MP4
+16d62dcf1ce46c2136dff4d128ccedce3782e5f18c2bed903289d3d1094ab20e  /Volumes/DevHDestX/DevHCard/ALIAS/A.JPG
+12696f3ba9740e8ae26db2661981d10089802f8e15160d5d96dcbf3b34784abe  /Volumes/DevHDestX/DevHCard/ALIAS/a-12696f3b.JPG
