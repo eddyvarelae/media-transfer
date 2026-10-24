@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('api', {
   dismissNotification: (volumeName: string) =>
     ipcRenderer.invoke('notification:dismiss', volumeName),
   removeNotification: (id: string) => ipcRenderer.invoke('notification:remove', id),
+  installUpdate: () => ipcRenderer.invoke('update:install'),
   getThumbnail: (absPath: string) => ipcRenderer.invoke('thumb:get', absPath),
   listTree: (absDir: string) => ipcRenderer.invoke('tree:list', absDir),
   buildPlan: (

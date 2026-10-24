@@ -10,13 +10,38 @@ export type Profile = {
   updatedAt: number;
 };
 
-export type NotificationItem = {
+export type NewDriveItem = {
   id: string;
   kind: 'new-drive';
   volumeName: string;
   firstSeenAt: number;
   dismissedAt: number;
 };
+
+export type TransferItem = {
+  id: string;
+  kind: 'transfer-done' | 'transfer-failed' | 'transfer-cancelled';
+  at: number;
+  origin: string;
+  destination: string;
+  summary: {
+    copied: number;
+    verified: number;
+    skipped: number;
+    failed: number;
+    failedNames: string[];
+    durationMs: number;
+  };
+};
+
+export type UpdateItem = {
+  id: string;
+  kind: 'update-available' | 'update-downloaded';
+  at: number;
+  version: string;
+};
+
+export type NotificationItem = NewDriveItem | TransferItem | UpdateItem;
 
 export type AppState = {
   volumes: string[];
@@ -83,6 +108,7 @@ declare global {
       deleteProfile: (volumeName: string) => Promise<Record<string, Profile>>;
       dismissNotification: (volumeName: string) => Promise<NotificationItem[]>;
       removeNotification: (id: string) => Promise<NotificationItem[]>;
+      installUpdate: () => Promise<void>;
       getThumbnail: (absPath: string) => Promise<string | null>;
       listTree: (absDir: string) => Promise<TreeNode[]>;
       buildPlan: (

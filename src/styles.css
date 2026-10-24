@@ -117,6 +117,18 @@ button.bell:hover:not(:disabled), button.bell.open { background: var(--panel-2);
 .notif-title { font-size: 11px; color: #7fb3ff; text-transform: uppercase; letter-spacing: 0.04em; }
 .notif-name { display: flex; align-items: center; gap: 8px; }
 .notif-actions { display: flex; flex-direction: column; gap: 6px; }
+.notif-row.transfer-done .notif-title { color: var(--ok); }
+.notif-row.transfer-failed .notif-title { color: var(--fail); }
+.notif-row.transfer-cancelled .notif-title { color: var(--warn); }
+.fail-text { color: var(--fail); }
+.notif-failed {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  font-size: 11px;
+  color: var(--fail);
+}
+.notif-failed code { color: var(--fail); }
 .pill {
   font-size: 10px;
   padding: 1px 6px;

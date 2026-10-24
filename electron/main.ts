@@ -8,6 +8,7 @@ import {
   TransferPlan,
   CopyProgress,
   VerifyProgress,
+  VerifyReport,
 } from './transfer';
 import { loadProfiles, saveProfile, deleteProfile, Profile } from './profiles';
 import {
@@ -15,8 +16,12 @@ import {
   dismissNewDrive,
   removeNotification,
   removeNewDrive,
+  addTransferNotification,
+  TransferKind,
 } from './notifications';
 import { getThumbnail } from './thumbnails';
+import { loadSettings, updateSettings, SettingsPatch } from './settings';
+import { track, flush, dropQueue, noteLaunchVersion, flushBeforeQuit } from './telemetry';
 
 let win: BrowserWindow | null = null;
 let activePlan: TransferPlan | null = null;
@@ -50,14 +55,15 @@ function createWindow() {
 }
 
 async function readState() {
-  const [volumes, data, notes] = await Promise.all([
+  const [volumes, data, notes, settings] = await Promise.all([
     listVolumes(),
     loadProfiles(),
     loadNotifications(),
+    loadSettings(),
   ]);
   const now = Date.now();
   for (const v of volumes) if (!firstSeen.has(v)) firstSeen.set(v, now);
-  return { volumes, profiles: data.profiles, notifications: notes.items };
+  return { volumes, profiles: data.profiles, notifications: notes.items, settings };
 }
 
 async function broadcastState() {
@@ -70,10 +76,32 @@ app.whenReady().then(() => {
 
   broadcastState();
   setInterval(broadcastState, 2000);
+  void launchTelemetry();
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+});
+
+async function launchTelemetry() {
+  await noteLaunchVersion();
+  await track('app_launched', {
+    version: app.getVersion(),
+    macos: process.getSystemVersion(),
+    arch: process.arch,
+    locale: app.getLocale(),
+    profiles: Object.keys((await loadProfiles()).profiles).length,
+  });
+  await flush();
+}
+
+// Best-effort telemetry flush on quit, never more than ~1 s.
+let quitFlushed = false;
+app.on('before-quit', (e) => {
+  if (quitFlushed) return;
+  quitFlushed = true;
+  e.preventDefault();
+  flushBeforeQuit().finally(() => app.quit());
 });
 
 app.on('window-all-closed', () => {
@@ -81,6 +109,20 @@ app.on('window-all-closed', () => {
 });
 
 ipcMain.handle('state:get', async () => readState());
+
+ipcMain.handle('settings:get', async () => loadSettings());
+
+ipcMain.handle('settings:set', async (_e, patch: SettingsPatch) => {
+  const before = await loadSettings();
+  const after = await updateSettings(patch);
+  if (before.telemetry !== 'on' && after.telemetry === 'on') {
+    await track('telemetry_toggled', { state: 'on' });
+    void flush();
+  }
+  if (after.telemetry !== 'on') await dropQueue();
+  broadcastState();
+  return after;
+});
 
 ipcMain.handle('profile:save', async (_e, profile: Profile) => {
   const data = await saveProfile(profile);
@@ -124,7 +166,13 @@ ipcMain.handle(
     folderPaths: string[],
     flattenFolders: string[] = [],
   ) => {
-    const plan = await buildPlan(originVolume, destVolume, folderPaths, flattenFolders);
+    let plan: TransferPlan;
+    try {
+      plan = await buildPlan(originVolume, destVolume, folderPaths, flattenFolders);
+    } catch (e) {
+      void track('transfer_failed', { stage: 'plan', errorType: errorType(e) });
+      throw e;
+    }
     activePlan = plan;
     activeSources = new Set(plan.folders.flatMap((f) => f.toCopy.map((file) => file.absPath)));
     return {
@@ -144,15 +192,94 @@ ipcMain.handle(
   },
 );
 
+// One bell entry per transfer: done, failed (any file failed, or the run threw) or cancelled.
+async function recordTransfer(plan: TransferPlan, startedAt: number, report: VerifyReport[] | null) {
+  const rows = report ?? [];
+  const sum = (k: 'filesCopied' | 'filesVerified' | 'filesSkipped' | 'filesFailed') =>
+    rows.reduce((a, r) => a + r[k], 0);
+  const failed = sum('filesFailed');
+  const kind: TransferKind = cancelFlag
+    ? 'transfer-cancelled'
+    : !report || failed > 0
+      ? 'transfer-failed'
+      : 'transfer-done';
+  await addTransferNotification({
+    kind,
+    at: Date.now(),
+    origin: plan.originVolume,
+    destination: plan.destVolume,
+    summary: {
+      copied: sum('filesCopied'),
+      verified: sum('filesVerified'),
+      skipped: sum('filesSkipped'),
+      failed,
+      failedNames: rows.flatMap((r) => r.failed.map((f) => f.relPath)).slice(0, 10),
+      durationMs: Date.now() - startedAt,
+    },
+  });
+  broadcastState();
+}
+
 ipcMain.handle('transfer:start', async () => {
   if (!activePlan) throw new Error('No plan built');
+  const plan = activePlan;
+  const startedAt = Date.now();
   cancelFlag = false;
+  bytesDone = 0;
+  void track('transfer_started', {
+    folders: plan.folders.length,
+    files: plan.folders.reduce((a, f) => a + f.toCopy.length, 0),
+    bytes: plan.folders.reduce((a, f) => a + f.totalBytesToCopy, 0),
+    flatten: plan.folders.some((f) => f.flatten),
+  });
+  try {
+    const report = await runTransfer(plan);
+    await recordTransfer(plan, startedAt, report).catch(() => {});
+    trackOutcome(startedAt, report);
+    win?.webContents.send('transfer:done', report);
+    return report;
+  } catch (e) {
+    await recordTransfer(plan, startedAt, null).catch(() => {});
+    void track('transfer_failed', { stage: 'copy', errorType: errorType(e) }).then(flush);
+    throw e;
+  }
+});
+
+// Bytes copied in the current transfer (for telemetry only).
+let bytesDone = 0;
+
+// A code or class name only: an error message can hold a path.
+function errorType(e: any): string {
+  const t = typeof e?.code === 'string' ? e.code : typeof e?.name === 'string' ? e.name : 'Error';
+  return /^[A-Za-z0-9_]{1,40}$/.test(t) ? t : 'Error';
+}
+
+function trackOutcome(startedAt: number, report: VerifyReport[]) {
+  const durationMs = Date.now() - startedAt;
+  const sum = (k: 'filesCopied' | 'filesVerified' | 'filesSkipped' | 'filesFailed') =>
+    report.reduce((a, r) => a + r[k], 0);
+  const done = cancelFlag
+    ? track('transfer_cancelled', { bytesDone, durationMs })
+    : track('transfer_finished', {
+        copied: sum('filesCopied'),
+        verified: sum('filesVerified'),
+        skipped: sum('filesSkipped'),
+        failed: sum('filesFailed'),
+        bytes: bytesDone,
+        durationMs,
+        mbps: durationMs > 0 ? Math.round((bytesDone / 1e6 / (durationMs / 1000)) * 10) / 10 : 0,
+      });
+  void done.then(flush);
+}
+
+function runTransfer(plan: TransferPlan): Promise<VerifyReport[]> {
   let lastSource = '';
   let lastVerifySent = 0;
-  const report = await executePlan(
-    activePlan,
+  return executePlan(
+    plan,
     (p: CopyProgress, absPath: string) => {
       win?.webContents.send('transfer:progress', p);
+      bytesDone = p.bytesCopiedOverall;
       // First progress event of a file = "file started" (the progress payload stays unchanged).
       if (absPath !== lastSource) {
         lastSource = absPath;
@@ -169,9 +296,7 @@ ipcMain.handle('transfer:start', async () => {
     },
     app.getVersion(),
   );
-  win?.webContents.send('transfer:done', report);
-  return report;
-});
+}
 
 ipcMain.handle('transfer:cancel', async () => {
   cancelFlag = true;

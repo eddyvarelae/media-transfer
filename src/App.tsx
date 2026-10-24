@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type {
   AppState,
   PlanSummary,
@@ -50,6 +50,8 @@ export default function App() {
   const [report, setReport] = useState<VerifyReport[] | null>(null);
   const [phase, setPhase] = useState<Phase>('idle');
   const [error, setError] = useState<string | null>(null);
+  const progressRef = useRef<HTMLElement>(null);
+  const scrolledFor = useRef(false);
 
   useEffect(() => {
     window.api.getState().then(setState);
@@ -93,6 +95,13 @@ export default function App() {
     }
   }, [mountedOrigins, mountedDestinations, originVolume, destVolume]);
 
+  // On Start, bring the progress section into view once it renders (BL-12).
+  useEffect(() => {
+    if (phase !== 'copying' || scrolledFor.current || !progressRef.current) return;
+    scrolledFor.current = true;
+    progressRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [phase, progress]);
+
   // Each file is read back right after its copy; once the last byte is copied, what remains is verifying.
   useEffect(() => {
     if (phase === 'copying' && progress && progress.bytesCopiedOverall >= progress.totalBytesOverall)
@@ -131,6 +140,7 @@ export default function App() {
   async function doStart() {
     setError(null);
     setVerify(null);
+    scrolledFor.current = false;
     setPhase('copying');
     try {
       await window.api.startTransfer();
@@ -202,6 +212,7 @@ export default function App() {
       volumes={state.volumes}
       onLabel={setEditingVolume}
       onRemove={removeNotification}
+      onInstallUpdate={() => window.api.installUpdate()}
     />
   );
 
@@ -357,7 +368,7 @@ export default function App() {
         )}
 
         {(running || phase === 'done') && progress && (
-          <section className="progress-section">
+          <section className="progress-section" ref={progressRef}>
             <h2>
               {phase === 'done' ? 'Transfer complete' : phase === 'verifying' ? 'Verifying' : 'Transferring'}
             </h2>
