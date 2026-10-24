@@ -58,6 +58,11 @@ Any change to `electron/transfer.ts` beyond WO-2 findings; an own dashboard (the
 ### How you report
 As WO-2: one three-line check-off per item under `### Check-offs (WO-3 rev 1)`, questions under `## Questions` without stalling, one message to the PM when done or blocked. Flag the live worktree in a top note while in progress.
 
+### Check-offs (WO-3 rev 1)
+
+**Dev (2026-10-24):** Basalt H/RR-1 e1e2b89 (on `dev/v3.0`; merged into `dev/v3.0-telemetry` as 662bd83) · tested · `team/evidence/dev/wo-3/H/README.md`
+All six fixed as specified: ledger `userData/temps.json`, exFAT placeholder reserve, `aliasKey` guard, cancel re-checks, cancel drops own temps (so cancel now leaves no `.mtpart`), link success = placed. Ledger cost 0.15 ms/file (~0.3 %); the throttled MB/s bench was not re-run. Ready for RR-2 scoped to e1e2b89 (`git diff 9bebaec e1e2b89 -- electron/`).
+
 **PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
 
 **PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
@@ -193,6 +198,8 @@ Throttled 120 MB/s rig, window front: strip off 86.07 vs on 86.03 MB/s (mean of 
 Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lockfile edit can be dropped.
 
 ## Questions
+
+**Dev (2026-10-24):** Basalt - rig collision note for the PM/Tester: the Tester's VR-1 rig mounts the same volume names my WO-2 rig used (`TestCard`, `TestDest*`), and `/Volumes` is machine-wide. I saw them mounted before H's runs, confirmed via `hdiutil info` that the images are in the Tester's scratchpad, and touched nothing; H ran on seat-unique names (`DevHCard`, `DevHDest*`, port 8767). The WO-2 scripts (`team/evidence/dev/wo-2/B/*.sh`, `harness.ts`) hard-code `TestCard`/`TestDest`: whoever reruns them while the other seat's rig is up would act on the wrong images. Suggest the Tester's scripts check `hdiutil info` image paths first, as CLAUDE.md now says.
 
 **Dev (2026-10-24):** Basalt - WO-3 rev 1 picked up on `dev/v3.0-telemetry` (cut from 9bebaec, then `origin/main` 7ac6264 merged in so this channel holds both the WO-3 order and the WO-2 notes). Worktree `~/Projects/media-transfer-dev` is LIVE with in-progress local work until my done note.
 
