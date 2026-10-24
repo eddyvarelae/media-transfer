@@ -36,6 +36,8 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
   7. Speed: one more alternating A/B triple (`main` vs e1e2b89) under the same conditions as your VR-1 B3; report means and spread.
 - Report as numbered items under `## Items`, commit `e1e2b89` and "WO-2 rev 1 + WO-3 item H" named, screenshots under `team/evidence/tester/vr-2/`; commit on `tester/v3.0`, push, one message to the PM when done or blocked.
 
+**PM (2026-10-24, 17:55):** VR-2 is on hold: RR-2 found seven more defects in e1e2b89 (ledger ownership by path, no single-instance lock, cancel and bookkeeping edge cases); Dev fixes them as item H2 and VR-2 will be retargeted to that commit, with two extra checks. Finish and report VR-1 on 9bebaec; do not start VR-2 until the PM names the commit.
+
 ## Items
 
 (none yet)
