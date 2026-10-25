@@ -5,6 +5,28 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-7 (2026-10-24) - WO-3 item K3: the five RR-6 findings on the probe and the settle wait (scoped re-review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff 90aecd0 b8c50ec -- electron/` (commit b8c50ec on `dev/v3.0`). Spec: WO-3 rev 1 item K3 and RR-6's findings with the PM triage above. Dev evidence: `git show b8c50ec:team/evidence/dev/wo-3/K3/README.md` (32 probe cases on APFS and exFAT, hook `MT_TEST_PROBE_FAIL`, in-app disarm-cancel on a forced-CAUTIOUS exFAT volume, full set on both volumes).
+
+Claims under review:
+1. The probe file is claimed and created exclusively as `probe-<run>.mtpart` and published with `noClobberRename` onto `probe-<run>.probe`; an existing file at either name is never replaced; the probe never throws and leaves the profile CAUTIOUS on any failure.
+2. `dropDisarmedPlaceholder` on a removal-disabled profile re-arms the entry and counts it.
+3. `lstatSettled` fails closed at the deadline (no identity; the entry keeps only its provisional identity and is counted); placement-path waits sample cancellation.
+4. The profile is reset to CAUTIOUS before every probe.
+5. The probe file is a ledger entry from claim to release, identified right after create, removed on every exit only by exact identity; what cannot be removed stays recorded and counts in `tempsLeft`.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1. A probe path (either name, any step, any error) that replaces, truncates or unlinks a file this run did not create, or that leaves a probe file neither removed nor recorded.
+- F2. A removal on a removal-disabled profile, in any path (`removeOwned`, `dropDisarmedPlaceholder`, probe cleanup, end-of-run cleanup).
+- F3. A settled-looking identity recorded from a synthetic inode at the deadline, or any removal authorized by a provisional identity beyond the K2 crash-leftover case.
+- F4. A profile from an earlier probe surviving into a failed one.
+- Regressions on RR-1..RR-6's resolved claims within this diff.
+
+Accepted limits (not findings): as in RR-6, plus Dev's stated choice that the identity-recording and cleanup waits are not cancel-aware (making them so would leave every exFAT cancel's temps behind); they are bounded by the settle deadline, which is reached only when an external process holds the file open. A cancel in that pathological case may take up to that deadline to return.
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
 ### RR-6 (2026-10-24) - WO-3 items K + K2: exFAT placement fix (per-volume identity probe) and crash-leftover recovery (scoped re-review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff bba1c7b 90aecd0 -- electron/` (commits cf4a0fc and 90aecd0 on `dev/v3.0`). Spec: WO-3 rev 1 items K and K2 (top of `team/channels/dev-questions.md`); the Tester's VR-3 item 22 (`team/channels/tester-feedback.md`). Dev evidence: `git show 90aecd0:team/evidence/dev/wo-3/K/README.md` and `.../K2/README.md`. Root cause found by Dev: exFAT reports a synthetic negative inode while any handle on a file is open and for ~5-10 ms after the last close; empty files never get a real one.

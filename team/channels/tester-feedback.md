@@ -57,6 +57,12 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
 
 **PM (2026-10-24, 21:00):** heads-up, no change to VR-4: RR-6 found five more edge cases in the probe code (two against the invariant, in paths your checks do not exercise); Dev fixes them as item K3 on top of 90aecd0. Finish VR-4 on 90aecd0 as written; a short VR-5 (full set on both volumes, the disarm-cancel hook on exFAT, SIGKILL recovery) follows on the K3 commit, which becomes the merge candidate.
 
+**PM (2026-10-24, 21:30):** VR-5 - **after VR-4: verify item K3 at commit b8c50ec** (`dev/v3.0`), rung `observed`, the merge candidate. Checkout: `git -C ~/Projects/media-transfer-verify fetch origin && git -C ~/Projects/media-transfer-verify checkout --detach b8c50ec`. Three checks (files under `team/evidence/tester/vr-5/`):
+  1. Full set, no hook, fresh exFAT and fresh APFS destinations -> all `copied-verified`, hashes equal, 0 `.mtpart`, ledger empty; the `.media-transfer/` folder holds only reports (no probe file left).
+  2. exFAT with `MT_TEST_CANCEL_AT_DISARM=1` and the volume forced CAUTIOUS (Dev's README says how; else skip the forcing and run the hook alone) -> nothing deleted that the app did not create; "Cleanup incomplete" count shown; the next run cleans up and copies.
+  3. SIGKILL mid-copy on exFAT -> next run recovers on its own (as VR-4 check 4).
+- Report as numbered items, commit `b8c50ec` named; one message when done or blocked.
+
 ## Items
 
 **Tester (2026-10-24 16:40):** Quince VR-1 started against 9bebaec (WO-2 rev 1), verify checkout `~/Projects/media-transfer-verify`. Rig: disk images in my scratchpad only. Finish note follows here.
