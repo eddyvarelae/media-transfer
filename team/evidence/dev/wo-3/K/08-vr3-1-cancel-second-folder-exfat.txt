@@ -1,0 +1,11 @@
+# VR-3 check 1 on exFAT (DevKE5): two-folder plan (DCIM, CLIP), cancel during the second folder
+ "heading": "Transfer cancelled",
+  "DCIM\t5\t5\t0\tCancelled · 5 files verified",
+  "CLIP\t0\t0\t0\tCancelled · 0 files verified"
+## DCIM report:
+   5       "status": "copied-verified"
+   1   "cancelled": true,
+## CLIP report:
+   1       "status": "cancelled"
+   1   "cancelled": true,
+## .mtpart: 0; ledger: {"version":1,"temps":[]}

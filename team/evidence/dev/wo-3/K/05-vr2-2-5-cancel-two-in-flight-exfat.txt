@@ -1,0 +1,21 @@
+# VR-2 checks 2 (cancel with two MP4s in flight) and 5 (ledger empty after a cancel) repeated on exFAT (DevKE2), in the app, no hook
+## run 1, Cancel at C0002's first chunk (C0001 being read back)
+ "heading": "Transfer cancelled",
+  "DCIM\t5\t5\t0\tCancelled · 5 files verified",
+  "CLIP\t0\t0\t0\tCancelled · 0 files verified"
+ "note": null,
+   "label": "DCIM",
+   "label": "CLIP",
+## after the cancel: ledger: {"version":1,"temps":[]}; .mtpart on DevKE2: 0; CLIP: 
+## CLIP report statuses:
+   2       "status": "cancelled"
+   1   "cancelled": true,
+## re-run
+ "heading": "Transfer complete",
+  "DCIM\t0\t0\t5\t5 files already there, nothing to copy",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+   "label": "DCIM",
+   "label": "CLIP",
+## after the re-run: ledger: {"version":1,"temps":[]}; .mtpart: 0
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  CLIP/C0001.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  CLIP/C0002.MP4

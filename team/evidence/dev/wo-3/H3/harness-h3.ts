@@ -21,7 +21,7 @@ if (mode === 'crash-after-publish') {
     const real = (fsp as any)[name];
     (fsp as any)[name] = async (a: string, b: string) => {
       await real(a, b);
-      if (!b.endsWith('.mtpart')) {
+      if (!b.endsWith('.mtpart') && !b.includes('/.media-transfer/')) {
         console.log(`## simulated crash right after ${name}(${a} -> ${b})`);
         console.log('## ledger at the crash'); console.log(ledger());
         process.exit(1);

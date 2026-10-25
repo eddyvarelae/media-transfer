@@ -1,0 +1,13 @@
+# VR-2 check 6 (B1, forced mismatch) on exFAT (DevKE4), in the app, MT_TEST_CORRUPT=X.JPG
+ "heading": "Transfer finished with failures",
+  "DCIM\t4\t4\t0\t✗ 1 file failed verification",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+  "DCIM100MSDCF/X.JPG · checksum mismatch after retry"
+     "relPath": "100MSDCF/X.JPG",
+     "destName": "X.JPG",
+## main log:
+checksum mismatch, attempt 1 of 2: /Volumes/DevKCard/DCIM/100MSDCF/X.JPG
+checksum mismatch, attempt 2 of 2: /Volumes/DevKCard/DCIM/100MSDCF/X.JPG
+## X.JPG or its temp on the destination: 0(0 = none); ledger: {"version":1,"temps":[]}
+      "status": "failed",
+      "reason": "checksum mismatch after retry"

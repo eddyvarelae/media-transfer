@@ -1,0 +1,17 @@
+# VR-2 check 4 (foreign temp) on exFAT (DevKE3), in the app: X.JPG.mtpart made by hand before the run
+9 -rwx------  1 varela  staff  29 Oct 24 18:04:58 2026 /Volumes/DevKE3/DevKCard/DCIM/X.JPG.mtpart
+2c5bbf2e0838a39dcbc396a108aca95685d9b930bce06118aaf7bce87bc80812  /Volumes/DevKE3/DevKCard/DCIM/X.JPG.mtpart
+ "heading": "Transfer finished with failures",
+  "DCIM\t4\t4\t0\t✗ 1 file failed verification",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+  "DCIM100MSDCF/X.JPG · temp name taken by an unknown file"
+     "relPath": "100MSDCF/X.JPG",
+     "destName": "X.JPG",
+## the hand-made file after:
+9 -rwx------  1 varela  staff  29 Oct 24 18:04:58 2026 /Volumes/DevKE3/DevKCard/DCIM/X.JPG.mtpart
+2c5bbf2e0838a39dcbc396a108aca95685d9b930bce06118aaf7bce87bc80812  /Volumes/DevKE3/DevKCard/DCIM/X.JPG.mtpart
+## report entry:
+      "status": "failed",
+      "reason": "temp name taken by an unknown file"
+    },
+## X.JPG under its final name: 1(1 = absent); ledger: {"version":1,"temps":[]}

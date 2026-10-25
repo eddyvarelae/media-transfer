@@ -1,0 +1,18 @@
+== DevKDestX
+  created (handle)             dev=16777303 ino=-647 birthtimeNs=1792890091500000000
+  written 1.5 MB (handle)      dev=16777303 ino=33723 birthtimeNs=1792890091500000000
+  closed, immediately (path)   dev=16777303 ino=33723 birthtimeNs=1792890091500000000
+  closed, settled (path)       dev=16777303 ino=33723 birthtimeNs=1792890091500000000
+  times set (handle)           dev=16777303 ino=33723 birthtimeNs=1792890091500000000
+  times set, closed (path)     dev=16777303 ino=33723 birthtimeNs=1792890091500000000
+  renamed (path)               dev=16777303 ino=33723 birthtimeNs=1792890091500000000
+  profile {"handleStable":false,"useBirth":true,"removalEnabled":true}
+== DevKDestA
+  created (handle)             dev=16777307 ino=672 birthtimeNs=1792890091508342569
+  written 1.5 MB (handle)      dev=16777307 ino=672 birthtimeNs=1792890091508342569
+  closed, immediately (path)   dev=16777307 ino=672 birthtimeNs=1792890091508342569
+  closed, settled (path)       dev=16777307 ino=672 birthtimeNs=1792890091508342569
+  times set (handle)           dev=16777307 ino=672 birthtimeNs=1792803691507999897
+  times set, closed (path)     dev=16777307 ino=672 birthtimeNs=1792803691507999897
+  renamed (path)               dev=16777307 ino=672 birthtimeNs=1792803691507999897
+  profile {"handleStable":true,"useBirth":false,"removalEnabled":true}
