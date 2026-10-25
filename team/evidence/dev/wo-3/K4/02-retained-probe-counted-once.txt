@@ -1,0 +1,13 @@
+# K4 #4: a retained probe file is counted once (APFS, DevKE13, MT_TEST_REMOVE_FAIL=1 so the probe's own unlink fails), in the app
+ "heading": "Transfer complete",
+  "DCIM\t5\t5\t0\t✓ 5 files verified",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+ "note": "Cleanup incomplete: 2 temporary files left on the destination. The next transfer to that folder removes them.",
+   "tempsLeft": 1,
+   "tempsLeft": 1,
+## probe files on the destination: 2 (one per folder); ledger entries: 2
+## next run, no hook (C0002.MP4 deleted on the destination so the run transfers something):
+ "heading": "Transfer complete",
+  "CLIP\t1\t1\t1\t✓ 1 file verified"
+ "note": null,
+## probe files after: 0; ledger: {"version":1,"temps":[]}

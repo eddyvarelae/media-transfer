@@ -110,6 +110,7 @@ export type VerifyReport = {
   reached: boolean;
   cancelled: boolean;
   tempsLeft: number;
+  stoppedError?: string;
   filesCopied: number;
   filesVerified: number;
   filesSkipped: number;

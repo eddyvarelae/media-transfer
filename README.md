@@ -185,11 +185,14 @@ removed from or overwritten on the destination.
   create is left alone, and that one file is reported as failed. If a
   temporary file can't be removed, the panel says "Cleanup incomplete" and
   the next transfer tries again.
-- **Cancelled and failed runs** read "Transfer cancelled" or "Transfer
-  finished with failures". Every planned folder gets a row; folders the
+- **Cancelled, failed and stopped runs** read "Transfer cancelled",
+  "Transfer finished with failures" or "Transfer stopped" (a folder could not
+  be written at all; its name and the error are shown, and the folders
+  finished before it keep their rows). Every planned folder gets a row; folders the
   cancel never reached say so. "Copied" counts files placed and verified
-  only. A cancelled run's report file says `"cancelled": true` and marks
-  the interrupted file `"status": "cancelled"`.
+  only. A cancelled run's report file says `"cancelled": true`, marks the
+  interrupted file `"status": "cancelled"` and lists the files it never
+  started as `"status": "not-started"`.
 - **Mismatch.** A read-back that doesn't match is copied once more; a
   second mismatch removes the temporary file and marks the file failed.
 - **Report file.** After every transfer each folder gets

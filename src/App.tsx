@@ -221,6 +221,7 @@ export default function App() {
   const running = phase === 'copying' || phase === 'verifying';
   const wasCancelled = phase === 'done' && !!report?.some((r) => r.cancelled);
   const hadFailures = phase === 'done' && !!report?.some((r) => r.filesFailed > 0);
+  const stopped = phase === 'done' ? report?.find((r) => r.stoppedError) ?? null : null;
   const tempsLeft = report?.reduce((a, r) => a + r.tempsLeft, 0) ?? 0;
 
   const topBar = (
@@ -391,7 +392,9 @@ export default function App() {
         {(running || phase === 'done') && progress && (
           <section className="progress-section" ref={progressRef}>
             <h2>
-              {wasCancelled ? (
+              {stopped ? (
+                <span className="fail-text">Transfer stopped</span>
+              ) : wasCancelled ? (
                 <span className="warn-text">Transfer cancelled</span>
               ) : hadFailures ? (
                 <span className="fail-text">Transfer finished with failures</span>
@@ -403,6 +406,11 @@ export default function App() {
                 'Transferring'
               )}
             </h2>
+            {stopped && (
+              <div className="fail-text stop-detail">
+                {stopped.label}: {stopped.stoppedError}
+              </div>
+            )}
             {phase === 'copying' && thumbsEnabled && <ThumbConveyor />}
             <div className="progress-bar">
               <div className="progress-fill" style={{ width: `${overallPct}%` }} />
@@ -502,7 +510,8 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 
 // What one folder's row says: failures first, then cancel, then what actually happened.
 function folderStatus(r: VerifyReport): { cls: string; text: string } {
-  if (!r.reached) return { cls: 'warn', text: 'Not reached (cancelled)' };
+  if (r.stoppedError) return { cls: 'fail', text: '✗ Stopped' };
+  if (!r.reached) return { cls: 'warn', text: r.cancelled ? 'Not reached (cancelled)' : 'Not reached' };
   if (r.filesFailed > 0) {
     return { cls: 'fail', text: `✗ ${plural(r.filesFailed, 'file', 'files')} failed verification` };
   }

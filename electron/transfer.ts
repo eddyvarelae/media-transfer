@@ -262,7 +262,7 @@ export type VerifyProgress = {
   totalBytesOverall: number;
 };
 
-export type FileStatus = 'copied-verified' | 'skipped' | 'failed' | 'cancelled';
+export type FileStatus = 'copied-verified' | 'skipped' | 'failed' | 'cancelled' | 'not-started';
 
 export type FileRecord = {
   source: string;
@@ -282,6 +282,8 @@ export type VerifyReport = {
   cancelled: boolean;
   // owned temporary files that could not be removed (kept in the ledger for the next run)
   tempsLeft: number;
+  // The folder whose step threw (mkdir of its destRoot, for instance): its plain error (WO-3 I3)
+  stoppedError?: string;
   filesCopied: number;
   filesVerified: number;
   filesSkipped: number;
@@ -317,17 +319,22 @@ export async function executePlan(
   // cancelled (also a cancel that lands during the last folder's final bookkeeping).
   const reached: { folder: FolderPlan; records: FileRecord[]; tempsLeft: number }[] = [];
   let runCancelled = false;
+  let current: FolderPlan | null = null;
+  let failure: unknown = null;
 
   await fsp.mkdir(plan.destBase, { recursive: true });
 
   try {
     for (const folder of plan.folders) {
+      current = folder;
       await fsp.mkdir(folder.destRoot, { recursive: true });
       // What identity means on this destination volume (WO-3 K), before anything is removed there.
       // The probe never throws: a failure leaves the CAUTIOUS profile (by path, no removals).
       const probe = await noClobberProbe(folder.destRoot, runId);
       console.log(`volume probe ${folder.label}: ${JSON.stringify(probe.profile)}`);
-      let tempsLeft = probe.left + (await noClobberCleanup(folder.destRoot, runId));
+      // Probe files that could not be removed stay this run's entries: the end-of-folder drop
+      // counts them once (K4), so probe.left is not added here.
+      let tempsLeft = await noClobberCleanup(folder.destRoot, runId);
       const run: Run = { runId, destRoot: folder.destRoot, shouldCancel: cancelRequested };
       let bytesCopiedFolder = 0;
       let filesCopied = 0;
@@ -438,14 +445,23 @@ export async function executePlan(
       await settle();
       // Nothing of this run stays in flight: on cancel that removes the temps that were being
       // copied or read back; otherwise only temps whose unlink failed after placement.
-      tempsLeft += await noClobberDropRun(runId);
+      tempsLeft += await noClobberDropRun(runId, folder.destRoot);
 
+      if (cancelled) {
+        // I3: the planned files this cancel never started are listed too.
+        const seen = new Set(records.map((r) => r.source));
+        for (const f of folder.toCopy) {
+          if (!seen.has(f.absPath)) records.push({ ...fileFacts(f, path.join(folder.destRoot, f.relPath)), status: 'not-started' });
+        }
+      }
       reached.push({ folder, records, tempsLeft });
       if (cancelled) {
         runCancelled = true;
         break;
       }
     }
+  } catch (e) {
+    failure = e;
   } finally {
     // Every exit, also an exception in a later folder (say mkdir of its destRoot failing):
     // completed folders keep their reports. One more cancel sample after the last
@@ -465,9 +481,19 @@ export async function executePlan(
     const flags = { reached: true, cancelled: runCancelled, tempsLeft: r.tempsLeft };
     reports.push(summarize(r.folder, r.records, flags));
   }
-  // Every planned folder gets a row; the ones a cancel never reached say so (no report file).
+  if (failure && current) {
+    // I3: the folder that threw gets its row with the plain error; the exception still
+    // propagates (H4), carrying every row so the app can show what completed.
+    const message = String((failure as any)?.message ?? failure);
+    reports.push({ ...summarize(current, [], { reached: true, cancelled: false, tempsLeft: 0 }), ok: false, stoppedError: message });
+  }
+  // Every planned folder gets a row; the ones never reached say so (no report file).
   for (const folder of plan.folders.slice(reports.length)) {
-    reports.push(summarize(folder, [], { reached: false, cancelled: true, tempsLeft: 0 }));
+    reports.push(summarize(folder, [], { reached: false, cancelled: !failure, tempsLeft: 0 }));
+  }
+  if (failure) {
+    if (failure instanceof Error) Object.assign(failure, { reports });
+    throw failure;
   }
   return reports;
 }

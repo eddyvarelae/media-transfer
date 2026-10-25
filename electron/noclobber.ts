@@ -13,6 +13,12 @@ import path from 'node:path';
  * unlink of a destination path goes through a `noClobber*` function in this file; grep for
  * `noClobber`.
  *
+ * "Removal disabled" (a volume profile with removalEnabled false) governs leftovers only: files
+ * of earlier runs, or files this run no longer holds open. It does not govern the publication
+ * step (hard link, then unlink of our own source name) nor the probe's own files, which this run
+ * claimed, created exclusively and identifies through its handle where that is stable, or by
+ * path right after the close otherwise (WO-3 RR-7 #1, PM requirement).
+ *
  * Threat model (accepted limit): the app assumes it is the only writer to the destination folder
  * during a transfer. Another process replacing a file between our last identity check and the
  * rename itself is not defended against; the exFAT placeholder is re-checked through its open
@@ -284,7 +290,8 @@ async function profileOf(p: string): Promise<VolumeProfile> {
   return e ? profileFor(e.destRoot) : CAUTIOUS;
 }
 
-// Dev-only hook MT_TEST_PROBE_FAIL=<step> (write | utimes | rename): the probe fails at that step.
+// Dev-only hook MT_TEST_PROBE_FAIL=<step> (write | stat-after-write | utimes | rename |
+// stat-after-publish): the probe fails at that step.
 const TEST_PROBE_FAIL = process.env.MT_TEST_PROBE_FAIL || '';
 
 function probeStep(step: string) {
@@ -331,8 +338,13 @@ export async function noClobberProbe(
       // still lets the cleanup remove it.
       const c = await lstatExact(probe);
       await setIdentity(probe, { dev: String(c.dev), ino: String(c.ino) });
+      // K4: the inode just recorded may be exFAT's synthetic one, which changes at the first
+      // write; dev + birthtime keep the record resolvable across that transition.
+      const ce = await ownerOf(probe);
+      if (ce) ce.provisional = { dev: String(c.dev), birthtimeNs: String(c.birthtimeNs) };
       probeStep('write');
       await fh.write(Buffer.alloc(1536 * 1024, 0x6d));
+      probeStep('stat-after-write');
       h1 = show('written 1.5 MB (handle)', await fh.stat({ bigint: true }));
     } finally {
       await fh.close();
@@ -354,12 +366,13 @@ export async function noClobberProbe(
     await setIdentity(probe, { dev: String(p2.dev), ino: String(p2.ino) });
     // Publication exactly like a placement: link, or the exclusive placeholder; never a rename
     // over an existing name.
+    // K4: the published name adopts the probe's record before the source's is released.
     probeStep('rename');
-    if ((await noClobberRename(probe, published, destRoot, runId, () => false)) !== 'placed') {
+    if ((await noClobberRename(probe, published, destRoot, runId, () => false, true)) !== 'placed') {
       throw new Error('probe publication cancelled');
     }
+    probeStep('stat-after-publish');
     const p3 = show('published (path)', await lstatSettled(published));
-    await claim(published, destRoot, runId);
     await setIdentity(published, { dev: String(p3.dev), ino: String(p3.ino) });
 
     const sameFile = (a: fs.BigIntStats, b: fs.BigIntStats) => a.dev === b.dev && a.ino === b.ino;
@@ -398,12 +411,17 @@ async function dropProbeFile(p: string): Promise<boolean> {
     await forget(p);
     return true;
   }
-  if (!e.identity || e.identity.dev !== String(st.dev) || e.identity.ino !== String(st.ino)) {
-    if (!e.identity) return false; // created but never identified: kept on record, reported
+  const byIdentity = !!e.identity && e.identity.dev === String(st.dev) && e.identity.ino === String(st.ino);
+  const byProvisional =
+    !!e.provisional && e.provisional.dev === String(st.dev) && e.provisional.birthtimeNs === String(st.birthtimeNs);
+  if (!byIdentity && !byProvisional) {
+    // Unresolved (no identity, or exFAT's synthetic inode that has since changed): kept, counted.
+    if (!e.identity || BigInt(e.identity.ino) < 0n) return false;
     await forget(p); // a different file there now: left alone
     return true;
   }
   try {
+    if (TEST_REMOVE_FAIL) throw Object.assign(new Error('EPERM (MT_TEST_REMOVE_FAIL)'), { code: 'EPERM' });
     await fsp.unlink(p);
   } catch {
     return false;
@@ -652,10 +670,12 @@ export async function noClobberDropTemp(temp: string): Promise<boolean> {
  * Removes every temp and placeholder this run still has on record (cancel, end of run), each
  * only on an identity match. Resolves the number that could not be removed.
  */
-export async function noClobberDropRun(runId: string): Promise<number> {
+export async function noClobberDropRun(runId: string, destRoot: string): Promise<number> {
   let left = 0;
+  // Per destination folder (K4): an entry retained in an earlier folder of the run is that
+  // folder's to count, not every later folder's too.
   for (const e of [...(await entries()).values()]) {
-    if (e.runId === runId && (await removeOwned(e.path)) === 'failed') left += 1;
+    if (e.runId === runId && e.destRoot === destRoot && (await removeOwned(e.path)) === 'failed') left += 1;
   }
   return left;
 }
@@ -685,6 +705,7 @@ export async function noClobberRename(
   destRoot: string,
   runId: string,
   shouldCancel: () => boolean,
+  adopt = false, // the probe (K4): the published name keeps the source's ownership record
 ): Promise<'placed' | 'cancelled'> {
   try {
     await assertOwned(temp, shouldCancel);
@@ -702,12 +723,33 @@ export async function noClobberRename(
     if (e?.code === 'EEXIST') throw new ClobberError(target);
     if (!['ENOTSUP', 'EPERM', 'EXDEV', 'ENOSYS', 'EOPNOTSUPP'].includes(e?.code)) throw e;
   }
-  if (!linked) return placeViaPlaceholder(temp, target, destRoot, runId, shouldCancel);
+  if (!linked) return placeViaPlaceholder(temp, target, destRoot, runId, shouldCancel, adopt);
+  if (adopt) await adoptRecord(target, temp);
   await afterPublish(async () => {
     await fsp.unlink(temp);
     await forget(temp);
   });
   return 'placed';
+}
+
+/**
+ * K4: after publication the target carries the source's ownership record (same file: a hard
+ * link, or the renamed temp), set in memory before the source's record is released, never
+ * failing (written with the next deferred write).
+ */
+async function adoptRecord(target: string, from: string): Promise<void> {
+  const m = await entries();
+  const src = m.get(aliasKey(from));
+  const prev = m.get(aliasKey(target));
+  m.set(aliasKey(target), {
+    path: target,
+    destRoot: src?.destRoot ?? prev?.destRoot ?? '',
+    runId: src?.runId ?? prev?.runId ?? '',
+    createdAt: new Date().toISOString(),
+    identity: src?.identity ?? null,
+    ...(src?.provisional ? { provisional: src.provisional } : {}),
+  });
+  persistSoon();
 }
 
 /** Bookkeeping after a successful publication: errors are logged, entries kept for the next run. */
@@ -727,6 +769,7 @@ async function placeViaPlaceholder(
   destRoot: string,
   runId: string,
   shouldCancel: () => boolean,
+  adopt = false,
 ): Promise<'placed' | 'cancelled'> {
   if (await ownerOf(target)) throw new ClobberError(target);
   await claim(target, destRoot, runId);
@@ -770,9 +813,10 @@ async function placeViaPlaceholder(
   } finally {
     await fh.close().catch(() => {});
   }
+  if (adopt) await adoptRecord(target, temp);
   await afterPublish(async () => {
     await forget(temp);
-    await forget(target);
+    if (!adopt) await forget(target);
   });
   return 'placed';
 }

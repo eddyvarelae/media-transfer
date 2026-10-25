@@ -1,0 +1,96 @@
+== APFS: pre-existing file at the .mtpart probe name (MT_TEST_PROBE_FAIL=stat-after-write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=18 user file at .mtpart"]
+  ledger entries: 0
+== APFS: pre-existing file at the published probe name (MT_TEST_PROBE_FAIL=stat-after-write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=21 user file at .probe"]
+  ledger entries: 0
+== APFS: pre-existing files at both probe names (MT_TEST_PROBE_FAIL=stat-after-write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=25 user file at .mtpart","probe-RUNID.probe ino=26 user file at .probe"]
+  ledger entries: 0
+== APFS: no pre-existing file (MT_TEST_PROBE_FAIL=stat-after-write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: []
+  ledger entries: 0
+== APFS: pre-existing file at the .mtpart probe name (MT_TEST_PROBE_FAIL=stat-after-publish)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=18 user file at .mtpart"]
+  ledger entries: 0
+== APFS: pre-existing file at the published probe name (MT_TEST_PROBE_FAIL=stat-after-publish)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (Refusing to overwrite an existing file: /Volumes/DevK4A/k3-probe/.media-transfer/probe-RUNID.probe): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=21 user file at .probe"]
+  ledger entries: 0
+== APFS: pre-existing files at both probe names (MT_TEST_PROBE_FAIL=stat-after-publish)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=25 user file at .mtpart","probe-RUNID.probe ino=26 user file at .probe"]
+  ledger entries: 0
+== APFS: no pre-existing file (MT_TEST_PROBE_FAIL=stat-after-publish)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: []
+  ledger entries: 0
+== ExFAT: pre-existing file at the .mtpart probe name (MT_TEST_PROBE_FAIL=stat-after-write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=11 user file at .mtpart"]
+  ledger entries: 0
+== ExFAT: pre-existing file at the published probe name (MT_TEST_PROBE_FAIL=stat-after-write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=14 user file at .probe"]
+  ledger entries: 0
+== ExFAT: pre-existing files at both probe names (MT_TEST_PROBE_FAIL=stat-after-write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=401 user file at .mtpart","probe-RUNID.probe ino=402 user file at .probe"]
+  ledger entries: 0
+== ExFAT: no pre-existing file (MT_TEST_PROBE_FAIL=stat-after-write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: []
+  ledger entries: 0
+== ExFAT: pre-existing file at the .mtpart probe name (MT_TEST_PROBE_FAIL=stat-after-publish)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=11 user file at .mtpart"]
+  ledger entries: 0
+== ExFAT: pre-existing file at the published probe name (MT_TEST_PROBE_FAIL=stat-after-publish)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (Refusing to overwrite an existing file: /Volumes/DevK4E/k3-probe/.media-transfer/probe-RUNID.probe): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=14 user file at .probe"]
+  ledger entries: 0
+== ExFAT: pre-existing files at both probe names (MT_TEST_PROBE_FAIL=stat-after-publish)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=401 user file at .mtpart","probe-RUNID.probe ino=402 user file at .probe"]
+  ledger entries: 0
+== ExFAT: no pre-existing file (MT_TEST_PROBE_FAIL=stat-after-publish)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: []
+  ledger entries: 0

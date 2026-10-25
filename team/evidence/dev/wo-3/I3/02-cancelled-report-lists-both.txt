@@ -1,0 +1,8 @@
+# I3: cancel at CLIP's first chunk (APFS, DevKE15): the cancelled CLIP report lists both files
+ "heading": "Transfer cancelled",
+  "DCIM\t5\t5\t0\tCancelled · 5 files verified",
+  "CLIP\t0\t0\t0\tCancelled · 0 files verified"
+## CLIP report:
+cancelled: True
+   C0001.MP4 cancelled
+   C0002.MP4 not-started

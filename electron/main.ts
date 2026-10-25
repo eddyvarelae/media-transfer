@@ -245,7 +245,7 @@ async function recordTransfer(plan: TransferPlan, startedAt: number, report: Ver
   const failed = sum('filesFailed');
   const kind: TransferKind = cancelFlag
     ? 'transfer-cancelled'
-    : !report || failed > 0
+    : !report || failed > 0 || report.some((r) => r.stoppedError)
       ? 'transfer-failed'
       : 'transfer-done';
   await addTransferNotification({
@@ -284,9 +284,14 @@ ipcMain.handle('transfer:start', async () => {
     win?.webContents.send('transfer:done', report);
     return report;
   } catch (e) {
-    await recordTransfer(plan, startedAt, null).catch(() => {});
+    await recordTransfer(plan, startedAt, (e as any)?.reports ?? null).catch(() => {});
     void track('transfer_failed', { stage: 'copy', errorType: errorType(e) }).then(flush);
-    throw e;
+    // I3: a folder that threw still ends the run like any other: every row (completed folders
+    // with their counts, the failing one with its plain error) goes to the panel as usual.
+    const rows: VerifyReport[] | undefined = (e as any)?.reports;
+    if (!rows) throw e;
+    win?.webContents.send('transfer:done', rows);
+    return rows;
   }
 });
 
@@ -320,6 +325,9 @@ function trackOutcome(startedAt: number, report: VerifyReport[]) {
 function runTransfer(plan: TransferPlan): Promise<VerifyReport[]> {
   let lastSource = '';
   let lastVerifySent = 0;
+  let lastVerify: VerifyProgress | null = null;
+  // The throttle may have held back the last read-back update: always send it when the run ends.
+  const sendLastVerify = () => lastVerify && win?.webContents.send('transfer:verify', lastVerify);
   return executePlan(
     plan,
     (p: CopyProgress, absPath: string) => {
@@ -334,13 +342,14 @@ function runTransfer(plan: TransferPlan): Promise<VerifyReport[]> {
     () => cancelFlag,
     (v: VerifyProgress) => {
       // Read-back progress arrives per 1 MB chunk; ~10 updates/s are enough for the bar.
+      lastVerify = v;
       const now = Date.now();
       if (now - lastVerifySent < 100 && v.bytesVerifiedOverall < v.totalBytesOverall) return;
       lastVerifySent = now;
       win?.webContents.send('transfer:verify', v);
     },
     app.getVersion(),
-  );
+  ).finally(sendLastVerify);
 }
 
 ipcMain.handle('transfer:cancel', async () => {

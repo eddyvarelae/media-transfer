@@ -344,6 +344,7 @@ td.fail { color: var(--fail); }
 td.warn, .warn-text { color: var(--warn); }
 .fail-text { color: var(--fail); }
 .cleanup-note { margin-top: 10px; }
+.stop-detail { margin: -4px 0 10px; font-size: 13px; overflow-wrap: anywhere; }
 .failed-files {
   list-style: none;
   margin: 10px 0 0;

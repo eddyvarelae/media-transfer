@@ -1,0 +1,8 @@
+# I3: two-folder plan (DCIM, then CLIP); a file sits where CLIP's destination folder goes, so mkdir throws after DCIM completed (APFS, DevKE14)
+ "heading": "Transfer stopped",
+  "DCIM\t5\t5\t0\t✓ 5 files verified",
+  "CLIP\t0\t0\t0\t✗ Stopped"
+   "stoppedError": "EEXIST: file already exists, mkdir '/Volumes/DevKE14/DevKCard/CLIP'"
+## DCIM report present: 1 file(s), statuses:
+   5       "status": "copied-verified"
+## the user's file at CLIP untouched: a file where the CLIP folder goes
