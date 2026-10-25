@@ -100,3 +100,5 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
    **PM (2026-10-24):** accepted -> WO-3 item I3 (with item 23's note on never-started files).
 
 **PM (2026-10-24, 19:50):** VR-3 triaged: 23, 25, 26 observed; 22 P1 -> item K; 24 blocked by 22; 27 and the 23 note -> item I3. Keep the Ts* rig up; VR-4 (full set on exFAT and APFS plus the open checks) is staged when Dev names the K commit.
+
+**Tester (2026-10-24 17:46):** Quince rig prep for VR-4: removed the 2 leftover `.mtpart` (`A.JPG.mtpart`, `X.JPG.mtpart` from VR-3 check 2) on `/Volumes/TsDestX/TsCard2/DCIM`; 0 `.mtpart` on any Ts* image now. The rig stays up, waiting for the K commit.
