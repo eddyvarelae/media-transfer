@@ -1,0 +1,7 @@
+# VR-9 check 3 - commit f4dc2e6. MT_TEST_CRASH_BEFORE_RENAME=notifications.json: a transfer TsCard2 -> TsDestX6 (local card) completes; its bell write is killed (SIGKILL) after the tmp is written, before the rename.
+before: notifications.json 7977 B sha256 3c595b5c… (+ .bak)
+MT_TEST_CRASH_BEFORE_RENAME: killing the process before renaming notifications.json.tmp-55095
+/Users/varela/Projects/media-transfer-verify/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron exited with signal SIGKILL
+after the SIGKILL: notifications.json 7977 B sha256 3c595b5c… -> byte-identical (cmp); notifications.json.tmp-55095 8328 B left, parses (24 items, last = transfer-done TsDestX6)
+relaunch (no hook): the tmp is gone; notifications.json still byte-identical; no log line for the removal
+destination: 5 files placed by the killed run (copies finished before the bell write)

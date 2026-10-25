@@ -1,0 +1,18 @@
+## (a) 0-byte notifications.json, .bak present (7621 B, 22 items)
+-rw-r--r--  1 varela  wheel      0 Oct 24 20:03 notifications.json
+-rw-r--r--  1 varela  wheel   7621 Oct 24 20:02 notifications.json.bak
+bell: Notifications (22)
+log:
+notifications.json did not parse (0 bytes); restored from notifications.json.bak
+-rw-r--r--  1 varela  wheel   7621 Oct 24 20:03 notifications.json
+-rw-r--r--  1 varela  wheel   7621 Oct 24 20:02 notifications.json.bak
+restored file items 22
+content == .bak bytes
+
+## (b) 0-byte notifications.json, no .bak
+-rw-r--r--  1 varela  wheel      0 Oct 24 20:03 notifications.json
+bell: Notifications (0)
+log:
+notifications.json did not parse (0 bytes) and has no usable .bak; kept as notifications.json.corrupt-1792897415528, starting from the default
+-rw-r--r--  1 varela  wheel      0 Oct 24 20:03 notifications.json.corrupt-1792897415528
+notifications.json.corrupt-1792897415528: 0 B

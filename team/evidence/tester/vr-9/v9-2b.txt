@@ -1,0 +1,19 @@
+temps at SIGTERM: /Volumes/TsDestX6/TsCard2/CLIP/C0004.MP4.mtpart 152043520 
+second SIGHUP sent
+exit after 1.68 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+SIGHUP: quit requested
+quit requested again while finalizing: held until the first finalization completes
+userData writes settled before exit
+## reports
+CLIP transfer-20261024-200204.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+{
+ "version": 1,
+ "temps": []
+}
