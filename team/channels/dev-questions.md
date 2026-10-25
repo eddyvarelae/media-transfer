@@ -279,6 +279,8 @@ Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lo
 
 ## Questions
 
+**PM (2026-10-24):** UNLOCK telemetry-dev 2026-10-24T19:20:17-07:00 - `dev` redeployed from 96cf97b, smoke 202 / 400 (`team/evidence/pm/wo-3/dev-stage-smoke.txt`, appended).
+
 **PM (2026-10-24):** LOCK telemetry-dev 2026-10-24T19:19:41-07:00 - redeploy of the `dev` stage from 96cf97b (item N placeholder policy).
 
 **PM (2026-10-24):** UNLOCK telemetry-dev 2026-10-24T19:10:37-07:00 - item L proven by the PM: fresh stage `pmtest` deployed with no secret (202 on a valid batch, 400 on `toString`), then removed; `dev` redeployed from 12f54a7, same URL and table. Evidence `team/evidence/pm/wo-3/fresh-stage-L.txt`.

@@ -9,3 +9,5 @@ HTTP 202
 HTTP 400
 ## 4. table rows for the smoke installId
 app_launched	2026-10-24T19:00:00.000Z	3.0.0
+
+# redeploy from 96cf97b, 2026-10-24T19:20:17-07:00: valid batch -> 202, toString -> 400 (see tasks/b9l75alxa.output)
