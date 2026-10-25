@@ -1,0 +1,40 @@
+# N.1: three quit requests during one finalization, in the app (dev build, isolated userData), card DevMCard (exFAT image served at 120 MB/s) -> DevMDest9 (exFAT), MT_TEST_FINALIZE_DELAY_MS=1500 (holds the finalization open 1.5 s after the cancel so the repeats land inside it)
+# sequence: Start, 1 s later SIGTERM, +300 ms SIGTERM, +200 ms SIGINT
+exited 1.63 s after the first signal (cancel + 1.5 s hook delay + flush): one finalization, then one exit
+
+## main log (app-m9.log, Chromium noise filtered):
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+SIGTERM: quit requested
+quit requested again while finalizing: held until the first finalization completes
+SIGINT: quit requested
+quit requested again while finalizing: held until the first finalization completes
+
+## counts: finalizations=1, held requests=2
+
+## reports (both folders written, status per file):
+/Volumes/DevMDest9/DevMCard/DCIM/.media-transfer/transfer-20261024-191509.json: {'cancelled': True, 'tempsLeft': None} [(None, 'copied-verified'), (None, 'copied-verified'), (None, 'copied-verified')]
+/Volumes/DevMDest9/DevMCard/CLIP/.media-transfer/transfer-20261024-191509.json: {'cancelled': True, 'tempsLeft': None} [(None, 'copied-verified'), (None, 'cancelled'), (None, 'not-started')]
+
+## ledger after exit (ud-m9/temps.json):
+{
+ "version": 1,
+ "temps": []
+}
+## destination listing:
+/Volumes/DevMDest9/DevMCard
+/Volumes/DevMDest9/DevMCard/CLIP
+/Volumes/DevMDest9/DevMCard/CLIP/.media-transfer
+/Volumes/DevMDest9/DevMCard/CLIP/.media-transfer/transfer-20261024-191509.json
+/Volumes/DevMDest9/DevMCard/CLIP/C0001.MP4
+/Volumes/DevMDest9/DevMCard/DCIM
+/Volumes/DevMDest9/DevMCard/DCIM/.media-transfer
+/Volumes/DevMDest9/DevMCard/DCIM/.media-transfer/transfer-20261024-191509.json
+/Volumes/DevMDest9/DevMCard/DCIM/DSC00001.JPG
+/Volumes/DevMDest9/DevMCard/DCIM/DSC00002.JPG
+/Volumes/DevMDest9/DevMCard/DCIM/DSC00003.JPG
+
+# Why our own signal handlers: Electron answers the first SIGTERM/SIGINT itself (a quit) and resets the signal to its default action; before this fix the second SIGTERM killed the process mid-finalization (npm wrapper: 'Electron exited with signal SIGTERM'). Installing process.on handlers at startup broke even the first signal, so they are installed in before-quit (holdSignals), after Electron's own handling.
+
+# baseline (same build, fresh DevMDest8, no transfer): one SIGTERM -> exited after 0.08 s

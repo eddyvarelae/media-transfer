@@ -7,7 +7,7 @@ import { BatchWriteCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb
 import type { APIGatewayProxyEventV2 } from "aws-lambda";
 
 process.env.SST_RESOURCE_Events = JSON.stringify({ name: "local-events", type: "sst.aws.Dynamo" });
-process.env.SST_RESOURCE_PosthogKey = JSON.stringify({ value: "phc_test_key_not_real", type: "sst.sst.Secret" });
+process.env.SST_RESOURCE_PosthogKey = JSON.stringify({ value: "phc_TESTkeyNOTrealAAAAAAAAAAAAAAAAAAAAAAAAAA", type: "sst.sst.Secret" });
 
 const stored: any[] = [];
 const ddb = mockClient(DynamoDBDocumentClient);
@@ -52,7 +52,7 @@ check("item shape: pk installId, sk <at>#<name>#<uuid>, receivedAt, app, os, pro
   JSON.stringify(item));
 check("no IP or request context stored", !JSON.stringify(stored).match(/sourceIp|"ip"|127\.0\.0\.1/));
 const ph = posthogCalls[0];
-check("PostHog: us.i.posthog.com/batch, api_key from the secret", ph.url === "https://us.i.posthog.com/batch/" && ph.body.api_key === "phc_test_key_not_real");
+check("PostHog: us.i.posthog.com/batch, api_key from the secret", ph.url === "https://us.i.posthog.com/batch/" && ph.body.api_key === "phc_TESTkeyNOTrealAAAAAAAAAAAAAAAAAAAAAAAAAA");
 check("PostHog: distinct_id = installId, event name as-is, $geoip_disable, no $set",
   ph.body.batch.every((e: any) => e.distinct_id === captured[0].installId && e.properties.$geoip_disable === true && !("$set" in e.properties)) &&
   ph.body.batch[0].event === captured[0].events[0].name);

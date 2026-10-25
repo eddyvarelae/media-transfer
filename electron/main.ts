@@ -128,10 +128,14 @@ async function launchTelemetry() {
 // SIGTERM), so the deferred quit ends with app.exit(). While a downloaded update waits to
 // install on quit, the quit is left alone: electron-updater installs it from the normal quit
 // path, and the queue is on disk for the next launch anyway.
-let quitFlushed = false;
 // RR-8 #1: an active transfer is cancelled and its finalization (reports, ledger writes) awaited
-// before anything exits; a cancel returns promptly, so the wait is bounded at a few seconds.
+// before anything exits. The wait is bounded at 5 s: beyond that the quit proceeds (logged) and
+// the next run's cleanup recovers whatever was left (RR-9, PM requirement).
 const FINALIZE_MAX_MS = 5000;
+
+// Dev-only hook MT_TEST_FINALIZE_DELAY_MS=<ms>: the finalization takes that much longer, so a
+// second quit request can be shown arriving while it runs.
+const TEST_FINALIZE_DELAY_MS = Number(process.env.MT_TEST_FINALIZE_DELAY_MS) || 0;
 
 async function finalizeBeforeExit(): Promise<void> {
   if (activeRun) {
@@ -143,19 +147,51 @@ async function finalizeBeforeExit(): Promise<void> {
     if (timedOut) console.warn(`transfer did not finalize within ${FINALIZE_MAX_MS} ms; exiting anyway`);
     else console.log('active transfer cancelled and finalized before exit');
   }
+  if (TEST_FINALIZE_DELAY_MS) await new Promise((r) => setTimeout(r, TEST_FINALIZE_DELAY_MS));
   await flushBeforeQuit();
 }
 
+// RR-9 #1: one finalization per process. Every quit request (a second Quit, a signal, Restart
+// to install) is held with preventDefault until that finalization completed; the final quit is
+// authorized once, after it.
+let finalizing: Promise<void> | null = null;
+let exitAuthorized = false;
+
+function finalizeOnce(): Promise<void> {
+  return (finalizing ??= finalizeBeforeExit());
+}
+
+// Electron answers the first SIGTERM / SIGINT itself (a quit) and then resets the signal to its
+// default action, so a second signal would kill the process in the middle of the finalization.
+// From the first quit request on, our own handlers turn every further signal into a quit request
+// (held below). Removing and re-adding the listeners makes libuv install its handler again.
+function holdSignals() {
+  for (const sig of ['SIGTERM', 'SIGINT'] as const) {
+    process.removeAllListeners(sig);
+    process.on(sig, () => {
+      console.log(`${sig}: quit requested`);
+      app.quit();
+    });
+  }
+}
+
 app.on('before-quit', (e) => {
-  if (quitFlushed) return;
-  // Nothing running and an update waiting: electron-updater's normal quit path installs it.
-  if (!activeRun && updateWaiting()) {
+  if (exitAuthorized) return;
+  holdSignals();
+  // Nothing running, nothing finalizing, an update waiting: electron-updater's normal quit path
+  // installs it.
+  if (!finalizing && !activeRun && updateWaiting()) {
     console.log('update waiting and no transfer: the normal quit path installs it');
+    exitAuthorized = true;
     return;
   }
-  quitFlushed = true;
   e.preventDefault();
-  finalizeBeforeExit().finally(() => {
+  if (finalizing) {
+    console.log('quit requested again while finalizing: held until the first finalization completes');
+    return;
+  }
+  finalizeOnce().finally(() => {
+    exitAuthorized = true;
     // Re-checked here (RR-8 #4): an update that finished downloading meanwhile still installs.
     if (!(updateWaiting() && installNow(false))) app.exit(0);
   });
@@ -217,8 +253,8 @@ ipcMain.handle('notification:remove', async (_e, id: string) => {
 // RR-8 #5: only a packaged build with a downloaded update may install; anything else is refused.
 ipcMain.handle('update:install', async () => {
   if (!updateReady()) throw new Error('No downloaded update to install');
-  quitFlushed = true;
-  await finalizeBeforeExit();
+  await finalizeOnce();
+  exitAuthorized = true;
   installNow(true);
 });
 

@@ -62,10 +62,11 @@ export async function store(batch: Batch): Promise<void> {
 
 /** Forwards to PostHog; a failure is logged (count only) and never fails the request. */
 export async function forward(batch: Batch): Promise<"ok" | "failed" | "skipped"> {
-  // Only a PostHog project key is used; empty (the non-production default) or a placeholder such
-  // as "unset" means: store only, skip the forward.
+  // Only a value shaped like a real PostHog project key is used (RR-9 #3); empty (the
+  // non-production default) or a placeholder such as "unset" / "phc_unset" means: store only,
+  // skip the forward.
   const apiKey = Resource.PosthogKey.value;
-  if (!/^phc_\w+$/.test(apiKey ?? "")) return "skipped";
+  if (!/^phc_[A-Za-z0-9]{32,}$/.test(apiKey ?? "")) return "skipped";
   try {
     const res = await fetch(POSTHOG_BATCH_URL, {
       method: "POST",

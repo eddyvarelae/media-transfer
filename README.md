@@ -232,12 +232,19 @@ names are never sent. The only other network call is the update check.
 
 ---
 
-## Updates
+## Updates and quitting
 
 Media Transfer checks GitHub Releases at launch and every 6 hours, downloads
 a new version in the background and installs it when you quit, or right
 away from the bell's **Restart to install**. Switch it off in the gear
 panel ("Check for updates automatically").
+
+Quitting while a transfer runs cancels it and waits for the app to finish
+its bookkeeping (the report files and its record of temporary files)
+before it exits or installs an update; quitting again in the meantime just
+waits for the same thing. That wait is bounded at 5 seconds: beyond that the
+quit proceeds (and says so in the log), and the next transfer's cleanup
+recovers whatever was left.
 
 ---
 
