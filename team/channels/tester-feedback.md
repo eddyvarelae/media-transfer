@@ -202,3 +202,5 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
 
 57. Check 1 PASS · 592f74b · observed. With `MT_TEST_FINALIZE_DELAY_MS=1500`, SIGHUP 1.5 s into a throttled exFAT transfer, then a second SIGHUP 200 ms later: "SIGHUP: quit requested", then "quit requested again while finalizing: held until the first finalization completes". One finalization, one CLIP report (C0004 `cancelled`, C0005 `not-started`), 0 `.mtpart`, ledger `[]`, one exit at 1.63 s; next run 5/5 verified. `1-sighup-held.txt`
 58. Check 2 PASS · 592f74b · observed. `MT_TEST_UPDATE=1` + delay: "Restart to install", then SIGTERM 0.3 s later → "install did not exit: releasing the held quit", exit 1.19 s, no process left. Extra: "Restart to install" with no quit held leaves the app open (alive after 4 s), and a later SIGTERM exits in 0.19 s via the update-ready path. `2-restart-then-quit.txt`
+
+**PM (2026-10-24):** VR-8 triaged: 57, 58 observed (item P verified). Release gate now = RR-12 + VR-9 on the item R commit.
