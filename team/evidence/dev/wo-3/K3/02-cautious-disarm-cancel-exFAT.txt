@@ -1,0 +1,30 @@
+# K3: exFAT (DevKE10) forced CAUTIOUS (MT_TEST_PROBE_FAIL=write) + MT_TEST_CANCEL_AT_DISARM=1, in the app
+ "heading": "Transfer cancelled",
+  "DCIM\t0\t0\t0\tCancelled · 0 files verified",
+  "CLIP\t0\t0\t0\tNot reached (cancelled)"
+ "note": "Cleanup incomplete: 3 temporary files left on the destination. The next transfer to that folder removes them.",
+volume probe DCIM: {"handleStable":false,"useBirth":false,"removalEnabled":false}
+## destination (incl. .media-transfer):
+43078 DCIM/A.JPG.mtpart
+3145728 DCIM/DSC00001.JPG.mtpart
+0 DCIM/A.JPG
+## ledger:
+   A.JPG.mtpart identity
+   DSC00001.JPG.mtpart identity
+   A.JPG identity
+## next run, no hook (probe succeeds, removals enabled):
+ "heading": "Transfer complete",
+  "DCIM\t5\t5\t0\t✓ 5 files verified",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+ "note": null,
+## after: zero-byte finals 0, .mtpart anywhere 0, probe files 0; ledger: {"version":1,"temps":[]}
+CLIP:
+C0001.MP4
+C0002.MP4
+
+DCIM:
+A.JPG
+DSC00001-9f054d15.JPG
+DSC00001.JPG
+X.JPG
+a-12696f3b.JPG
