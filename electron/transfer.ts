@@ -501,17 +501,27 @@ async function copyToTemp(
   onCopyChunk: (bytes: number) => void,
   waitInFlight: () => Promise<void> = async () => {},
 ): Promise<string | 'cancelled'> {
+  // Ask the card for the file's first 1 MB now (WO-3 J): on a card a new file's first read is the
+  // slow part, so preparing the temp (claim, exclusive create) overlaps it instead of preceding it.
+  const rs = fs.createReadStream(file.absPath, { highWaterMark: 1024 * 1024 });
+  rs.on('error', () => {}); // reported by copyHashing, or moot when the temp can't be prepared
+  rs.read(0);
   let writer: TempWriter;
   try {
-    writer = await noClobberTempStream(temp, run.destRoot, run.runId);
+    try {
+      writer = await noClobberTempStream(temp, run.destRoot, run.runId);
+    } catch (e) {
+      if (!(e instanceof TempBusyError)) throw e;
+      await waitInFlight();
+      writer = await noClobberTempStream(temp, run.destRoot, run.runId);
+    }
   } catch (e) {
-    if (!(e instanceof TempBusyError)) throw e;
-    await waitInFlight();
-    writer = await noClobberTempStream(temp, run.destRoot, run.runId);
+    rs.destroy();
+    throw e;
   }
   let sha256: string | null;
   try {
-    sha256 = await copyHashing(file.absPath, writer.ws, onCopyChunk, run.shouldCancel);
+    sha256 = await copyHashing(rs, writer.ws, onCopyChunk, run.shouldCancel);
   } finally {
     // Every ending (done, cancel, error) records the written file's identity and closes it.
     // Not awaited (WO-3 J): the gate's reads, checks and removals of this temp wait for it.
@@ -657,14 +667,14 @@ async function flipOneByte(temp: string): Promise<void> {
  * overlaps the card read instead of delaying it; setImmediate is FIFO, so the digest comes last.
  */
 function copyHashing(
-  src: string,
+  rs: fs.ReadStream,
   ws: fs.WriteStream,
   onChunk: (bytes: number) => void,
   shouldCancel: () => boolean,
 ): Promise<string | null> {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('sha256');
-    const rs = fs.createReadStream(src, { highWaterMark: 1024 * 1024 });
+    if (rs.errored) return reject(rs.errored);
     let settled = false;
     const settle = (fn: () => void) => {
       if (!settled) {

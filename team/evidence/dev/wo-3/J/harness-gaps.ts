@@ -8,22 +8,18 @@ import * as nc from "NOCLOBBER_PATH";
   if ((nc as any).setLedgerFile) (nc as any).setLedgerFile(process.env.LEDGER);
   const plan = await buildPlan("DevBCard", "DevBDest", ["DCIM", "PRIVATE/M4ROOT/CLIP", "PRIVATE/M4ROOT/THMBNL"], ["DCIM"]);
   if (!plan.destBase.startsWith("/Volumes/DevBDest/")) throw new Error("not the rig");
-  const files = new Map<string, { first: number; last: number }>();
-  let order: string[] = [];
-  let bytes = 0;
+  // Transitions in event order: gap = first chunk of a file - last chunk of the previous one.
+  let prevKey = "", prevT = 0, gaps = 0, maxGap = 0, n = 0, bytes = 0, lastT = 0;
   const t0 = performance.now();
   await (executePlan as any)(plan, (p: any) => {
-    const k = p.folderLabel + "/" + p.currentFile;
-    const now = performance.now();
-    if (!files.has(k)) { files.set(k, { first: now, last: now }); order.push(k); } else files.get(k)!.last = now;
-    bytes = p.bytesCopiedOverall;
+    const now = performance.now() - t0;
+    const k = p.folderLabel + "/" + p.currentFile + "/" + p.filesCopied;
+    if (k !== prevKey) {
+      if (prevKey) { const g = now - prevT; gaps += g; maxGap = Math.max(maxGap, g); }
+      prevKey = k; n++;
+    }
+    prevT = now; lastT = now; bytes = p.bytesCopiedOverall;
   }, () => false, () => {}, "bench");
   const total = performance.now() - t0;
-  let gaps = 0, maxGap = 0;
-  for (let i = 1; i < order.length; i++) {
-    const g = files.get(order[i])!.first - files.get(order[i - 1])!.last;
-    gaps += g; maxGap = Math.max(maxGap, g);
-  }
-  const lastChunk = files.get(order[order.length - 1])!.last;
-  console.log(JSON.stringify({ files: order.length, MBps: +(bytes / 1e6 / (lastChunk / 1000)).toFixed(1), totalMs: Math.round(total), copyEndMs: Math.round(lastChunk), gapsMs: Math.round(gaps), meanGapMs: +(gaps / (order.length - 1)).toFixed(2), maxGapMs: Math.round(maxGap), tailMs: Math.round(total - lastChunk) }));
+  console.log(JSON.stringify({ files: n, MBps: +(bytes / 1e6 / (lastT / 1000)).toFixed(1), copyEndMs: Math.round(lastT), gapsMs: Math.round(gaps), meanGapMs: +(gaps / Math.max(1, n - 1)).toFixed(2), maxGapMs: Math.round(maxGap), tailMs: Math.round(total - lastT) }));
 })();
