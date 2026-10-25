@@ -78,7 +78,21 @@ async function broadcastState() {
   win.webContents.send('state:update', await readState());
 }
 
+// One instance per userData: the ownership ledger (temps.json) has exactly one writer, the
+// single active transfer. A second launch on the same userData focuses the first and quits.
+const singleInstance = app.requestSingleInstanceLock();
+if (!singleInstance) {
+  console.log('Media Transfer is already running with this user data; this instance quits.');
+  app.quit();
+}
+app.on('second-instance', () => {
+  if (!win) return;
+  if (win.isMinimized()) win.restore();
+  win.focus();
+});
+
 app.whenReady().then(() => {
+  if (!singleInstance) return;
   // Ownership ledger: the only temps and placeholders the app may ever replace or remove.
   setLedgerFile(path.join(app.getPath('userData'), 'temps.json'));
   createWindow();

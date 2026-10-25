@@ -107,6 +107,9 @@ export type VerifyProgress = {
 export type VerifyReport = {
   label: string;
   ok: boolean;
+  reached: boolean;
+  cancelled: boolean;
+  tempsLeft: number;
   filesCopied: number;
   filesVerified: number;
   filesSkipped: number;

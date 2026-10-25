@@ -341,6 +341,9 @@ th { color: var(--muted); font-weight: 500; font-size: 12px; text-transform: upp
 tr:last-child td { border-bottom: none; }
 td.ok { color: var(--ok); }
 td.fail { color: var(--fail); }
+td.warn, .warn-text { color: var(--warn); }
+.fail-text { color: var(--fail); }
+.cleanup-note { margin-top: 10px; }
 .failed-files {
   list-style: none;
   margin: 10px 0 0;

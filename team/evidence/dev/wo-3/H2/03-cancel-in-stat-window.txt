@@ -1,0 +1,52 @@
+# H2.3 (APFS, DevH2Dest3A) cancel while placement lstat()s the free final name
+## plan [["A.MP4","B.MP4"]]
+## cancel requested while lstat() of the final name is pending: /Volumes/DevH2Dest3A/DevH2Card/BIG/A.MP4
+## report [
+ {
+  "reached": true,
+  "cancelled": true,
+  "tempsLeft": 0,
+  "filesCopied": 0,
+  "filesVerified": 0,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 0
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+## MP4 or .mtpart anywhere on DevH2Dest3A:
+       0
+
+# H2.3 (ExFAT, DevH2Dest3E) cancel while placement lstat()s the free final name
+## plan [["A.MP4","B.MP4"]]
+## cancel requested while lstat() of the final name is pending: /Volumes/DevH2Dest3E/DevH2Card/BIG/A.MP4
+## report [
+ {
+  "reached": true,
+  "cancelled": true,
+  "tempsLeft": 0,
+  "filesCopied": 0,
+  "filesVerified": 0,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 0
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+## MP4 or .mtpart anywhere on DevH2Dest3E:
+       0
+

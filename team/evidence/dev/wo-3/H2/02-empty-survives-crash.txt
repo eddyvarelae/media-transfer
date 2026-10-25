@@ -1,0 +1,61 @@
+# H2.2 (APFS, DevH2Dest2A) zero-byte EMPTY/E.JPG placed, simulated crash right after the publishing call, then the next run
+## plan [["E.JPG"]]
+## simulated crash right after link(/Volumes/DevH2Dest2A/DevH2Card/EMPTY/E.JPG.mtpart -> /Volumes/DevH2Dest2A/DevH2Card/EMPTY/E.JPG)
+## ledger at the crash
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/DevH2Dest2A/DevH2Card/EMPTY/E.JPG.mtpart",
+   "identity": {
+    "dev": "16777289",
+    "ino": "18",
+    "birthtimeNs": "1792886278329999923"
+   }
+  }
+ ]
+}
+total 0
+-rw-r--r--  2 varela  staff  0 Oct 24 16:57 E.JPG
+-rw-r--r--  2 varela  staff  0 Oct 24 16:57 E.JPG.mtpart
+# next run
+  "filesCopied": 0,
+  "filesVerified": 0,
+  "filesSkipped": 1,
+  "filesFailed": 0,
+18 -rw-r--r--  1 varela  staff  0 Oct 24 16:57 E.JPG
+## E.JPG after:
+-rw-r--r--  1 varela  staff  0 Oct 24 16:57 /Volumes/DevH2Dest2A/DevH2Card/EMPTY/E.JPG
+
+# H2.2 (ExFAT, DevH2Dest2E) zero-byte EMPTY/E.JPG placed, simulated crash right after the publishing call, then the next run
+## plan [["E.JPG"]]
+## simulated crash right after rename(/Volumes/DevH2Dest2E/DevH2Card/EMPTY/E.JPG.mtpart -> /Volumes/DevH2Dest2E/DevH2Card/EMPTY/E.JPG)
+## ledger at the crash
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/DevH2Dest2E/DevH2Card/EMPTY/E.JPG.mtpart",
+   "identity": {
+    "dev": "16777301",
+    "ino": "-3",
+    "birthtimeNs": "1792887091920000000"
+   }
+  },
+  {
+   "path": "/Volumes/DevH2Dest2E/DevH2Card/EMPTY/E.JPG",
+   "identity": null
+  }
+ ]
+}
+total 0
+-rwx------  1 varela  staff  0 Oct 24 16:57 E.JPG
+# next run
+  "filesCopied": 0,
+  "filesVerified": 0,
+  "filesSkipped": 1,
+  "filesFailed": 0,
+18446744073709551604 -rwx------  1 varela  staff  0 Oct 24 16:57 E.JPG
+## E.JPG after:
+-rwx------  1 varela  staff  0 Oct 24 16:57 /Volumes/DevH2Dest2E/DevH2Card/EMPTY/E.JPG
+
