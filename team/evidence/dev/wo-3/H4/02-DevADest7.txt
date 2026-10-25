@@ -1,0 +1,20 @@
+# DevADest7: the DCIM destination folder is chmod 000
+{
+ "error": null,
+ "rows": [
+  "CLIP\t3\t3\t0\t✓ 3 files verified",
+  "DCIM\t0\t0\t0\t✗ 3 files failed verification"
+ ],
+ "failed": [
+  "DCIM100MSDCF/DSC00001.JPG · EACCES: permission denied, open '/Volumes/DevADest7/DevACard/DCIM/DSC00001.JPG.mtpart'",
+  "DCIM100MSDCF/DSC00002.JPG · EACCES: permission denied, open '/Volumes/DevADest7/DevACard/DCIM/DSC00002.JPG.mtpart'",
+  "DCIM100MSDCF/DSC00003.JPG · EACCES: permission denied, open '/Volumes/DevADest7/DevACard/DCIM/DSC00003.JPG.mtpart'"
+ ]
+}
+wrote team/evidence/dev/wo-3/H4/02-panel-DevADest7.png
+## CLIP report (first folder):
+transfer-20261024-172425.json
+   3       "status": "copied-verified"
+## main log:
+transfer report not written: [Error: EACCES: permission denied, mkdir '/Volumes/DevADest7/DevACard/DCIM/.media-transfer'] {
+  code: 'EACCES',

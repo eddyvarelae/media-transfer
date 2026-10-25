@@ -1,0 +1,13 @@
+# DevADest6: a file sits where the DCIM destination folder goes (mkdir(destRoot) throws)
+{
+ "error": "Error: Error invoking remote method 'transfer:start': Error: EEXIST: file already exists, mkdir '/Volumes/DevADest6/DevACard/DCIM'",
+ "rows": [],
+ "failed": []
+}
+wrote team/evidence/dev/wo-3/H4/01-panel-DevADest6.png
+## CLIP report (first folder):
+transfer-20261024-172415.json
+   3       "status": "copied-verified"
+## main log:
+Error occurred in handler for 'transfer:start': [Error: EEXIST: file already exists, mkdir '/Volumes/DevADest6/DevACard/DCIM'] {
+  code: 'EEXIST',
