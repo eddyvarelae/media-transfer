@@ -1,0 +1,8 @@
+# S.3 (RR-12 #3): MT_TEST_SETASIDE_FAIL=1 node s-unit.js setaside
+settings.json did not parse (20 bytes), has no usable .bak and could not be set aside (EIO); left as it is, nothing written
+   1 ms  read: rejected (settings.json is unreadable and could not be set aside)
+PASS  the operation fails
+PASS  settings.json untouched ({"installId":"trunc)
+PASS  no .corrupt copy claimed
+PASS  no default written
+ALL PASS

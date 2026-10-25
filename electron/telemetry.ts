@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { app } from 'electron';
 import { loadSettings } from './settings';
-import { readJson, writeJson } from './jsonstore';
+import { readJson, withFile } from './jsonstore';
 
 /**
  * Opt-in anonymous usage events (WO-3 B, PRIVACY.md). Nothing is queued or sent unless the
@@ -72,14 +72,12 @@ async function loadQueue(): Promise<QueueFile> {
   return queue;
 }
 
-// Writes run one at a time; the file always holds the latest queue.
-let writing: Promise<unknown> = Promise.resolve();
+// Writes run one at a time under the file's lock (registered at once for the quit, WO-3 S); the
+// file always holds the latest queue.
 function persist(): Promise<void> {
-  const next = writing.then(async () => {
-    if (queue) await writeJson(queuePath(), queue);
+  return withFile(queuePath(), async (tx) => {
+    if (queue) await tx.write(queue);
   });
-  writing = next.catch(() => undefined);
-  return next;
 }
 
 /** Queues one event if telemetry is on; never throws. */

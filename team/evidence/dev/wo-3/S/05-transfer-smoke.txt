@@ -1,0 +1,5 @@
+# S.5 smoke: one clean in-app transfer DevSCard (6 files, exFAT) -> DevSDest (exFAT), telemetry on, userData seeded with a v2.0 drive dismissal; then SIGTERM
+{"heading": "Transfer complete", "rows": ["DCIM\t5\t5\t0\t\u2713 5 files verified", "CLIP\t1\t1\t0\t\u2713 1 file verified"], "failed": []}
+userData writes settled before exit
+{"notifications.json": {"kinds": ["new-drive", "transfer-done"], "seed-drive kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_finished"]}, "profiles.json": {"profiles": ["DevSCard", "DevSDest"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; placed: 6

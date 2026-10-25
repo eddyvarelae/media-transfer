@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { app } from 'electron';
-import { readJson, writeJson } from './jsonstore';
+import { withFile, FileTx } from './jsonstore';
 
 export type TelemetryChoice = 'unasked' | 'on' | 'off';
 
@@ -33,36 +33,35 @@ function normalize(raw: any): Settings {
 
 let cached: Settings | null = null;
 
-/** Reads settings.json, creating it (with a fresh installId) on first run. */
-export async function loadSettings(): Promise<Settings> {
+// Under the file's lock (WO-3 S): the read, any normalizing write and the cache update are one
+// operation.
+async function loadIn(tx: FileTx): Promise<Settings> {
   if (cached) return cached;
-  const raw = (await readJson(filePath())).data;
+  const raw = (await tx.read()).data;
   const s = normalize(raw);
-  if (JSON.stringify(raw) !== JSON.stringify(s)) await write(s);
+  if (JSON.stringify(raw) !== JSON.stringify(s)) await tx.write(s, 2);
   cached = s;
   return s;
 }
 
-async function write(s: Settings): Promise<void> {
-  await writeJson(filePath(), s, 2);
+/** Reads settings.json, creating it (with a fresh installId) on first run. */
+export async function loadSettings(): Promise<Settings> {
+  if (cached) return cached;
+  return withFile(filePath(), loadIn);
 }
 
-// Read-modify-write runs one at a time.
-let queue: Promise<unknown> = Promise.resolve();
-
+/** Read-modify-write as one operation under the file's lock. */
 export function updateSettings(patch: SettingsPatch): Promise<Settings> {
-  const next = queue.then(async () => {
-    const cur = await loadSettings();
+  return withFile(filePath(), async (tx) => {
+    const cur = await loadIn(tx);
     const s: Settings = {
       ...cur,
       ...(patch.telemetry && ['on', 'off'].includes(patch.telemetry) ? { telemetry: patch.telemetry } : {}),
       ...(typeof patch.updateCheck === 'boolean' ? { updateCheck: patch.updateCheck } : {}),
       ...(patch.resetInstallId ? { installId: randomUUID() } : {}),
     };
-    await write(s);
+    await tx.write(s, 2);
     cached = s;
     return s;
   });
-  queue = next.catch(() => undefined);
-  return next;
 }

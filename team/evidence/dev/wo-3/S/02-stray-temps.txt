@@ -1,0 +1,14 @@
+# S.2 (RR-12 #2): node s-unit.js stray
+# live pid 47266 (sleep 30), dead pid 47271 (exited), this pid 47258
+before: notifications.json notifications.json.tmp- notifications.json.tmp-0123 notifications.json.tmp-47266 notifications.json.tmp-47271 notifications.json.tmp-notes
+left notifications.json.tmp- alone: not a temp of this app
+left notifications.json.tmp-0123 alone: not a temp of this app
+left notifications.json.tmp-47266 alone: process 47266 is running
+removed notifications.json.tmp-47271: left by process 47271, which is no longer running
+left notifications.json.tmp-notes alone: not a temp of this app
+after:  notifications.json notifications.json.tmp- notifications.json.tmp-0123 notifications.json.tmp-47266 notifications.json.tmp-notes
+PASS  tmp-47271 (dead) removed
+PASS  tmp-notes (not a pid) left
+PASS  tmp-47266 (running) left
+PASS  tmp-0123 and tmp- (not a plain pid) left
+ALL PASS

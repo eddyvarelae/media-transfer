@@ -24,7 +24,7 @@ import { setLedgerFile } from './noclobber';
 import { loadSettings, updateSettings, SettingsPatch } from './settings';
 import { track, flush, dropQueue, noteLaunchVersion, flushBeforeQuit, withIdReset } from './telemetry';
 import { startUpdates, updateItems, removeUpdateItem, installNow, updateWaiting, updateReady } from './updates';
-import { pendingWrites } from './jsonstore';
+import { pendingWrites, drainAndClose, closeStore, reopenStore } from './jsonstore';
 
 let win: BrowserWindow | null = null;
 let activePlan: TransferPlan | null = null;
@@ -139,8 +139,10 @@ const FINALIZE_MAX_MS = 5000;
 const TEST_FINALIZE_DELAY_MS = Number(process.env.MT_TEST_FINALIZE_DELAY_MS) || 0;
 
 // WO-3 R: the run's own end (its bell entry and telemetry event) is part of activeRun, and every
-// userData write still pending (notifications, ledger, queue, settings, profiles) is awaited
-// before the exit, all inside the 5 s bound; the writes after the flush get the rest of it.
+// userData operation still pending (notifications, ledger, queue, settings, profiles; registered
+// from admission, WO-3 S) is awaited before the exit, all inside the 5 s bound; the writes after
+// the flush get the rest of it. The last barrier closes the store in the same tick, so nothing
+// admitted later can be cut by the exit (it is refused instead).
 async function finalizeBeforeExit(): Promise<void> {
   const deadline = Date.now() + FINALIZE_MAX_MS;
   const within = (p: Promise<unknown>) =>
@@ -158,8 +160,10 @@ async function finalizeBeforeExit(): Promise<void> {
   else if (hadRun) console.log('active transfer cancelled and finalized before exit');
   if (TEST_FINALIZE_DELAY_MS) await new Promise((r) => setTimeout(r, TEST_FINALIZE_DELAY_MS));
   await flushBeforeQuit();
-  if (await within(pendingWrites())) console.warn('pending writes after the flush did not finish in time; exiting anyway');
-  else console.log('userData writes settled before exit');
+  if (await within(drainAndClose())) {
+    closeStore();
+    console.warn('pending writes after the flush did not finish in time; exiting anyway');
+  } else console.log('userData writes settled before exit');
 }
 
 // RR-9 #1: one finalization per process. Every quit request (a second Quit, a signal, Restart
@@ -278,6 +282,7 @@ ipcMain.handle('update:install', async () => {
   }
   exitAuthorized = false;
   finalizing = null;
+  reopenStore();
 });
 
 // Thumbnails come from the origin card only: the path must be a source file of the active plan.

@@ -1,0 +1,12 @@
+# S.4 (RR-12 #4): in the app (dev build, isolated userData, no transfer, no update waiting, telemetry off), MT_TEST_HOLD_SAVE_READ_MS=1500: profile:save for DevSNew over CDP, SIGTERM 200 ms later
+"save invoked"
+exited 1.57 s after the save was invoked (the SIGTERM came 0.2 s after it)
+
+## main log (in order)
+MT_TEST_HOLD_SAVE_READ_MS: profile save holds 1500 ms before its read
+MT_TEST_HOLD_SAVE_READ_MS: profile save written
+userData writes settled before exit
+
+## profiles.json after exit
+['DevSNew', 'DevSOld']
+files: profiles.json profiles.json.bak settings.json telemetry-queue.json 
