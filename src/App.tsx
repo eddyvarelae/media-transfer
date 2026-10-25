@@ -389,7 +389,9 @@ export default function App() {
           </section>
         )}
 
-        {(running || phase === 'done') && progress && (
+        {/* A stop before the first progress event (the first folder cannot be created) still
+            gets its heading and error (VR-6 #47); the bars need progress. */}
+        {(running || phase === 'done') && (progress || stopped) && (
           <section className="progress-section" ref={progressRef}>
             <h2>
               {stopped ? (
@@ -412,43 +414,47 @@ export default function App() {
               </div>
             )}
             {phase === 'copying' && thumbsEnabled && <ThumbConveyor />}
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${overallPct}%` }} />
-            </div>
-            <div className="progress-stats">
-              <span>{overallPct.toFixed(1)}%</span>
-              <span>
-                {bytes(progress.bytesCopiedOverall)} / {bytes(progress.totalBytesOverall)}
-              </span>
-              <span>{bytes(progress.bytesPerSecond)}/s</span>
-              <span>Elapsed {duration(progress.elapsedMs / 1000)}</span>
-              <span>ETA {phase === 'done' ? '—' : duration(etaSec)}</span>
-            </div>
-            <div className="progress-bar verify-bar">
-              <div className="progress-fill" style={{ width: `${verifiedPct}%` }} />
-            </div>
-            <div className="progress-stats">
-              <span>Read back {verifiedPct.toFixed(1)}%</span>
-              <span>
-                {bytes(verify?.bytesVerifiedOverall ?? 0)} /{' '}
-                {bytes(verify?.totalBytesOverall ?? progress.totalBytesOverall)} read
-                back
-              </span>
-            </div>
-            <div className="current-file muted">
-              {phase === 'copying' && (
-                <>
-                  <span className="tag">{progress.folderLabel}</span>
-                  {progress.currentFile} · {progress.filesCopied + 1}/{progress.totalFiles}
-                </>
-              )}
-              {phase === 'verifying' && verify && (
-                <>
-                  <span className="tag">{verify.folderLabel}</span>
-                  verifying {verify.currentFile}
-                </>
-              )}
-            </div>
+            {progress && (
+              <>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${overallPct}%` }} />
+              </div>
+              <div className="progress-stats">
+                <span>{overallPct.toFixed(1)}%</span>
+                <span>
+                  {bytes(progress.bytesCopiedOverall)} / {bytes(progress.totalBytesOverall)}
+                </span>
+                <span>{bytes(progress.bytesPerSecond)}/s</span>
+                <span>Elapsed {duration(progress.elapsedMs / 1000)}</span>
+                <span>ETA {phase === 'done' ? '—' : duration(etaSec)}</span>
+              </div>
+              <div className="progress-bar verify-bar">
+                <div className="progress-fill" style={{ width: `${verifiedPct}%` }} />
+              </div>
+              <div className="progress-stats">
+                <span>Read back {verifiedPct.toFixed(1)}%</span>
+                <span>
+                  {bytes(verify?.bytesVerifiedOverall ?? 0)} /{' '}
+                  {bytes(verify?.totalBytesOverall ?? progress.totalBytesOverall)} read
+                  back
+                </span>
+              </div>
+              <div className="current-file muted">
+                {phase === 'copying' && (
+                  <>
+                    <span className="tag">{progress.folderLabel}</span>
+                    {progress.currentFile} · {progress.filesCopied + 1}/{progress.totalFiles}
+                  </>
+                )}
+                {phase === 'verifying' && verify && (
+                  <>
+                    <span className="tag">{verify.folderLabel}</span>
+                    verifying {verify.currentFile}
+                  </>
+                )}
+              </div>
+              </>
+            )}
           </section>
         )}
 
