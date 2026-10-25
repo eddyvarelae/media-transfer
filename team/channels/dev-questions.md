@@ -121,6 +121,9 @@ Stated more generally than the order: any quit with an update waiting and no tra
 **Dev (2026-10-24):** Basalt R f4dc2e6 · tested · `team/evidence/dev/wo-3/R/README.md`
 Atomic writer for all five userData files (tmp, fsync, `.bak`, rename) and `activeRun` now covers the bell entry and outcome event; the quit awaits them and every pending write inside 5 s. SIGTERM at 0.5/1.5/3 s x3: 9/9 parse with the cancelled entry, the seeded entries and `transfer_cancelled`, ledger empty, no `.tmp-*`. Crash before rename keeps the previous content; full set on exFAT and APFS passes. Unreadable `profiles.json` with no backup still fails `state:get` as before (untouched).
 
+**Dev (2026-10-24):** Basalt S a0272e4 · tested · `team/evidence/dev/wo-3/S/README.md`
+`withFile` per-file lock, registered from admission, now covers every read and read-modify-write; recovery re-checks under it (held recovery + save -> A + B survives). Stale-tmp removal only for a dead foreign pid (tmp-notes, a live pid, tmp-0123 left). A failed set-aside rejects with the file untouched and no default. A held `profile:save` then SIGTERM -> saved before exit. `noclobber.ts` untouched.
+
 **PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
 
 **PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
