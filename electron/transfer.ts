@@ -15,6 +15,7 @@ import {
   noClobberPatchTemp,
   noClobberRename,
   noClobberSetTimes,
+  noClobberTestCancel,
   noClobberTempStream,
   noClobberWriteFile,
 } from './noclobber';
@@ -304,13 +305,19 @@ export async function executePlan(
   const startedAt = Date.now();
   const reports: VerifyReport[] = [];
   const runId = randomUUID();
+  // The dev-only MT_TEST_CANCEL_AT_DISARM hook cancels the run from inside the gate.
+  const cancelRequested = () => shouldCancel() || noClobberTestCancel();
+  // Reached folders, reported together at run end so every report knows whether the run was
+  // cancelled (also a cancel that lands during the last folder's final bookkeeping).
+  const reached: { folder: FolderPlan; records: FileRecord[]; tempsLeft: number }[] = [];
+  let runCancelled = false;
 
   await fsp.mkdir(plan.destBase, { recursive: true });
 
   for (const folder of plan.folders) {
     await fsp.mkdir(folder.destRoot, { recursive: true });
     let tempsLeft = await noClobberCleanup(folder.destRoot, runId);
-    const run: Run = { runId, destRoot: folder.destRoot, shouldCancel };
+    const run: Run = { runId, destRoot: folder.destRoot, shouldCancel: cancelRequested };
     let bytesCopiedFolder = 0;
     let filesCopied = 0;
     const records: FileRecord[] = folder.toSkip.map((f) => ({
@@ -337,7 +344,7 @@ export async function executePlan(
     };
 
     for (const file of folder.toCopy) {
-      if (cancelled || shouldCancel()) {
+      if (cancelled || cancelRequested()) {
         cancelled = true;
         break;
       }
@@ -415,9 +422,18 @@ export async function executePlan(
     // copied or read back; otherwise only temps whose unlink failed after placement.
     tempsLeft += await noClobberDropRun(runId);
 
-    reports.push(summarize(folder, records, { reached: true, cancelled, tempsLeft }));
-    await writeTransferReport(folder, appVersion, startedAt, records, cancelled, tempsLeft);
-    if (cancelled) break;
+    reached.push({ folder, records, tempsLeft });
+    if (cancelled) {
+      runCancelled = true;
+      break;
+    }
+  }
+  // One more sample after the last publication: a cancel during final bookkeeping counts.
+  if (cancelRequested()) runCancelled = true;
+  for (const r of reached) {
+    const flags = { reached: true, cancelled: runCancelled, tempsLeft: r.tempsLeft };
+    reports.push(summarize(r.folder, r.records, flags));
+    await writeTransferReport(r.folder, appVersion, startedAt, r.records, runCancelled, r.tempsLeft);
   }
   // Every planned folder gets a row; the ones a cancel never reached say so (no report file).
   for (const folder of plan.folders.slice(reports.length)) {

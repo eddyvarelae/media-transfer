@@ -59,7 +59,16 @@ export function aliasKey(p: string): string {
 // MT_TEST_REMOVE_FAIL=1: removing an owned temp fails with EPERM (cleanup failure).
 const TEST_LEDGER_FAIL = process.env.MT_TEST_LEDGER_FAIL === '1';
 const TEST_REMOVE_FAIL = process.env.MT_TEST_REMOVE_FAIL === '1';
+// MT_TEST_CANCEL_AT_DISARM=1: the cancel arrives right after the exFAT placeholder is disarmed
+// (with MT_TEST_REMOVE_FAIL=1 the placeholder's removal fails too).
+const TEST_CANCEL_AT_DISARM = process.env.MT_TEST_CANCEL_AT_DISARM === '1';
+const TEST_PLACEHOLDER_RELEASE_FAIL = TEST_REMOVE_FAIL && TEST_CANCEL_AT_DISARM;
 let failLedgerWrites = false;
+let testCancelRequested = false;
+/** Dev hook support: true once MT_TEST_CANCEL_AT_DISARM has fired. */
+export function noClobberTestCancel(): boolean {
+  return testCancelRequested;
+}
 
 // ---------------------------------------------------------------- ownership ledger
 
@@ -183,7 +192,7 @@ async function removeOwned(p: string): Promise<Removal> {
     return 'not-ours';
   }
   try {
-    if (TEST_REMOVE_FAIL && isOwnTemp(e.path)) {
+    if (TEST_REMOVE_FAIL) {
       throw Object.assign(new Error('EPERM (MT_TEST_REMOVE_FAIL)'), { code: 'EPERM' });
     }
     await fsp.unlink(e.path);
@@ -292,11 +301,14 @@ export async function noClobberDropTemp(temp: string): Promise<boolean> {
   return (await removeOwned(temp)) !== 'failed';
 }
 
-/** Removes every temp this run still has in flight (cancel, end of run). Resolves the number left. */
+/**
+ * Removes every temp and placeholder this run still has on record (cancel, end of run), each
+ * only on an identity match. Resolves the number that could not be removed.
+ */
 export async function noClobberDropRun(runId: string): Promise<number> {
   let left = 0;
   for (const e of [...(await entries()).values()]) {
-    if (e.runId === runId && isOwnTemp(e.path) && (await removeOwned(e.path)) === 'failed') left += 1;
+    if (e.runId === runId && (await removeOwned(e.path)) === 'failed') left += 1;
   }
   return left;
 }
@@ -389,15 +401,16 @@ async function placeViaPlaceholder(
     const entry = await ownerOf(target);
     if (entry) entry.identity = null;
     await persist();
+    if (TEST_CANCEL_AT_DISARM) testCancelRequested = true;
     // Identity re-check through the open handle right before publishing (accepted limit above).
     const [viaHandle, viaPath] = await Promise.all([fh.stat({ bigint: true }), lstatExact(target)]);
     if (!sameIdentity(placeholder, viaHandle) || !sameIdentity(placeholder, viaPath)) {
       await forget(target);
       throw new ClobberError(target);
     }
-    if (shouldCancel()) {
-      await forget(target);
-      return 'cancelled'; // the disarmed placeholder stays: an empty file, never removed by us
+    if (shouldCancel() || testCancelRequested) {
+      await dropDisarmedPlaceholder(target, placeholder);
+      return 'cancelled';
     }
     await fsp.rename(temp, target);
   } finally {
@@ -408,6 +421,37 @@ async function placeViaPlaceholder(
     await forget(target);
   });
   return 'placed';
+}
+
+/**
+ * Cancel after the placeholder entry was disarmed: our empty placeholder sits under the final
+ * name. Remove it when the path still has its identity (recorded through the open handle); if
+ * the removal fails, re-arm the entry so the file stays on record (counted as a temp left).
+ */
+async function dropDisarmedPlaceholder(target: string, placeholder: Identity): Promise<void> {
+  const entry = await ownerOf(target);
+  try {
+    if (TEST_PLACEHOLDER_RELEASE_FAIL) {
+      throw Object.assign(new Error('EPERM (MT_TEST_REMOVE_FAIL)'), { code: 'EPERM' });
+    }
+    const st = await lstatExact(target);
+    if (!sameIdentity(placeholder, st)) {
+      await forget(target); // not our placeholder any more: leave it alone
+      return;
+    }
+    await fsp.unlink(target);
+    await forget(target);
+  } catch (e: any) {
+    if (e?.code === 'ENOENT') {
+      await forget(target);
+      return;
+    }
+    console.warn('placeholder not removed, kept for the next run:', e?.code ?? e);
+    if (entry) {
+      entry.identity = placeholder;
+      await persist().catch((err) => console.warn('ledger not written:', err?.code ?? err));
+    }
+  }
 }
 
 /** For tests: true when the ledger lists `p` as created by this app. */
