@@ -198,12 +198,11 @@ removed from or overwritten on the destination.
   files: [{ source, dest, size, mtime, sha256, status }] }`, `status` one of
   `copied-verified`, `skipped`, `failed` (failed entries add a `reason`).
   Skipped files have no hash because they weren't read.
-- **Known limit on exFAT drives: a temporary file left by a crash or an
-  unplug in the middle of a copy can't be recognized afterwards** (exFAT only
-  reports a file's real identity once it is closed). The app then leaves it
-  alone and that one file is reported as "temp name taken by an unknown
-  file" until you delete the `.mtpart` file in Finder. Cancel is not
-  affected: it always removes its temporary files.
+- **Crash or unplug mid-copy.** The next transfer to that folder removes the
+  half-written `.mtpart` and copies the file again, on APFS and on exFAT. On
+  exFAT the app recognizes it by the drive and creation time it recorded
+  when it created the file (exFAT reports a file's real identity only once
+  it is closed); a file you put at that path yourself is never touched.
 - **Known limit: one writer at a time.** The app assumes nothing else
   writes into the destination folder while a transfer runs. It runs as one
   instance per user (a second launch just brings the first to the front).

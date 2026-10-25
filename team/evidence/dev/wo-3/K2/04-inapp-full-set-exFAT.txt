@@ -1,0 +1,9 @@
+# K2 commit: in-app full set (exFAT, fresh DevKDestX), no hook
+ "heading": "Transfer complete",
+  "DCIM\t204\t204\t0\t✓ 204 files verified",
+  "CLIP\t6\t6\t0\t✓ 6 files verified",
+  "THMBNL\t3\t3\t0\t✓ 3 files verified"
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe THMBNL: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+## final files 213, .mtpart 0, ledger {"version":1,"temps":[]}

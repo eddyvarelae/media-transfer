@@ -82,6 +82,10 @@ type LedgerEntry = {
   runId: string;
   createdAt: string;
   identity: Identity | null;
+  // WO-3 K2, handle-unstable volumes only: { dev, birthtimeNs } by path right after the exclusive
+  // create. Authorizes exactly one thing: removing this never-sealed *.mtpart at a later run's
+  // cleanup when lstat still matches dev + birthtime. The full identity replaces it.
+  provisional?: { dev: string; birthtimeNs: string };
 };
 type LedgerFile = { version: 1; temps: LedgerEntry[] };
 
@@ -298,10 +302,20 @@ async function recordIdentityByPath(p: string): Promise<Identity> {
   return setIdentity(p, identityOf(await lstatSettled(p), profile));
 }
 
+/** K2: dev + birthtime by path, persisted (awaited) before the first byte is written. */
+async function recordProvisional(p: string): Promise<void> {
+  const st = await lstatExact(p);
+  const e = (await entries()).get(aliasKey(p));
+  if (!e) return;
+  e.provisional = { dev: String(st.dev), birthtimeNs: String(st.birthtimeNs) };
+  await persist().catch((err) => console.warn('provisional identity not persisted:', err?.code ?? err));
+}
+
 async function setIdentity(p: string, id: Identity): Promise<Identity> {
   const e = (await entries()).get(aliasKey(p));
   if (e) {
     e.identity = id;
+    delete e.provisional; // the full identity replaces the provisional one
     // Not on disk = the next run may not remove it (the safe side); this run keeps it in memory.
     await persist().catch((err) => console.warn('ledger identity not persisted:', err?.code ?? err));
   }
@@ -366,9 +380,43 @@ export async function noClobberCleanup(destRoot: string, runId: string): Promise
   let left = 0;
   for (const e of [...(await entries()).values()]) {
     if (e.destRoot !== destRoot || e.runId === runId) continue;
-    if ((await removeOwned(e.path)) === 'failed') left += 1;
+    const result = !e.identity && e.provisional ? await removeCrashLeftover(e) : await removeOwned(e.path);
+    if (result === 'failed') left += 1;
   }
   return left;
+}
+
+/**
+ * K2: a temp of an earlier run that never got its full identity (a crash or an unplug mid-copy
+ * on a handle-unstable volume). Removed only when it is still a `.mtpart` and lstat matches the
+ * provisional dev + birthtime recorded right after its exclusive create; otherwise left alone.
+ */
+async function removeCrashLeftover(e: LedgerEntry): Promise<Removal> {
+  if (!isOwnTemp(e.path) || !e.provisional || !profileFor(e.destRoot).removalEnabled) {
+    if (!isOwnTemp(e.path)) await forget(e.path);
+    return isOwnTemp(e.path) ? 'failed' : 'not-ours';
+  }
+  let st: fs.BigIntStats;
+  try {
+    st = await lstatExact(e.path);
+  } catch (err: any) {
+    if (err?.code !== 'ENOENT') return 'failed';
+    await forget(e.path);
+    return 'gone';
+  }
+  if (String(st.dev) !== e.provisional.dev || String(st.birthtimeNs) !== e.provisional.birthtimeNs) {
+    await forget(e.path);
+    return 'not-ours';
+  }
+  try {
+    if (TEST_REMOVE_FAIL) throw Object.assign(new Error('EPERM (MT_TEST_REMOVE_FAIL)'), { code: 'EPERM' });
+    await fsp.unlink(e.path);
+  } catch (err: any) {
+    console.warn('crash leftover not removed, kept for the next run:', err?.code ?? err);
+    return 'failed';
+  }
+  await forget(e.path);
+  return 'removed';
 }
 
 /** A temp being written: the stream, and `seal()` (re-record identity, close) for every ending. */
@@ -399,6 +447,8 @@ export async function noClobberTempStream(
     throw e?.code === 'EEXIST' ? new ForeignTempError() : e;
   }
   await recordIdentity(temp, fh);
+  // K2: where handles can't be trusted, a provisional identity by path before the first write.
+  if (!(await profileOf(temp)).handleStable) await recordProvisional(temp);
   const ws = fh.createWriteStream({ highWaterMark: 1024 * 1024, autoClose: false });
   // First 1 MB written: record the identity now (where the handle can be trusted), so a temp
   // left by a crash or an unplug mid-copy is still recognized as ours.

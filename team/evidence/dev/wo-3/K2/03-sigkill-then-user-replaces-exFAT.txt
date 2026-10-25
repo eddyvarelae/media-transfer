@@ -1,0 +1,8 @@
+# K2 negative: SIGKILL mid-copy on exFAT (DevKE9), the user replaces the leftover with their own file, then a normal run
+## user's file: 531 20 Oct 24 18:18:26 2026
+ "heading": "Transfer finished with failures",
+  "CLIP\t1\t1\t0\t✗ 1 file failed verification"
+  "CLIPC0001.MP4 · temp name taken by an unknown file"
+     "relPath": "C0001.MP4",
+     "destName": "C0001.MP4",
+## user's file after: 531 20 Oct 24 18:18:26 2026, hash same; ledger: {"version":1,"temps":[]}
