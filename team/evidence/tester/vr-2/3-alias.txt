@@ -1,0 +1,43 @@
+# VR-2 check 3 - commit 8cf1918. Alias case: TsCard2 DCIM/100MSDCF/A.JPG + DCIM/101MSDCF/a.JPG (different content), flatten on, APFS TsDest3 (case-insensitive:  File System Personality: APFS). 2026-10-24T17:15:28-07:00
+## driver
+{
+ "planText": "PLAN\n\nDestination: /Volumes/TsDest3/TsCard2 \u00b7 0 file(s) already present will be skipped.\n\nDCIM\n3 to copy \u00b7 0 skip \u00b7 9.64 MB\nFROM\n/Volumes/TsCard2/DCIM\nTO\n/Volumes/TsDest3/TsCard2/DCIM\nCLIP\n2 to copy \u00b7 0 skip \u00b7 800 MB\nFROM\n/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP\nTO\n/Volumes/TsDest3/TsCard2/CLIP",
+ "rows": [
+  "DCIM\t3\t3\t0\t\u2713 3 files verified",
+  "CLIP\t2\t2\t0\t\u2713 2 files verified"
+ ],
+ "failedList": [],
+ "h2seen": [
+  {
+   "t": 8,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 990,
+   "h2": "Verifying",
+   "conveyor": false
+  },
+  {
+   "t": 1403,
+   "h2": "Transfer complete",
+   "conveyor": false
+  }
+ ]
+}
+## card
+2a0abe6a97f26b583eac25f0863314f5fac39daa41818e3bb4ce201442cd17ee  /Volumes/TsCard2/DCIM/100MSDCF/A.JPG
+2603a90b4e8fc9605f6346fc8a07c48011c2542b610ace138b18bb5fe92da998  /Volumes/TsCard2/DCIM/101MSDCF/a.JPG
+## destination DCIM
+total 19744
+20 -rw-r--r--  1 varela  staff  4540146 Oct 24 16:56 A.JPG
+24 -rw-r--r--  1 varela  staff  1025967 Oct 24 16:56 X.JPG
+23 -rw-r--r--  1 varela  staff  4538077 Oct 24 16:56 a-2603a90b.JPG
+2a0abe6a97f26b583eac25f0863314f5fac39daa41818e3bb4ce201442cd17ee  /Volumes/TsDest3/TsCard2/DCIM/A.JPG
+8e4eae159d1dd6fc26f20186c1f6512abfebb194c9b1725ecb61c016bc5ff855  /Volumes/TsDest3/TsCard2/DCIM/X.JPG
+2603a90b4e8fc9605f6346fc8a07c48011c2542b610ace138b18bb5fe92da998  /Volumes/TsDest3/TsCard2/DCIM/a-2603a90b.JPG
+## report entries
+/Volumes/TsDest3/TsCard2/DCIM/.media-transfer/transfer-20261024-171525.json
+  /Volumes/TsCard2/DCIM/100MSDCF/A.JPG -> /Volumes/TsDest3/TsCard2/DCIM/A.JPG copied-verified 2a0abe6a
+  /Volumes/TsCard2/DCIM/101MSDCF/a.JPG -> /Volumes/TsDest3/TsCard2/DCIM/a-2603a90b.JPG copied-verified 2603a90b
+  /Volumes/TsCard2/DCIM/102MSDCF/X.JPG -> /Volumes/TsDest3/TsCard2/DCIM/X.JPG copied-verified 8e4eae15

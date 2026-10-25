@@ -1,0 +1,13 @@
+# VR-2 check 7 - commit 8cf1918 vs v2.0 (main 1fd1cd0; product code unchanged since c692d2d, v2 export from 6adf4ca reused)
+Same rig and condition as VR-1 B3: TsCard served by slowserve at 120 MB/s (:8766), read-only http attach, cold re-attach
+before every run, fresh app launch per run, TsDest5 DCIM/CLIP/THMBNL removed before every run, 3 rounds alternating.
+Condition: CGSSessionScreenIsLocked=Yes and frontmost = Terminal in all 6 runs (as in VR-1). Script ab.sh, raw 7-ab.json.
+
+| | run 1 | run 2 | run 3 | mean | spread |
+|---|---|---|---|---|---|
+| v2.0 MB/s | 95.0 | 98.1 | 94.8 | (95.0+98.1+94.8)/3 = 95.97 | 94.8..98.1 |
+| v3 8cf1918 MB/s | 92.7 | 93.2 | 92.9 | (92.7+93.2+92.9)/3 = 92.93 | 92.7..93.2 |
+Mean change: (92.93-95.97)/95.97 = -3.2 %. Wall mean 11,349 -> 11,704 ms (+355 ms per 1.09 GB).
+Within spread: NO. Every v3 run is below v2's slowest run (94.8). Dropping v2's high run 2 (98.1): v2 (95.0+94.8)/2 = 94.90, still -2.1 %.
+Against VR-1 on the same rig (9bebaec, v3 mean 94.77, -0.2 %): 8cf1918 is 94.77 -> 92.93 = -1.9 % slower than 9bebaec.
+All v3 runs: 212/212 verified. All v2 runs: DCIM "destination smaller than source" (the flatten overwrite v3 fixes).

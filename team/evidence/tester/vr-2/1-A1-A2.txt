@@ -1,0 +1,16 @@
+# VR-2 check 1 (A1 + A2) - commit 8cf1918 (WO-2 rev 1 + WO-3 H, H2, I). Flatten on, TsCard -> empty TsDest, then a second run. 2026-10-24T17:14:53-07:00
+## A1 driver
+{"rows": ["DCIM\t203\t203\t0\t\u2713 203 files verified", "CLIP\t6\t6\t0\t\u2713 6 files verified", "THMBNL\t3\t3\t0\t\u2713 3 files verified"], "failedList": [], "h2seen": [{"t": 5, "h2": "Transferring", "conveyor": true}, {"t": 1426, "h2": "Verifying", "conveyor": false}, {"t": 1428, "h2": "Transfer complete", "conveyor": false}], "MBps": 763.1, "verifiedBytes": 1086719010, "bytes": 1086719010}
+## card
+3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035  /Volumes/TsCard/DCIM/100MSDCF/DSC00001.JPG
+b0cd854bcaf35f681dc0aa6140884e89e384b749800f687c0ea42b3b3edf0e52  /Volumes/TsCard/DCIM/101MSDCF/DSC00001.JPG
+## destination
+b0cd854bcaf35f681dc0aa6140884e89e384b749800f687c0ea42b3b3edf0e52  /Volumes/TsDest/TsCard/DCIM/DSC00001-b0cd854b.JPG
+3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035  /Volumes/TsDest/TsCard/DCIM/DSC00001.JPG
+## all files card vs destination
+compared 211 by name (+ the -hash8 file above), mismatches 0
+.mtpart: 0
+## A2 second run
+{'nothingToCopy': True, 'planText': 'PLAN\n\nDestination: /Volumes/TsDest/TsCard · 212 file(s) already present will be skipped.\n\nDCIM\n0 to copy · 203 skip · 0 B\nFROM\n/Volumes/TsCard/DCIM\nTO\n/Volumes/TsDest/TsCard/DCIM\nCLIP\n0 to copy · 6 skip · 0 B\nFROM\n/Volumes/TsCard/PRIVATE/M4ROOT/CLIP\nTO\n/Volumes/TsDest/TsCard/CLIP\nTHMBNL\n0 to copy · 3 skip · 0 B\nFROM\n/Volumes/TsCard/PRIVATE/M4ROOT/THMBNL\nTO\n/Volumes/TsDest/TsCard/THMBNL'}
+## stat diff (inode size mtime path), 222 entries
+(diff exit 0)

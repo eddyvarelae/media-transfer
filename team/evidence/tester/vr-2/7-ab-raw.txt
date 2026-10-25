@@ -1,0 +1,168 @@
+{"ver":"v2","round":1,"front":"Terminal","screenLocked":"Yes","r":{ "planText": "PLAN
+
+Destination: /Volumes/TsDest5/TsCard · 0 file(s) already present will be skipped.
+
+DCIM
+203 to copy · 0 skip · 879 MB
+FROM
+/Volumes/TsCard/DCIM
+TO
+/Volumes/TsDest5/TsCard/DCIM
+CLIP
+6 to copy · 0 skip · 154 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/CLIP
+TO
+/Volumes/TsDest5/TsCard/CLIP
+THMBNL
+3 to copy · 0 skip · 2.94 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/THMBNL
+TO
+/Volumes/TsDest5/TsCard/THMBNL", "cancel": null, "doneAt": 11451, "cancelToIdleMs": null, "h2seen": [  {   "t": 16,   "h2": "Transferring",   "conveyor": true  },  {   "t": 11449,   "h2": "Transfer complete",   "conveyor": false  } ], "MBps": 95, "wallMs": 11451, "bytes": 1086719010, "rows": [  "DCIM	879 MB	875 MB	✗ destination smaller than source",  "CLIP	154 MB	154 MB	✓ destination ≥ source",  "THMBNL	2.94 MB	2.94 MB	✓ destination ≥ source" ], "failedList": [], "endText": "TRANSFER COMPLETE
+100.0%
+1.01 GB / 1.01 GB
+90.6 MB/s
+Elapsed 11s
+ETA —"}}
+{"ver":"v3","round":1,"front":"Terminal","screenLocked":"Yes","r":{ "planText": "PLAN
+
+Destination: /Volumes/TsDest5/TsCard · 0 file(s) already present will be skipped.
+
+DCIM
+203 to copy · 0 skip · 879 MB
+FROM
+/Volumes/TsCard/DCIM
+TO
+/Volumes/TsDest5/TsCard/DCIM
+CLIP
+6 to copy · 0 skip · 154 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/CLIP
+TO
+/Volumes/TsDest5/TsCard/CLIP
+THMBNL
+3 to copy · 0 skip · 2.94 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/THMBNL
+TO
+/Volumes/TsDest5/TsCard/THMBNL", "cancel": null, "doneAt": 11732, "cancelToIdleMs": null, "h2seen": [  {   "t": 18,   "h2": "Transferring",   "conveyor": true  },  {   "t": 11718,   "h2": "Verifying",   "conveyor": false  },  {   "t": 11721,   "h2": "Transfer complete",   "conveyor": false  } ], "MBps": 92.7, "wallMs": 11732, "bytes": 1086719010, "verifiedBytes": 1086719010, "rows": [  "DCIM	203	203	0	✓ 203 files verified",  "CLIP	6	6	0	✓ 6 files verified",  "THMBNL	3	3	0	✓ 3 files verified" ], "failedList": [], "endText": "TRANSFER COMPLETE
+100.0%
+1.01 GB / 1.01 GB
+88.5 MB/s
+Elapsed 12s
+ETA —
+Read back 100.0%
+1.01 GB / 1.01 GB read back"}}
+{"ver":"v2","round":2,"front":"Terminal","screenLocked":"Yes","r":{ "planText": "PLAN
+
+Destination: /Volumes/TsDest5/TsCard · 0 file(s) already present will be skipped.
+
+DCIM
+203 to copy · 0 skip · 879 MB
+FROM
+/Volumes/TsCard/DCIM
+TO
+/Volumes/TsDest5/TsCard/DCIM
+CLIP
+6 to copy · 0 skip · 154 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/CLIP
+TO
+/Volumes/TsDest5/TsCard/CLIP
+THMBNL
+3 to copy · 0 skip · 2.94 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/THMBNL
+TO
+/Volumes/TsDest5/TsCard/THMBNL", "cancel": null, "doneAt": 11107, "cancelToIdleMs": null, "h2seen": [  {   "t": 15,   "h2": "Transferring",   "conveyor": true  },  {   "t": 11082,   "h2": "Transfer complete",   "conveyor": false  } ], "MBps": 98.1, "wallMs": 11107, "bytes": 1086719010, "rows": [  "DCIM	879 MB	875 MB	✗ destination smaller than source",  "CLIP	154 MB	154 MB	✓ destination ≥ source",  "THMBNL	2.94 MB	2.94 MB	✓ destination ≥ source" ], "failedList": [], "endText": "TRANSFER COMPLETE
+100.0%
+1.01 GB / 1.01 GB
+93.6 MB/s
+Elapsed 11s
+ETA —"}}
+{"ver":"v3","round":2,"front":"Terminal","screenLocked":"Yes","r":{ "planText": "PLAN
+
+Destination: /Volumes/TsDest5/TsCard · 0 file(s) already present will be skipped.
+
+DCIM
+203 to copy · 0 skip · 879 MB
+FROM
+/Volumes/TsCard/DCIM
+TO
+/Volumes/TsDest5/TsCard/DCIM
+CLIP
+6 to copy · 0 skip · 154 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/CLIP
+TO
+/Volumes/TsDest5/TsCard/CLIP
+THMBNL
+3 to copy · 0 skip · 2.94 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/THMBNL
+TO
+/Volumes/TsDest5/TsCard/THMBNL", "cancel": null, "doneAt": 11679, "cancelToIdleMs": null, "h2seen": [  {   "t": 19,   "h2": "Transferring",   "conveyor": true  },  {   "t": 11660,   "h2": "Verifying",   "conveyor": false  },  {   "t": 11663,   "h2": "Transfer complete",   "conveyor": false  } ], "MBps": 93.2, "wallMs": 11679, "bytes": 1086719010, "verifiedBytes": 1086719010, "rows": [  "DCIM	203	203	0	✓ 203 files verified",  "CLIP	6	6	0	✓ 6 files verified",  "THMBNL	3	3	0	✓ 3 files verified" ], "failedList": [], "endText": "TRANSFER COMPLETE
+100.0%
+1.01 GB / 1.01 GB
+88.9 MB/s
+Elapsed 12s
+ETA —
+Read back 100.0%
+1.01 GB / 1.01 GB read back"}}
+{"ver":"v2","round":3,"front":"Terminal","screenLocked":"Yes","r":{ "planText": "PLAN
+
+Destination: /Volumes/TsDest5/TsCard · 0 file(s) already present will be skipped.
+
+DCIM
+203 to copy · 0 skip · 879 MB
+FROM
+/Volumes/TsCard/DCIM
+TO
+/Volumes/TsDest5/TsCard/DCIM
+CLIP
+6 to copy · 0 skip · 154 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/CLIP
+TO
+/Volumes/TsDest5/TsCard/CLIP
+THMBNL
+3 to copy · 0 skip · 2.94 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/THMBNL
+TO
+/Volumes/TsDest5/TsCard/THMBNL", "cancel": null, "doneAt": 11490, "cancelToIdleMs": null, "h2seen": [  {   "t": 16,   "h2": "Transferring",   "conveyor": true  },  {   "t": 11470,   "h2": "Transfer complete",   "conveyor": false  } ], "MBps": 94.8, "wallMs": 11490, "bytes": 1086719010, "rows": [  "DCIM	879 MB	875 MB	✗ destination smaller than source",  "CLIP	154 MB	154 MB	✓ destination ≥ source",  "THMBNL	2.94 MB	2.94 MB	✓ destination ≥ source" ], "failedList": [], "endText": "TRANSFER COMPLETE
+100.0%
+1.01 GB / 1.01 GB
+90.4 MB/s
+Elapsed 11s
+ETA —"}}
+{"ver":"v3","round":3,"front":"Terminal","screenLocked":"Yes","r":{ "planText": "PLAN
+
+Destination: /Volumes/TsDest5/TsCard · 0 file(s) already present will be skipped.
+
+DCIM
+203 to copy · 0 skip · 879 MB
+FROM
+/Volumes/TsCard/DCIM
+TO
+/Volumes/TsDest5/TsCard/DCIM
+CLIP
+6 to copy · 0 skip · 154 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/CLIP
+TO
+/Volumes/TsDest5/TsCard/CLIP
+THMBNL
+3 to copy · 0 skip · 2.94 MB
+FROM
+/Volumes/TsCard/PRIVATE/M4ROOT/THMBNL
+TO
+/Volumes/TsDest5/TsCard/THMBNL", "cancel": null, "doneAt": 11702, "cancelToIdleMs": null, "h2seen": [  {   "t": 18,   "h2": "Transferring",   "conveyor": true  },  {   "t": 11698,   "h2": "Verifying",   "conveyor": false  },  {   "t": 11700,   "h2": "Transfer complete",   "conveyor": false  } ], "MBps": 92.9, "wallMs": 11702, "bytes": 1086719010, "verifiedBytes": 1086719010, "rows": [  "DCIM	203	203	0	✓ 203 files verified",  "CLIP	6	6	0	✓ 6 files verified",  "THMBNL	3	3	0	✓ 3 files verified" ], "failedList": [], "endText": "TRANSFER COMPLETE
+100.0%
+1.01 GB / 1.01 GB
+88.6 MB/s
+Elapsed 12s
+ETA —
+Read back 100.0%
+1.01 GB / 1.01 GB read back"}}

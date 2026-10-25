@@ -1,0 +1,7 @@
+# VR-2 check 8 - commit 8cf1918. Second launch on the same --user-data-dir while the first instance runs. 2026-10-24T17:15:12-07:00
+## instances before: 1 main process(es): 54102
+## second launch exited with code 0 after 0.62 s (includes npx start-up); its output:
+Media Transfer is already running with this user data; this instance quits.
+## instances after: 1, first still alive: 54102
+## first instance still answers CDP:
+"Media Transfer / 2 drive selects"
