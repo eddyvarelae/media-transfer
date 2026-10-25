@@ -75,6 +75,34 @@ exFAT cancel after the disarm removes the placeholder by identity or re-arms its
 **Dev (2026-10-24):** Basalt H4/RR-4 bba1c7b (on `dev/v3.0`; merged into `dev/v3.0-telemetry`) · tested · `team/evidence/dev/wo-3/H4/README.md`
 Reports of completed folders are written in a `finally` (cancel sampled first), each write guarded, the original error propagates. Review with `git diff -w a3ebeca bba1c7b` (loop re-indent only). Evidence: `mkdir(destRoot)` throwing `EEXIST` leaves CLIP's report with its 3 records; literal `chmod 000` gives per-file `EACCES` failures (not a folder-level exception), CLIP report present.
 
+**Dev (2026-10-24):** Basalt K/K2/K3 cf4a0fc, 90aecd0, b8c50ec (on `dev/v3.0`, each messaged at the time) · tested · `team/evidence/dev/wo-3/K/`, `K2/`, `K3/` READMEs
+exFAT placement fixed (per-volume probe, settled identity by path), crash leftovers recover on exFAT (provisional dev + birthtime), probe hardened; full set 213/213 in-app on exFAT and APFS after each.
+
+**Dev (2026-10-24):** Basalt A/BL-6, BL-12 6f07e73 · tested · `team/evidence/dev/wo-3/A/`
+Three transfer kinds + update entry in the bell; progress section scrolls into view on Start.
+
+**Dev (2026-10-24):** Basalt B/BL-8 app 6f07e73 · tested · `team/evidence/dev/wo-3/B/`
+Modal, gear panel, captured bodies (envelope + props exactly as listed, privacy grep 0 hits), offline queue flushed later. Deviations 2-5 in `team/evidence/dev/wo-3/README.md`.
+
+**Dev (2026-10-24):** Basalt C/BL-8 server 6f07e73 · tested (local only, not deployed: dev-stage grant pending) · `team/evidence/dev/wo-3/C/checks.txt`, `telemetry/README.md`
+
+**Dev (2026-10-24):** Basalt D/BL-8 6f07e73 · tested · `PRIVACY.md`
+
+**Dev (2026-10-24):** Basalt E/BL-10 app 6f07e73 · tested · `team/evidence/dev/wo-3/E/`
+Unsigned package with dmg + zip + `latest-mac.yml`, packaged-app run on exFAT, updater hook; release env + steps in CLAUDE.md. Deviation 1 (space-free asset names) needs your OK before the first signed release.
+
+**Dev (2026-10-24):** Basalt F/BL-5 6f07e73 · tested · `team/evidence/dev/wo-3/F/checks.txt`
+
+**Dev (2026-10-24):** Basalt G/BL-11 6f07e73 · tested · `team/evidence/dev/wo-3/G/`
+Option 2 rendered to `build/` by `npm run icon`; no Dock screenshot (screen locked all session).
+
+**Dev (2026-10-24):** Basalt I2 453fbdb · tested · `team/evidence/dev/wo-3/I2/` — read back 100 % with a foreign-temp failure.
+
+**Dev (2026-10-24):** Basalt I3 + K4 a3b78df · tested · `team/evidence/dev/wo-3/I3/`, `K4/` READMEs
+
+**Dev (2026-10-24):** Basalt J 6f07e73 · tested · `team/evidence/dev/wo-3/J/README.md`
+-1.9 % vs v2.0 in-app (95.53 -> 93.73 MB/s, 3 alternating rounds, screen locked): within the 2 % bar. The cost was the temp's preparation before each file's first card read, not the ledger writes; fixed by prefetching the source read.
+
 **PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
 
 **PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
@@ -213,7 +241,7 @@ Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lo
 
 **Dev (2026-10-24):** Basalt - rig collision note for the PM/Tester: the Tester's VR-1 rig mounts the same volume names my WO-2 rig used (`TestCard`, `TestDest*`), and `/Volumes` is machine-wide. I saw them mounted before H's runs, confirmed via `hdiutil info` that the images are in the Tester's scratchpad, and touched nothing; H ran on seat-unique names (`DevHCard`, `DevHDest*`, port 8767). The WO-2 scripts (`team/evidence/dev/wo-2/B/*.sh`, `harness.ts`) hard-code `TestCard`/`TestDest`: whoever reruns them while the other seat's rig is up would act on the wrong images. Suggest the Tester's scripts check `hdiutil info` image paths first, as CLAUDE.md now says.
 
-**Dev (2026-10-24):** Basalt - WO-3 rev 1 picked up on `dev/v3.0-telemetry` (cut from 9bebaec, then `origin/main` 7ac6264 merged in so this channel holds both the WO-3 order and the WO-2 notes). Worktree `~/Projects/media-transfer-dev` is LIVE with in-progress local work until my done note.
+~~**Dev (2026-10-24):** Basalt - WO-3 rev 1 picked up on `dev/v3.0-telemetry` (cut from 9bebaec, then `origin/main` 7ac6264 merged in so this channel holds both the WO-3 order and the WO-2 notes). Worktree `~/Projects/media-transfer-dev` is LIVE with in-progress local work until my done note.~~ Done 2026-10-24; see the WO-3 check-offs.
 
 **PM (2026-10-24):** answers to the hand-over notes. (1) **Speed: option (a) accepted.** Your three v2.0 runs spread 0.6 MB/s and v3.0's 0.2; the 1.7 MB/s gap is real and costs 0.2 s per 1.09 GB (about 13 s on a 64 GB card at 90 MB/s). SHA-256 stays: the name rule and the report are checkable with `shasum -a 256`, and a second hash format buys back at most 1 %. Logged in the state and reported to Eddy, who can overrule. (2) The Tester reruns the A/B with the screen unlocked (VR-1). (3) The additions are fine and are in RR-1's accepted limits. PM check of the load-bearing facts: every write/rename/unlink in `transfer.ts` goes through `noclobber.ts` (lines 402-647), `main.ts` has no destination writes, the `settle()` guard covers same-name temps, and A3's pre-seeded file keeps inode 20 and hash `8cf66588…`. Staged RR-1 for the Reviewer; booted the Tester (VR-1 at 9bebaec). WO-2 is frozen; WO-3 is your order now.
 
