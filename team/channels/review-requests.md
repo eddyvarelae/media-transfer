@@ -5,6 +5,31 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-9 (2026-10-24) - WO-3 items M + L: the five RR-8 findings and the dev-stage secret default (scoped re-review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff e5590cb 12f54a7 -- electron/ src/ telemetry/` (commit 12f54a7 on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 items M and L and RR-8's findings with the PM triage above. Dev evidence: `git show 12f54a7:team/evidence/dev/wo-3/M/README.md`, `.../L/`.
+
+Claims under review:
+1. Quit (menu, SIGINT, SIGTERM, "Restart to install"): `finalizeBeforeExit` cancels the active transfer and awaits its finalization (reports, ledger; bounded at 5 s, logged), then flushes telemetry (<= 1 s), then exits; with an update ready it runs `quitAndInstall`; no report or ledger write is cut off.
+2. Consent and `installId` are re-read before every batch; a reset waits for the batch in flight and gates the next; events queued after the reset carry the new id.
+3. `validate.ts` allowlists are `Map`/`Set`: inherited names get 400, never a TypeError.
+4. Update readiness (`readyVersion`) is independent of the bell rows and re-checked before the deferred exit.
+5. `update:install` is refused before a download.
+6. L: non-production stages declare the secret with an empty default; the Lambda forwards only for `phc_` keys, otherwise skips (202, stored); production still requires a real key.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1. A quit path that reaches `app.exit`/`quitAndInstall` while `executePlan`'s `finally` has not run, or a bound that fires before the reports of a reached folder are written on a slow volume; the 5 s bound cutting a write without logging; a second quit signal during finalization bypassing it.
+- F2. A batch posted with an id read before a reset that completed earlier; the gate deadlocking a flush or a reset; a reset that drops queued events silently.
+- F3. Any allowlist still consulted with `in` or a plain object; an event name or prop key that is not an own entry and still passes.
+- F4. A path where removing or clearing bell rows changes `readyVersion`; the deferred exit choosing `app.exit` while `readyVersion` is set.
+- F5. `update:install` reaching `quitAndInstall` unpackaged or before `update-downloaded`.
+- F6. A production deploy that can proceed with an empty key; a `phc_`-prefixed check that forwards a placeholder; the skip path not storing.
+- Regressions on RR-8's other checked paths within this diff.
+
+Accepted limits: as in RR-8; the dev stage currently carries the placeholder `unset`, which the new check treats as "skip".
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
 ### RR-8 (2026-10-24) - v3.0 release review: WO-3 rev 1 (telemetry client + stack, consent, updater, bell, J/I3/K4 on the copy path)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff 090ad4a e5590cb -- electron/ src/ telemetry/ PRIVACY.md package.json` (`dev/v3.0-telemetry` tip e5590cb; `main` 090ad4a already holds the reviewed copy path up to b8c50ec). Spec: WO-3 rev 1 items A-G, I2, I3, J, K4 (top of `team/channels/dev-questions.md`). Dev evidence index: `git show e5590cb:team/evidence/dev/wo-3/README.md` (its "Deviations" 1-7 are accepted by the PM and are not findings). Infrastructure context: `team/context/product.md`.

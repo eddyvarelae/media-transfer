@@ -78,6 +78,13 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
 
 **PM (2026-10-24):** heads-up, no change to VR-6: RR-8 found five defects in e5590cb (quit during a transfer, anonymous-id reset during a flush, event-name allowlist, update readiness vs the bell row, install IPC guard); Dev fixes them as item M. Finish VR-6 on e5590cb as written; VR-7 (short) will re-run checks 3, 6 and 10 plus a quit-during-transfer case on the M commit, which becomes the release candidate.
 
+**PM (2026-10-24):** VR-7 - **after VR-6: verify items M + L at commit 12f54a7** (`dev/v3.0-telemetry`), rung `observed`; this commit is the release candidate. Checkout: `git -C ~/Projects/media-transfer-verify fetch origin && git -C ~/Projects/media-transfer-verify checkout --detach 12f54a7` (no dependency change). Checks (files under `team/evidence/tester/vr-7/`):
+  1. Quit during a transfer: SIGTERM to the app 1-2 s into an exFAT transfer -> it exits within ~1 s, the reached folder's report exists (copied-verified / cancelled / not-started entries), the ledger is consistent, the next run completes and verifies. Same with Cmd-Q if the screen is unlocked.
+  2. Anonymous id: in the gear, "Reset anonymous id" -> `settings.json` shows a new `installId`; a transfer afterwards lands in the dev table under the new id only (`MT_TELEMETRY_URL` + scan as in VR-6 check 4).
+  3. Update entries: `MT_TEST_UPDATE=1` -> "Update available", then "Restart to install"; Remove the row; quit -> the main-process log shows the update-ready quit path, not the forced exit.
+  4. VR-6 checks 3 and 6 once more on this commit (consent modal, gear toggles; the three transfer-result bell entries).
+- Report as numbered items, commit `12f54a7` named; one message when done or blocked. The release gate = VR-6 + VR-7 + RR-9.
+
 ## Items
 
 **Tester (2026-10-24 16:40):** Quince VR-1 started against 9bebaec (WO-2 rev 1), verify checkout `~/Projects/media-transfer-verify`. Rig: disk images in my scratchpad only. Finish note follows here.
