@@ -1,0 +1,11 @@
+# VR-10 check 3 - commit c1d8de7. MT_TEST_HOLD_SAVE_READ_MS=1500, no transfer: label the fresh image TsDestP1 (destination) in the editor, Save, SIGTERM 0.2 s later.
+before: profiles 20 False
+"editor ready"
+SIGTERM 0.2 s after Save -> exit after 1.37 s
+## main log
+
+MT_TEST_HOLD_SAVE_READ_MS: profile save holds 1500 ms before its read
+MT_TEST_HOLD_SAVE_READ_MS: profile save written
+userData writes settled before exit
+after: profiles 21 TsDestP1 in profiles: True destination
+notifications.json.corrupt-1792897415528

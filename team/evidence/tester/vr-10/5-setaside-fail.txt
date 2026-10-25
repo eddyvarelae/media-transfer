@@ -1,0 +1,16 @@
+# VR-10 check 5 - commit c1d8de7. temps.json truncated to 0 B, temps.json.bak removed, MT_TEST_SETASIDE_FAIL=1; TsCard (local) -> APFS TsDest9 (fresh TsCard folder).
+rows ['DCIM\t0\t0\t0\t✗ 203 files failed verification', 'CLIP\t0\t0\t0\t✗ 6 files failed verification', 'THMBNL\t0\t0\t0\t✗ 3 files failed verification']
+failed listed 212 | reasons ["the app's record of its temporary files (temps.json) is unreadable: temps.json is unreadable and could not be set aside"]
+heading Transfer finished with failures
+main log:
+   4 temps.json did not parse (0 bytes), has no usable .bak and could not be set aside (EIO); left as it is, nothing written
+   3 the app's record of its temporary files (temps.json) is unreadable: temps.json is unreadable and could not be set aside; nothing is removed, and every file of this folder fails
+   1 userData writes settled before exit
+after SIGTERM exit: placed files 0, .mtpart 0, temps.json 0 B and byte-identical to before (cmp)
+
+## relaunch without the hook, same run
+rows ['DCIM\t203\t203\t0\t✓ 203 files verified', 'CLIP\t6\t6\t0\t✓ 6 files verified', 'THMBNL\t3\t3\t0\t✓ 3 files verified'] failed []
+log: temps.json did not parse (0 bytes) and has no usable .bak; kept as temps.json.corrupt-1792898671071, starting from the default
+temps.json {version:1,temps:[]} (31 B); temps.json.corrupt-1792898671071 0 B; 212 hash-equal to the card; .mtpart 0
+
+Friction: with the ledger unreadable the rows say '✗ 203 files failed verification' though nothing was copied or verified; the reason line itself is plain.

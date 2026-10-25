@@ -1,0 +1,387 @@
+=== SIGTERM at +0.5 s, destination TsDestX7
+userData before:
+  profiles.json 4934 B ok (20)
+  notifications.json 8687 B ok (25)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 14107 B ok (104)
+temps at SIGTERM: /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart 45088768 
+exit after 0.12 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+## reports
+CLIP transfer-20261024-201243.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+userData after the quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 9042 B ok (26)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 14489 B ok (107)
+  CHECK seeds present: True | last entry: transfer-cancelled TsDestX7 | entries 26
+  CHECK queue last: transfer_cancelled | events 107
+  CHECK ledger temps: 0 | .tmp-* in userData: [] | .corrupt-*: ['notifications.json.corrupt-1792897415528']
+  .mtpart on TsDestX7: 0
+userData after relaunch:
+  profiles.json 4934 B ok (20)
+  notifications.json 9042 B ok (26)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 14636 B ok (108)
+next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified']
+.mtpart 0
+userData after the clean quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 9393 B ok (27)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 14927 B ok (110)
+=== SIGTERM at +0.5 s, destination TsDestX7
+userData before:
+  profiles.json 4934 B ok (20)
+  notifications.json 9393 B ok (27)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 14927 B ok (110)
+temps at SIGTERM: /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart 47185920 
+exit after 0.12 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+## reports
+CLIP transfer-20261024-201340.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+userData after the quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 9748 B ok (28)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 15309 B ok (113)
+  CHECK seeds present: True | last entry: transfer-cancelled TsDestX7 | entries 28
+  CHECK queue last: transfer_cancelled | events 113
+  CHECK ledger temps: 0 | .tmp-* in userData: [] | .corrupt-*: ['notifications.json.corrupt-1792897415528']
+  .mtpart on TsDestX7: 0
+userData after relaunch:
+  profiles.json 4934 B ok (20)
+  notifications.json 9748 B ok (28)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 15456 B ok (114)
+next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified']
+.mtpart 0
+userData after the clean quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 10099 B ok (29)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 15748 B ok (116)
+=== SIGTERM at +0.5 s, destination TsDestX7
+userData before:
+  profiles.json 4934 B ok (20)
+  notifications.json 10099 B ok (29)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 15748 B ok (116)
+temps at SIGTERM: /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart 49283072 
+exit after 0.16 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+## reports
+CLIP transfer-20261024-201435.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+userData after the quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 10454 B ok (30)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 16130 B ok (119)
+  CHECK seeds present: True | last entry: transfer-cancelled TsDestX7 | entries 30
+  CHECK queue last: transfer_cancelled | events 119
+  CHECK ledger temps: 0 | .tmp-* in userData: [] | .corrupt-*: ['notifications.json.corrupt-1792897415528']
+  .mtpart on TsDestX7: 0
+userData after relaunch:
+  profiles.json 4934 B ok (20)
+  notifications.json 10454 B ok (30)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 16277 B ok (120)
+next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified']
+.mtpart 0
+userData after the clean quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 10805 B ok (31)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 16568 B ok (122)
+=== SIGTERM at +1.5 s, destination TsDestX7
+userData before:
+  profiles.json 4934 B ok (20)
+  notifications.json 10805 B ok (31)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 16568 B ok (122)
+temps at SIGTERM: /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart 117440512 
+exit after 3.83 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+## reports
+CLIP transfer-20261024-201532.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+userData after the quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 11161 B ok (32)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 16952 B ok (125)
+  CHECK seeds present: True | last entry: transfer-cancelled TsDestX7 | entries 32
+  CHECK queue last: transfer_cancelled | events 125
+  CHECK ledger temps: 0 | .tmp-* in userData: [] | .corrupt-*: ['notifications.json.corrupt-1792897415528']
+  .mtpart on TsDestX7: 0
+userData after relaunch:
+  profiles.json 4934 B ok (20)
+  notifications.json 11161 B ok (32)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 17099 B ok (126)
+next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified']
+.mtpart 0
+userData after the clean quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 11512 B ok (33)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 17390 B ok (128)
+=== SIGTERM at +1.5 s, destination TsDestX7
+userData before:
+  profiles.json 4934 B ok (20)
+  notifications.json 11512 B ok (33)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 17390 B ok (128)
+temps at SIGTERM: /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart 152043520 
+exit after 0.19 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+## reports
+CLIP transfer-20261024-201638.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+userData after the quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 11868 B ok (34)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 17774 B ok (131)
+  CHECK seeds present: True | last entry: transfer-cancelled TsDestX7 | entries 34
+  CHECK queue last: transfer_cancelled | events 131
+  CHECK ledger temps: 0 | .tmp-* in userData: [] | .corrupt-*: ['notifications.json.corrupt-1792897415528']
+  .mtpart on TsDestX7: 0
+userData after relaunch:
+  profiles.json 4934 B ok (20)
+  notifications.json 11868 B ok (34)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 17921 B ok (132)
+next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified']
+.mtpart 0
+userData after the clean quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 12219 B ok (35)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 18212 B ok (134)
+=== SIGTERM at +1.5 s, destination TsDestX7
+userData before:
+  profiles.json 4934 B ok (20)
+  notifications.json 12219 B ok (35)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 18212 B ok (134)
+temps at SIGTERM: /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart 143654912 
+exit after 0.34 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+## reports
+CLIP transfer-20261024-201736.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+userData after the quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 12575 B ok (36)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 18596 B ok (137)
+  CHECK seeds present: True | last entry: transfer-cancelled TsDestX7 | entries 36
+  CHECK queue last: transfer_cancelled | events 137
+  CHECK ledger temps: 0 | .tmp-* in userData: [] | .corrupt-*: ['notifications.json.corrupt-1792897415528']
+  .mtpart on TsDestX7: 0
+userData after relaunch:
+  profiles.json 4934 B ok (20)
+  notifications.json 12575 B ok (36)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 18743 B ok (138)
+next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified']
+.mtpart 0
+userData after the clean quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 12926 B ok (37)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 19034 B ok (140)
+=== SIGTERM at +3 s, destination TsDestX7
+userData before:
+  profiles.json 4934 B ok (20)
+  notifications.json 12926 B ok (37)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 19034 B ok (140)
+temps at SIGTERM: /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart 292552704 
+exit after 0.21 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+## reports
+CLIP transfer-20261024-201835.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+userData after the quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 13282 B ok (38)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 19418 B ok (143)
+  CHECK seeds present: True | last entry: transfer-cancelled TsDestX7 | entries 38
+  CHECK queue last: transfer_cancelled | events 143
+  CHECK ledger temps: 0 | .tmp-* in userData: [] | .corrupt-*: ['notifications.json.corrupt-1792897415528']
+  .mtpart on TsDestX7: 0
+userData after relaunch:
+  profiles.json 4934 B ok (20)
+  notifications.json 13282 B ok (38)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 19565 B ok (144)
+next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified']
+.mtpart 0
+userData after the clean quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 13633 B ok (39)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 19856 B ok (146)
+=== SIGTERM at +3 s, destination TsDestX7
+userData before:
+  profiles.json 4934 B ok (20)
+  notifications.json 13633 B ok (39)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 19856 B ok (146)
+temps at SIGTERM: /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart 294649856 
+exit after 0.23 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+## reports
+CLIP transfer-20261024-201935.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+userData after the quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 13989 B ok (40)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 20240 B ok (149)
+  CHECK seeds present: True | last entry: transfer-cancelled TsDestX7 | entries 40
+  CHECK queue last: transfer_cancelled | events 149
+  CHECK ledger temps: 0 | .tmp-* in userData: [] | .corrupt-*: ['notifications.json.corrupt-1792897415528']
+  .mtpart on TsDestX7: 0
+userData after relaunch:
+  profiles.json 4934 B ok (20)
+  notifications.json 13989 B ok (40)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 20387 B ok (150)
+next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified']
+.mtpart 0
+userData after the clean quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 14340 B ok (41)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 20678 B ok (152)
+=== SIGTERM at +3 s, destination TsDestX7
+userData before:
+  profiles.json 4934 B ok (20)
+  notifications.json 14340 B ok (41)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 20678 B ok (152)
+temps at SIGTERM: /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart 296747008 
+exit after 0.20 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+## reports
+CLIP transfer-20261024-202035.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+userData after the quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 14696 B ok (42)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 21062 B ok (155)
+  CHECK seeds present: True | last entry: transfer-cancelled TsDestX7 | entries 42
+  CHECK queue last: transfer_cancelled | events 155
+  CHECK ledger temps: 0 | .tmp-* in userData: [] | .corrupt-*: ['notifications.json.corrupt-1792897415528']
+  .mtpart on TsDestX7: 0
+userData after relaunch:
+  profiles.json 4934 B ok (20)
+  notifications.json 14696 B ok (42)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 21209 B ok (156)
+next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified']
+.mtpart 0
+userData after the clean quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 15047 B ok (43)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 21500 B ok (158)
