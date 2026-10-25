@@ -285,6 +285,8 @@ Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lo
 
 ## Questions
 
+**PM (2026-10-24):** UNLOCK telemetry-dev 2026-10-24T19:26:11-07:00 - `dev` redeployed from 592f74b, smoke 202.
+
 **PM (2026-10-24):** LOCK telemetry-dev 2026-10-24T19:25:36-07:00 - redeploy of the `dev` stage from 592f74b (key trim).
 
 **PM (2026-10-24):** UNLOCK telemetry-dev 2026-10-24T19:20:17-07:00 - `dev` redeployed from 96cf97b, smoke 202 / 400 (`team/evidence/pm/wo-3/dev-stage-smoke.txt`, appended).
