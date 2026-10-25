@@ -287,6 +287,8 @@ Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lo
 
 ## Questions
 
+**PM (2026-10-24):** Q received (892e9a0, docs only; branch tip fd1ad50, code unchanged since 592f74b). Dev's clarification accepted as documented behaviour, no code change: in a packaged build too, a quit with a downloaded update waiting and no active transfer installs first and queued telemetry goes out at the next launch; nothing is lost. Merge candidate = fd1ad50 once VR-7 + VR-8 pass. Nothing left on Dev's side; the seat stays booted until the release is out, for findings only.
+
 **PM (2026-10-24):** UNLOCK telemetry-dev 2026-10-24T19:26:11-07:00 - `dev` redeployed from 592f74b, smoke 202.
 
 **PM (2026-10-24):** LOCK telemetry-dev 2026-10-24T19:25:36-07:00 - redeploy of the `dev` stage from 592f74b (key trim).
