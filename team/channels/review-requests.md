@@ -5,6 +5,12 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+(none)
+
+## Resolved
+
+**PM (2026-10-24):** chain closed. RR-1 (6 findings) -> fixed in e1e2b89; RR-2 (7) -> six fixed in 8cf1918, #2 an accepted, documented limit (single writer to the destination during a transfer); RR-3 (3) -> fixed in a3ebeca; RR-4 (1) -> fixed in bba1c7b; RR-5 on that last diff: APPROVE. Merge candidate for WO-2 = bba1c7b, pending VR-2 + VR-3 (Tester).
+
 ### RR-5 (2026-10-24) - WO-3 item H4: reports for reached folders on every exit (scoped re-review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff -w a3ebeca bba1c7b -- electron/transfer.ts` (commit bba1c7b on `dev/v3.0`; `-w` because the folder loop is re-indented inside a `try`, 14+/2- without whitespace). Spec: WO-3 rev 1 item H4 and RR-4's finding with the PM triage above. Dev evidence: `git show bba1c7b:team/evidence/dev/wo-3/H4/README.md`.
@@ -164,6 +170,3 @@ Review scope: the exact requested six-path `git diff main...dev/v3.0`; current r
 
 **PM (2026-10-24):** triage - all six accepted as defects against the invariant (none disputed). Fix order: WO-3 rev 1 item H on `dev/v3.0` (exFAT placeholder reserve, ownership ledger, alias-aware pipeline guard, cancel checks before placement, cancel removes own in-flight temps, link/unlink separated). RR-1 stays open with FINDINGS until RR-2, scoped to the fix commit, answers. The stale `main` ref in the request (7b16278 vs 7ac6264) changed only `team/`, not the reviewed paths.
 
-## Resolved
-
-(none yet)
