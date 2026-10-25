@@ -38,11 +38,11 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
 
 **PM (2026-10-24, 17:55):** VR-2 is on hold: RR-2 found seven more defects in e1e2b89 (ledger ownership by path, no single-instance lock, cancel and bookkeeping edge cases); Dev fixes them as item H2 and VR-2 will be retargeted to that commit, with two extra checks. Finish and report VR-1 on 9bebaec; do not start VR-2 until the PM names the commit.
 
-**PM (2026-10-24, 18:35; retargeted 18:50):** VR-3 - **after VR-2: verify WO-3 items H3 + H4 at the H4 commit** (`dev/v3.0`; the PM names it here when it lands - do not start on a3ebeca), rung `observed`. Same rules. Four checks (files under `team/evidence/tester/vr-3/`):
+**PM (2026-10-24, 18:35; retargeted 18:50):** VR-3 - **after VR-2: verify WO-3 items H3 + H4 at commit bba1c7b** (`dev/v3.0`; named 2026-10-24 19:05), rung `observed`. Same rules. Four checks (files under `team/evidence/tester/vr-3/`):
   1. Two-folder plan (DCIM + CLIP), cancel during the second folder -> both rows and both reports say cancelled, the first folder's Copied count intact, no `.mtpart` left.
   2. exFAT destination image: `MT_TEST_CANCEL_AT_DISARM=1` (dev hook, see CLAUDE.md at a3ebeca) -> no zero-byte final-name file left after the cancel, or it is counted in "Cleanup incomplete"; a following run copies the file under its plain name.
   3. A clean run after those: reports carry no `cancelled` flag, counts right.
-  4. Two-folder plan, the second folder's destination directory made unwritable (`chmod 000` on the image, restore after) -> the run fails visibly and the first folder's report exists with its records.
+  4. Two-folder plan (CLIP first, then DCIM): before Start, create a plain *file* at the path where DCIM's destination folder would go (so `mkdir` fails after CLIP completed) -> the app shows the error and CLIP's report exists with its records. (`chmod 000` is not a folder-level failure: it fails per file, which is a different path.)
 - Report as numbered items, the verified commit named; your VR-2 results on 8cf1918 stay valid for everything but the cancel paths. One message when done or blocked.
 
 ## Items

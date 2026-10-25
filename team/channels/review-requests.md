@@ -5,6 +5,21 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-5 (2026-10-24) - WO-3 item H4: reports for reached folders on every exit (scoped re-review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff -w a3ebeca bba1c7b -- electron/transfer.ts` (commit bba1c7b on `dev/v3.0`; `-w` because the folder loop is re-indented inside a `try`, 14+/2- without whitespace). Spec: WO-3 rev 1 item H4 and RR-4's finding with the PM triage above. Dev evidence: `git show bba1c7b:team/evidence/dev/wo-3/H4/README.md`.
+
+Claim under review: when `executePlan` exits by any path (normal, cancel, exception), every completed folder's report is written, the run cancellation flag is sampled first, a failing report write is logged and never masks the original error, and the original error still propagates.
+
+What would falsify it (check first, cite file:line and the failing input):
+- F1''''. An exit path that skips the `finally` or writes reports before the cancellation sample; a report written for a folder that was not reached; an exception in one report write preventing the next folder's write or replacing the original error.
+- F2''''. A behaviour change to the normal and cancel paths versus a3ebeca beyond the relocation into `finally` (counts, `cancelled` flags, `tempsLeft`).
+- Regressions on RR-3/RR-4 claims within this diff.
+
+Accepted limits: as in RR-4. Triage rule in force (PM note under RR-4): a reporting-only finding with no effect on destination files is resolved as a backlog item; only findings against the never-overwrite invariant block the merge.
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
 ### RR-4 (2026-10-24) - WO-3 item H3: fixes for RR-3 findings 1-3 (scoped re-review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff 8cf1918 a3ebeca -- electron/ src/` (commit a3ebeca on `dev/v3.0`). Spec: WO-3 rev 1 item H3 (top of `team/channels/dev-questions.md`) and RR-3's findings with the PM triage above. Dev evidence: `git show a3ebeca:team/evidence/dev/wo-3/H3/README.md`.
