@@ -1,0 +1,12 @@
+# P.2 (RR-10 #2): MT_TEST_UPDATE=1 + MT_TEST_FINALIZE_DELAY_MS=1500, no transfer
+
+## run 3: Restart to install (window.api.installUpdate over CDP), +400 ms SIGTERM (the Quit) -> exited after 1.57 s
+quit requested again while finalizing: held until the first finalization completes
+MT_TEST_UPDATE: quitAndInstall(isSilent=false, isForceRunAfter=true) would run now
+install did not exit: releasing the held quit
+
+## run 4: Restart to install alone -> the app stays open (no quit held; the dev hook only logs); a later SIGTERM -> exited after 0.2 s
+MT_TEST_UPDATE: quitAndInstall(isSilent=false, isForceRunAfter=true) would run now
+update waiting and no transfer: the normal quit path installs it
+
+# Before the fix (from reading the code, not re-run): run 3's quit was held behind the install's finalization and nothing released it once installNow returned false.

@@ -156,17 +156,18 @@ async function finalizeBeforeExit(): Promise<void> {
 // authorized once, after it.
 let finalizing: Promise<void> | null = null;
 let exitAuthorized = false;
+let quitHeld = false;
 
 function finalizeOnce(): Promise<void> {
   return (finalizing ??= finalizeBeforeExit());
 }
 
-// Electron answers the first SIGTERM / SIGINT itself (a quit) and then resets the signal to its
+// Electron answers the first SIGTERM / SIGINT / SIGHUP itself (a quit) and then resets the signal to its
 // default action, so a second signal would kill the process in the middle of the finalization.
 // From the first quit request on, our own handlers turn every further signal into a quit request
 // (held below). Removing and re-adding the listeners makes libuv install its handler again.
 function holdSignals() {
-  for (const sig of ['SIGTERM', 'SIGINT'] as const) {
+  for (const sig of ['SIGTERM', 'SIGINT', 'SIGHUP'] as const) {
     process.removeAllListeners(sig);
     process.on(sig, () => {
       console.log(`${sig}: quit requested`);
@@ -188,6 +189,7 @@ app.on('before-quit', (e) => {
   e.preventDefault();
   if (finalizing) {
     console.log('quit requested again while finalizing: held until the first finalization completes');
+    quitHeld = true;
     return;
   }
   finalizeOnce().finally(() => {
@@ -255,7 +257,16 @@ ipcMain.handle('update:install', async () => {
   if (!updateReady()) throw new Error('No downloaded update to install');
   await finalizeOnce();
   exitAuthorized = true;
-  installNow(true);
+  if (installNow(true)) return;
+  // The install did not exit (the dev hook) (RR-10 #2): a Quit held behind it gets the normal exit
+  // continuation; with none held the app stays open and a later quit finalizes again.
+  if (quitHeld) {
+    console.log('install did not exit: releasing the held quit');
+    app.exit(0);
+    return;
+  }
+  exitAuthorized = false;
+  finalizing = null;
 });
 
 // Thumbnails come from the origin card only: the path must be a source file of the active plan.

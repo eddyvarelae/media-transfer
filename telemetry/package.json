@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "tsx scripts/test-handler.ts && PH_KEY= tsx scripts/test-skip.ts && PH_KEY=unset tsx scripts/test-skip.ts && PH_KEY=phc_unset tsx scripts/test-skip.ts && PH_KEY=phc_TESTkeyNOTrealAAAAAAAAAAAAAAAAAAAAAAAAAA EXPECT=forward tsx scripts/test-skip.ts",
+    "test": "tsx scripts/test-handler.ts && PH_KEY= tsx scripts/test-skip.ts && PH_KEY=unset tsx scripts/test-skip.ts && PH_KEY=phc_unset tsx scripts/test-skip.ts && PH_KEY=phc_TESTkeyNOTrealAAAAAAAAAAAAAAAAAAAAAAAAAA EXPECT=forward tsx scripts/test-skip.ts && PH_KEY=phc_TESTkeyNOTrealAAAAAAAAAAAAAAAAAAAAAAAAAA PH_NEWLINE=1 EXPECT=forward tsx scripts/test-skip.ts",
     "deploy": "sst deploy"
   },
   "dependencies": {

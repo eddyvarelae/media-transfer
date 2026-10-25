@@ -1,0 +1,27 @@
+# P.1 (RR-10 #1): SIGHUP held like SIGTERM/SIGINT. In the app (dev build, isolated userData), DevPCard (exFAT image served at 30 MB/s) -> DevPDest<n> (exFAT), MT_TEST_FINALIZE_DELAY_MS=1500, signals 1 s into the transfer
+
+## run 1: SIGHUP, +300 ms SIGHUP -> exited after 1.69 s
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+SIGHUP: quit requested
+quit requested again while finalizing: held until the first finalization completes
+/Volumes/DevPDest1/DevPCard/DCIM/.media-transfer/transfer-20261024-192306.json
+/Volumes/DevPDest1/DevPCard/CLIP/.media-transfer/transfer-20261024-192306.json
+
+## run 2: SIGTERM, +300 ms SIGHUP, +200 ms SIGINT, +200 ms SIGTERM -> exited after 1.68 s
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+SIGHUP: quit requested
+quit requested again while finalizing: held until the first finalization completes
+SIGINT: quit requested
+quit requested again while finalizing: held until the first finalization completes
+SIGTERM: quit requested
+quit requested again while finalizing: held until the first finalization completes
+/Volumes/DevPDest2/DevPCard/DCIM/.media-transfer/transfer-20261024-192345.json
+/Volumes/DevPDest2/DevPCard/CLIP/.media-transfer/transfer-20261024-192345.json
+
+## counts run 2: finalizations=1, held=3
+
+# Electron answers a first SIGHUP with a quit as well (run 1: the finalization ran), so the re-arm in before-quit covers all three.
