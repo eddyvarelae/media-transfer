@@ -38,6 +38,8 @@ export type FileTx = { read(): Promise<ReadResult>; write(data: unknown, space?:
 const chains = new Map<string, Promise<unknown>>();
 const inFlight = new Set<Promise<unknown>>();
 let closed = false;
+// Each reopen starts a new lifecycle (RR-13 #2): a drain begun in an older one never closes it.
+let generation = 0;
 
 /**
  * Runs `op` under the file's lock. Registered at once (the quit drains it); refused once the
@@ -77,8 +79,10 @@ export async function pendingWrites(): Promise<void> {
 
 /** The quit's last barrier: drains every operation, then refuses new ones (same tick). */
 export async function drainAndClose(): Promise<void> {
+  const gen = generation;
   while (inFlight.size) await Promise.all([...inFlight]);
-  closed = true;
+  if (gen === generation) closed = true;
+  else console.log('a drain from before the store was reopened finished; the store stays open');
 }
 
 /** Refuses new operations at once (the quit's bound ran out). */
@@ -88,6 +92,7 @@ export function closeStore(): void {
 
 /** The app stays open after all (an install that did not exit, dev hook): accept operations again. */
 export function reopenStore(): void {
+  generation += 1;
   closed = false;
 }
 

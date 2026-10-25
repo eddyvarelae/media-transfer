@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { app } from 'electron';
 import { loadSettings } from './settings';
-import { readJson, withFile } from './jsonstore';
+import { withFile, FileTx } from './jsonstore';
 
 /**
  * Opt-in anonymous usage events (WO-3 B, PRIVACY.md). Nothing is queued or sent unless the
@@ -55,14 +55,27 @@ function queuePath(): string {
 }
 
 let queue: QueueFile | null = null;
+// RR-13 #1: the file is unreadable and could not be set aside: the queue lives in memory only
+// for this process and nothing is written over the original.
+let memoryOnly = false;
 
-async function loadQueue(): Promise<QueueFile> {
+// Dev-only hook MT_TEST_HOLD_QUEUE_READ_MS=<ms>: the first queue read waits that long (to show
+// overlapping early track() calls, RR-13 #3). No effect unset.
+const HOLD_QUEUE_READ_MS = Number(process.env.MT_TEST_HOLD_QUEUE_READ_MS) || 0;
+
+// Under the queue file's lock, so the first load is single-flight (RR-13 #3).
+async function loadIn(tx: FileTx): Promise<QueueFile> {
   if (queue) return queue;
+  if (HOLD_QUEUE_READ_MS) {
+    console.log(`MT_TEST_HOLD_QUEUE_READ_MS: the first queue read holds ${HOLD_QUEUE_READ_MS} ms`);
+    await new Promise((r) => setTimeout(r, HOLD_QUEUE_READ_MS));
+  }
   let raw: any = null;
   try {
-    raw = (await readJson(queuePath())).data;
-  } catch {
-    raw = null;
+    raw = (await tx.read()).data;
+  } catch (e: any) {
+    memoryOnly = true;
+    console.warn(`telemetry queue kept in memory only (${e?.message ?? e}); the file is left as it is`);
   }
   queue = {
     version: 1,
@@ -72,22 +85,31 @@ async function loadQueue(): Promise<QueueFile> {
   return queue;
 }
 
+function loadQueue(): Promise<QueueFile> {
+  return queue ? Promise.resolve(queue) : withFile(queuePath(), loadIn);
+}
+
+async function writeIn(tx: FileTx): Promise<void> {
+  if (queue && !memoryOnly) await tx.write(queue);
+}
+
 // Writes run one at a time under the file's lock (registered at once for the quit, WO-3 S); the
 // file always holds the latest queue.
 function persist(): Promise<void> {
-  return withFile(queuePath(), async (tx) => {
-    if (queue) await tx.write(queue);
-  });
+  return withFile(queuePath(), writeIn);
 }
 
 /** Queues one event if telemetry is on; never throws. */
 export async function track<N extends EventName>(name: N, props: EventProps[N]): Promise<void> {
   try {
     if ((await loadSettings()).telemetry !== 'on') return;
-    const q = await loadQueue();
-    q.events.push({ name, at: new Date().toISOString(), props: props as Record<string, Scalar> });
-    if (q.events.length > MAX_QUEUE) q.events.splice(0, q.events.length - MAX_QUEUE);
-    await persist();
+    // Load, append and persist as one operation under the queue file's lock (RR-13 #3).
+    await withFile(queuePath(), async (tx) => {
+      const q = await loadIn(tx);
+      q.events.push({ name, at: new Date().toISOString(), props: props as Record<string, Scalar> });
+      if (q.events.length > MAX_QUEUE) q.events.splice(0, q.events.length - MAX_QUEUE);
+      await writeIn(tx);
+    });
   } catch {
     /* telemetry never breaks the app */
   }
@@ -95,20 +117,25 @@ export async function track<N extends EventName>(name: N, props: EventProps[N]):
 
 /** Turning telemetry off drops whatever was queued and not yet sent. */
 export async function dropQueue(): Promise<void> {
-  const q = await loadQueue();
-  q.events = [];
-  await persist().catch(() => {});
+  await withFile(queuePath(), async (tx) => {
+    (await loadIn(tx)).events = [];
+    await writeIn(tx);
+  }).catch(() => {});
 }
 
 /** Launch-time bookkeeping: `update_installed` when the version changed since the last launch. */
 export async function noteLaunchVersion(): Promise<void> {
-  const q = await loadQueue();
   const version = app.getVersion();
-  const previous = q.lastVersion;
-  if (previous === version) return;
-  q.lastVersion = version;
-  await persist().catch(() => {});
-  if (previous) await track('update_installed', { version });
+  const previous = await withFile(queuePath(), async (tx) => {
+    const q = await loadIn(tx);
+    const prev = q.lastVersion;
+    if (prev !== version) {
+      q.lastVersion = version;
+      await writeIn(tx);
+    }
+    return prev;
+  }).catch(() => version);
+  if (previous && previous !== version) await track('update_installed', { version });
 }
 
 let sending: Promise<void> | null = null;

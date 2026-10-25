@@ -1,0 +1,8 @@
+# T.3 (RR-13 #3): in the app, telemetry on, MT_TEST_HOLD_QUEUE_READ_MS=3000 (the first queue read, by noteLaunchVersion at launch, holds 3 s) + MT_TEST_UPDATE=1 (track('update_available') at 1.5 s, inside the hold); queue seeded with lastVersion 2.9.0 (so update_installed is tracked too) and no events
+
+## main log
+MT_TEST_HOLD_QUEUE_READ_MS: the first queue read holds 3000 ms
+update waiting and no transfer: the normal quit path installs it
+
+## telemetry-queue.json after exit
+lastVersion 3.0.0 events ['update_available', 'update_installed', 'app_launched']

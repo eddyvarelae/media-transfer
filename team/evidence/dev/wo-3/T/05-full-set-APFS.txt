@@ -1,0 +1,27 @@
+# T full set on APFS (in app, file:// build, isolated userData), DevRCard (213 files, exFAT image served at 60 MB/s) -> fresh APFS DevRD91; no hook
+
+## run (DevRD91)
+{"heading": "Transfer complete", "rows": ["DCIM\t204\t204\t0\t\u2713 204 files verified", "CLIP\t6\t6\t0\t\u2713 6 files verified", "THMBNL\t3\t3\t0\t\u2713 3 files verified"], "failed": [], "note": null}
+volume probe CLIP: {"handleStable":true,"useBirth":false,"removalEnabled":true}
+volume probe DCIM: {"handleStable":true,"useBirth":false,"removalEnabled":true}
+volume probe THMBNL: {"handleStable":true,"useBirth":false,"removalEnabled":true}
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-done"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_finished"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD91"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; placed: 213
+
+## cancel-in-CLIP (DevRD92)
+{"heading": "Transfer cancelled", "rows": ["DCIM\t204\t204\t0\tCancelled \u00b7 204 files verified", "CLIP\t0\t0\t0\tCancelled \u00b7 0 files verified", "THMBNL\t0\t0\t0\tNot reached (cancelled)"], "failed": [], "note": null}
+volume probe CLIP: {"handleStable":true,"useBirth":false,"removalEnabled":true}
+volume probe DCIM: {"handleStable":true,"useBirth":false,"removalEnabled":true}
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-cancelled"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_cancelled"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD92"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; placed: 204
+
+## run (DevRD92)
+{"heading": "Transfer complete", "rows": ["DCIM\t0\t0\t204\t204 files already there, nothing to copy", "CLIP\t6\t6\t0\t\u2713 6 files verified", "THMBNL\t3\t3\t0\t\u2713 3 files verified"], "failed": [], "note": null}
+volume probe CLIP: {"handleStable":true,"useBirth":false,"removalEnabled":true}
+volume probe DCIM: {"handleStable":true,"useBirth":false,"removalEnabled":true}
+volume probe THMBNL: {"handleStable":true,"useBirth":false,"removalEnabled":true}
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-cancelled", "transfer-done"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_cancelled", "app_launched", "transfer_started", "transfer_finished"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD92"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; placed: 213
+
+## every placed file hash-equal to the card file of the same name (DevRD91, clean run)
+hash-equal: 213, mismatched: 0

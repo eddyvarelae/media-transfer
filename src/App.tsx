@@ -389,9 +389,10 @@ export default function App() {
           </section>
         )}
 
-        {/* A stop before the first progress event (the first folder cannot be created) still
-            gets its heading and error (VR-6 #47); the bars need progress. */}
-        {(running || phase === 'done') && (progress || stopped) && (
+        {/* A run that ends before the first progress event (the first folder cannot be created,
+            VR-6 #47; every file failed, RR-13 #1) still gets its heading and error; the bars
+            need progress. */}
+        {(running || phase === 'done') && (progress || stopped || (phase === 'done' && report)) && (
           <section className="progress-section" ref={progressRef}>
             <h2>
               {stopped ? (

@@ -43,6 +43,17 @@ export class ForeignTempError extends Error {
   }
 }
 
+/**
+ * The ownership ledger could not be read and was left as it is (RR-13 #1): nothing is claimed,
+ * created or removed until it can be; the file in question fails.
+ */
+export class LedgerUnavailableError extends Error {
+  constructor(detail: string) {
+    super(`the app's record of its temporary files (temps.json) is unreadable: ${detail}`);
+    this.name = 'LedgerUnavailableError';
+  }
+}
+
 /** The temp name is held by one of this run's own temps (an alias of a file still in flight). */
 export class TempBusyError extends Error {
   constructor(temp: string) {
@@ -98,25 +109,33 @@ type LedgerFile = { version: 1; temps: LedgerEntry[] };
 
 let ledgerFile: string | null = null;
 let ledger: Map<string, LedgerEntry> | null = null; // keyed by aliasKey(path)
+let ledgerError: LedgerUnavailableError | null = null; // retried at the next folder's cleanup
 
 /** Where the ledger lives (main: `userData/temps.json`); must be set before any transfer. */
 export function setLedgerFile(p: string) {
   ledgerFile = p;
   ledger = null;
+  ledgerError = null;
 }
 
 async function entries(): Promise<Map<string, LedgerEntry>> {
   if (ledger) return ledger;
+  if (ledgerError) throw ledgerError;
   if (!ledgerFile) throw new Error('ownership ledger not configured');
   const m = new Map<string, LedgerEntry>();
+  let raw: LedgerFile | null;
   try {
-    // WO-3 R: an unparsable ledger falls back to its .bak (atomic writes, jsonstore.ts).
-    const raw = (await readJson(ledgerFile)).data as LedgerFile | null;
-    for (const e of Array.isArray(raw?.temps) ? raw.temps : []) {
-      if (e && typeof e.path === 'string') m.set(aliasKey(e.path), { ...e, identity: e.identity ?? null });
-    }
-  } catch {
-    /* missing or unreadable ledger = we own nothing */
+    // WO-3 R: an unparsable ledger falls back to its .bak (atomic writes, jsonstore.ts); a missing
+    // one, or one set aside as .corrupt (logged), means we own nothing.
+    raw = (await readJson(ledgerFile)).data as LedgerFile | null;
+  } catch (e: any) {
+    // RR-13 #1: unreadable and not set aside: never replaced by an empty ledger. Not cached as
+    // "own nothing"; the error is, until the next folder's cleanup retries.
+    ledgerError = new LedgerUnavailableError(String(e?.message ?? e));
+    throw ledgerError;
+  }
+  for (const e of Array.isArray(raw?.temps) ? raw.temps : []) {
+    if (e && typeof e.path === 'string') m.set(aliasKey(e.path), { ...e, identity: e.identity ?? null });
   }
   ledger = m;
   return m;
@@ -402,7 +421,13 @@ export async function noClobberProbe(
 
 /** Removes a probe file of ours by its exact dev + ino; false when it is still there (kept). */
 async function dropProbeFile(p: string): Promise<boolean> {
-  const e = await ownerOf(p);
+  let e: LedgerEntry | null;
+  try {
+    e = await ownerOf(p);
+  } catch (err) {
+    if (err instanceof LedgerUnavailableError) return true; // nothing was claimed (RR-13 #1)
+    throw err;
+  }
   if (!e) return true; // never ours (or already released): nothing to do
   let st: fs.BigIntStats;
   try {
@@ -534,7 +559,16 @@ async function removeOwned(p: string): Promise<Removal> {
  */
 export async function noClobberCleanup(destRoot: string, runId: string): Promise<number> {
   let left = 0;
-  for (const e of [...(await entries()).values()]) {
+  ledgerError = null; // each folder tries the ledger again
+  let all: Map<string, LedgerEntry>;
+  try {
+    all = await entries();
+  } catch (e) {
+    if (!(e instanceof LedgerUnavailableError)) throw e;
+    console.error(`${e.message}; nothing is removed, and every file of this folder fails`);
+    return 0;
+  }
+  for (const e of [...all.values()]) {
     if (e.destRoot !== destRoot || e.runId === runId) continue;
     const result = !e.identity && e.provisional ? await removeCrashLeftover(e) : await removeOwned(e.path);
     if (result === 'failed') left += 1;
@@ -675,7 +709,14 @@ export async function noClobberDropRun(runId: string, destRoot: string): Promise
   let left = 0;
   // Per destination folder (K4): an entry retained in an earlier folder of the run is that
   // folder's to count, not every later folder's too.
-  for (const e of [...(await entries()).values()]) {
+  let all: Map<string, LedgerEntry>;
+  try {
+    all = await entries();
+  } catch (e) {
+    if (e instanceof LedgerUnavailableError) return 0; // nothing was claimed, nothing to remove
+    throw e;
+  }
+  for (const e of [...all.values()]) {
     if (e.runId === runId && e.destRoot === destRoot && (await removeOwned(e.path)) === 'failed') left += 1;
   }
   return left;
