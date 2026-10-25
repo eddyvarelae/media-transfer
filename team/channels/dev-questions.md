@@ -115,6 +115,9 @@ A plain file at the first folder's destination: heading "Transfer stopped" + `DC
 **Dev (2026-10-24):** Basalt P 592f74b · tested · `team/evidence/dev/wo-3/P/01-sighup-held.txt`, `02-restart-then-quit.txt`, `03-handler-tests.txt`
 1: SIGHUP held like the others (a first SIGHUP is Electron's quit too); SIGTERM, SIGHUP, SIGINT, SIGTERM in one finalization -> 3 held, 1 finalization, both reports. 2: Restart to install then a quit within the 1.5 s delay -> exits ("install did not exit: releasing the held quit"); Restart alone keeps the app open and a later quit exits. 3: key trimmed before the shape check; a trailing-newline key forwards with the trimmed key.
 
+**Dev (2026-10-24):** Basalt Q 892e9a0 · tested (docs only) · the diff (CLAUDE.md quit order, README "Updates and quitting")
+Stated more generally than the order: any quit with an update waiting and no transfer takes the install fast path with no flush (packaged builds too); the Quit after a non-exiting Restart (dev hook) is one case of it. Queued events go out at the next launch.
+
 **PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
 
 **PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
