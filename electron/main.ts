@@ -24,6 +24,7 @@ import { setLedgerFile } from './noclobber';
 import { loadSettings, updateSettings, SettingsPatch } from './settings';
 import { track, flush, dropQueue, noteLaunchVersion, flushBeforeQuit, withIdReset } from './telemetry';
 import { startUpdates, updateItems, removeUpdateItem, installNow, updateWaiting, updateReady } from './updates';
+import { pendingWrites } from './jsonstore';
 
 let win: BrowserWindow | null = null;
 let activePlan: TransferPlan | null = null;
@@ -137,18 +138,28 @@ const FINALIZE_MAX_MS = 5000;
 // second quit request can be shown arriving while it runs.
 const TEST_FINALIZE_DELAY_MS = Number(process.env.MT_TEST_FINALIZE_DELAY_MS) || 0;
 
+// WO-3 R: the run's own end (its bell entry and telemetry event) is part of activeRun, and every
+// userData write still pending (notifications, ledger, queue, settings, profiles) is awaited
+// before the exit, all inside the 5 s bound; the writes after the flush get the rest of it.
 async function finalizeBeforeExit(): Promise<void> {
-  if (activeRun) {
-    cancelFlag = true;
-    const timedOut = await Promise.race([
-      activeRun.then(() => false, () => false),
-      new Promise<boolean>((r) => setTimeout(() => r(true), FINALIZE_MAX_MS)),
+  const deadline = Date.now() + FINALIZE_MAX_MS;
+  const within = (p: Promise<unknown>) =>
+    Promise.race([
+      p.then(() => false, () => false),
+      new Promise<boolean>((r) => setTimeout(() => r(true), Math.max(0, deadline - Date.now()))),
     ]);
-    if (timedOut) console.warn(`transfer did not finalize within ${FINALIZE_MAX_MS} ms; exiting anyway`);
-    else console.log('active transfer cancelled and finalized before exit');
-  }
+  const hadRun = !!activeRun;
+  if (activeRun) cancelFlag = true;
+  const timedOut = await within((async () => {
+    await activeRun?.catch(() => undefined);
+    await pendingWrites();
+  })());
+  if (timedOut) console.warn(`transfer and pending writes did not finalize within ${FINALIZE_MAX_MS} ms; exiting anyway`);
+  else if (hadRun) console.log('active transfer cancelled and finalized before exit');
   if (TEST_FINALIZE_DELAY_MS) await new Promise((r) => setTimeout(r, TEST_FINALIZE_DELAY_MS));
   await flushBeforeQuit();
+  if (await within(pendingWrites())) console.warn('pending writes after the flush did not finish in time; exiting anyway');
+  else console.log('userData writes settled before exit');
 }
 
 // RR-9 #1: one finalization per process. Every quit request (a second Quit, a signal, Restart
@@ -340,7 +351,16 @@ async function recordTransfer(plan: TransferPlan, startedAt: number, report: Ver
   broadcastState();
 }
 
-ipcMain.handle('transfer:start', async () => {
+ipcMain.handle('transfer:start', () => {
+  // WO-3 R: activeRun is the whole transfer including its bookkeeping, so a quit waits for it.
+  const run = startTransfer();
+  activeRun = run;
+  return run.finally(() => {
+    if (activeRun === run) activeRun = null;
+  });
+});
+
+async function startTransfer(): Promise<VerifyReport[]> {
   if (!activePlan) throw new Error('No plan built');
   const plan = activePlan;
   const startedAt = Date.now();
@@ -353,18 +373,15 @@ ipcMain.handle('transfer:start', async () => {
     flatten: plan.folders.some((f) => f.flatten),
   });
   try {
-    const run = runTransfer(plan);
-    activeRun = run;
-    const report = await run.finally(() => {
-      if (activeRun === run) activeRun = null;
-    });
+    const report = await runTransfer(plan);
     await recordTransfer(plan, startedAt, report).catch(() => {});
-    trackOutcome(startedAt, report);
+    await trackOutcome(startedAt, report);
     win?.webContents.send('transfer:done', report);
     return report;
   } catch (e) {
     await recordTransfer(plan, startedAt, (e as any)?.reports ?? null).catch(() => {});
-    void track('transfer_failed', { stage: 'copy', errorType: errorType(e) }).then(flush);
+    await track('transfer_failed', { stage: 'copy', errorType: errorType(e) });
+    void flush();
     // I3: a folder that threw still ends the run like any other: every row (completed folders
     // with their counts, the failing one with its plain error) goes to the panel as usual.
     const rows: VerifyReport[] | undefined = (e as any)?.reports;
@@ -372,7 +389,7 @@ ipcMain.handle('transfer:start', async () => {
     win?.webContents.send('transfer:done', rows);
     return rows;
   }
-});
+}
 
 // The transfer in progress, if any (quit waits for its finalization).
 let activeRun: Promise<unknown> | null = null;
@@ -386,7 +403,8 @@ function errorType(e: any): string {
   return /^[A-Za-z0-9_]{1,40}$/.test(t) ? t : 'Error';
 }
 
-function trackOutcome(startedAt: number, report: VerifyReport[]) {
+/** Queues the outcome event (awaited: the quit waits for it), then flushes in the background. */
+async function trackOutcome(startedAt: number, report: VerifyReport[]): Promise<void> {
   const durationMs = Date.now() - startedAt;
   const sum = (k: 'filesCopied' | 'filesVerified' | 'filesSkipped' | 'filesFailed') =>
     report.reduce((a, r) => a + r[k], 0);
@@ -401,7 +419,8 @@ function trackOutcome(startedAt: number, report: VerifyReport[]) {
         durationMs,
         mbps: durationMs > 0 ? Math.round((bytesDone / 1e6 / (durationMs / 1000)) * 10) / 10 : 0,
       });
-  void done.then(flush);
+  await done;
+  void flush();
 }
 
 function runTransfer(plan: TransferPlan): Promise<VerifyReport[]> {

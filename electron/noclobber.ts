@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
+import { readJson, writeJson } from './jsonstore';
 
 /**
  * The one gate for destination writes (v3.0 invariant): a file that already exists on the
@@ -109,7 +110,8 @@ async function entries(): Promise<Map<string, LedgerEntry>> {
   if (!ledgerFile) throw new Error('ownership ledger not configured');
   const m = new Map<string, LedgerEntry>();
   try {
-    const raw = JSON.parse(await fsp.readFile(ledgerFile, 'utf8')) as LedgerFile;
+    // WO-3 R: an unparsable ledger falls back to its .bak (atomic writes, jsonstore.ts).
+    const raw = (await readJson(ledgerFile)).data as LedgerFile | null;
     for (const e of Array.isArray(raw?.temps) ? raw.temps : []) {
       if (e && typeof e.path === 'string') m.set(aliasKey(e.path), { ...e, identity: e.identity ?? null });
     }
@@ -138,9 +140,8 @@ function persist(): Promise<void> {
       throw Object.assign(new Error('EIO (MT_TEST_LEDGER_FAIL)'), { code: 'EIO' });
     }
     if (!ledgerFile || !ledger) return;
-    await fsp.mkdir(path.dirname(ledgerFile), { recursive: true });
     const body: LedgerFile = { version: 1, temps: [...ledger.values()] };
-    await fsp.writeFile(ledgerFile, JSON.stringify(body, null, 1));
+    await writeJson(ledgerFile, body, 1);
   });
   writing = next.catch(() => undefined);
   return next;

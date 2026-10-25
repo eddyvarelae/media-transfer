@@ -1,0 +1,56 @@
+# R.1: SIGTERM at 0.5 / 1.5 / 3 s after Start, 3 runs each, in the app (dev build, isolated userData seeded with a v2.0 drive dismissal 'seed-drive' and an earlier 'seed-done' transfer entry, telemetry on), DevRCard (213 files, 328 MB, exFAT image served at 60 MB/s) -> fresh exFAT DevRD<n>
+# per run: exit time, finalization log lines, then every userData JSON file parsed (check.py), .mtpart count and reports on the destination
+
+## SIGTERM at 0.5 s, run 1 (DevRD51): exited after 0.14 s
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-cancelled"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_cancelled"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD51"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; reports: 1; files placed: 12
+
+## SIGTERM at 0.5 s, run 2 (DevRD52): exited after 0.13 s
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-cancelled"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_cancelled"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD52"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; reports: 1; files placed: 12
+
+## SIGTERM at 0.5 s, run 3 (DevRD53): exited after 0.13 s
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-cancelled"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_cancelled"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD53"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; reports: 1; files placed: 11
+
+## SIGTERM at 1.5 s, run 1 (DevRD54): exited after 0.14 s
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-cancelled"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_cancelled"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD54"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; reports: 1; files placed: 39
+
+## SIGTERM at 1.5 s, run 2 (DevRD55): exited after 0.15 s
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-cancelled"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_cancelled"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD55"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; reports: 1; files placed: 41
+
+## SIGTERM at 1.5 s, run 3 (DevRD56): exited after 0.14 s
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-cancelled"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_cancelled"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD56"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; reports: 1; files placed: 37
+
+## SIGTERM at 3 s, run 1 (DevRD57): exited after 0.14 s
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-cancelled"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_cancelled"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD57"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; reports: 1; files placed: 82
+
+## SIGTERM at 3 s, run 2 (DevRD58): exited after 0.14 s
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-cancelled"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_cancelled"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD58"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; reports: 1; files placed: 81
+
+## SIGTERM at 3 s, run 3 (DevRD59): exited after 0.14 s
+active transfer cancelled and finalized before exit
+userData writes settled before exit
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-cancelled"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_cancelled"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD59"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+mtpart: 0; reports: 1; files placed: 81

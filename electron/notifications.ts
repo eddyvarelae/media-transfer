@@ -1,8 +1,7 @@
-import fs from 'node:fs';
-import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { app } from 'electron';
+import { readJson, writeJson } from './jsonstore';
 
 export type NewDriveItem = {
   id: string;
@@ -53,18 +52,13 @@ function filePath(): string {
 }
 
 export async function loadNotifications(): Promise<NotificationsFile> {
-  const p = filePath();
-  if (!fs.existsSync(p)) return { version: 1, items: [] };
-  try {
-    const data = JSON.parse(await fsp.readFile(p, 'utf8')) as NotificationsFile;
-    return { version: 1, items: Array.isArray(data.items) ? data.items : [] };
-  } catch {
-    return { version: 1, items: [] };
-  }
+  // WO-3 R: an unparsable file falls back to its .bak, never silently to an empty list.
+  const { data } = await readJson(filePath());
+  return { version: 1, items: Array.isArray(data?.items) ? data.items : [] };
 }
 
 async function write(data: NotificationsFile): Promise<NotificationsFile> {
-  await fsp.writeFile(filePath(), JSON.stringify(data, null, 2));
+  await writeJson(filePath(), data, 2);
   return data;
 }
 

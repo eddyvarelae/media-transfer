@@ -1,8 +1,7 @@
-import fs from 'node:fs';
-import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { app } from 'electron';
 import { loadSettings } from './settings';
+import { readJson, writeJson } from './jsonstore';
 
 /**
  * Opt-in anonymous usage events (WO-3 B, PRIVACY.md). Nothing is queued or sent unless the
@@ -61,7 +60,7 @@ async function loadQueue(): Promise<QueueFile> {
   if (queue) return queue;
   let raw: any = null;
   try {
-    if (fs.existsSync(queuePath())) raw = JSON.parse(await fsp.readFile(queuePath(), 'utf8'));
+    raw = (await readJson(queuePath())).data;
   } catch {
     raw = null;
   }
@@ -77,7 +76,7 @@ async function loadQueue(): Promise<QueueFile> {
 let writing: Promise<unknown> = Promise.resolve();
 function persist(): Promise<void> {
   const next = writing.then(async () => {
-    if (queue) await fsp.writeFile(queuePath(), JSON.stringify(queue));
+    if (queue) await writeJson(queuePath(), queue);
   });
   writing = next.catch(() => undefined);
   return next;

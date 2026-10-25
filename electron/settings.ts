@@ -1,8 +1,7 @@
-import fs from 'node:fs';
-import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { app } from 'electron';
+import { readJson, writeJson } from './jsonstore';
 
 export type TelemetryChoice = 'unasked' | 'on' | 'off';
 
@@ -37,15 +36,7 @@ let cached: Settings | null = null;
 /** Reads settings.json, creating it (with a fresh installId) on first run. */
 export async function loadSettings(): Promise<Settings> {
   if (cached) return cached;
-  const p = filePath();
-  let raw: any = null;
-  if (fs.existsSync(p)) {
-    try {
-      raw = JSON.parse(await fsp.readFile(p, 'utf8'));
-    } catch {
-      raw = null;
-    }
-  }
+  const raw = (await readJson(filePath())).data;
   const s = normalize(raw);
   if (JSON.stringify(raw) !== JSON.stringify(s)) await write(s);
   cached = s;
@@ -53,8 +44,7 @@ export async function loadSettings(): Promise<Settings> {
 }
 
 async function write(s: Settings): Promise<void> {
-  await fsp.mkdir(path.dirname(filePath()), { recursive: true });
-  await fsp.writeFile(filePath(), JSON.stringify(s, null, 2));
+  await writeJson(filePath(), s, 2);
 }
 
 // Read-modify-write runs one at a time.

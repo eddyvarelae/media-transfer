@@ -1,7 +1,6 @@
-import fs from 'node:fs';
-import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { app } from 'electron';
+import { readJson, writeJson } from './jsonstore';
 
 export type Role = 'origin' | 'destination';
 
@@ -53,36 +52,50 @@ function filePath(): string {
 
 export async function loadProfiles(): Promise<ProfilesFile> {
   const p = filePath();
-  if (!fs.existsSync(p)) {
+  // WO-3 R: an unparsable file falls back to its .bak; with neither readable the read throws
+  // (strict) and nothing is written over it.
+  const { data: raw, status } = await readJson(p, { strict: true });
+  if (status === 'missing') {
     const now = Date.now();
     const profiles: Record<string, Profile> = {};
     for (const s of SEED) {
       profiles[s.volumeName] = { ...s, createdAt: now, updatedAt: now };
     }
     const data: ProfilesFile = { profiles, version: 1 };
-    await fsp.writeFile(p, JSON.stringify(data, null, 2));
+    await writeJson(p, data, 2);
     return data;
   }
-  const raw = await fsp.readFile(p, 'utf8');
-  return JSON.parse(raw) as ProfilesFile;
+  return raw as ProfilesFile;
 }
 
-export async function saveProfile(profile: Profile): Promise<ProfilesFile> {
-  const data = await loadProfiles();
-  const now = Date.now();
-  const existing = data.profiles[profile.volumeName];
-  data.profiles[profile.volumeName] = {
-    ...profile,
-    createdAt: existing?.createdAt ?? now,
-    updatedAt: now,
-  };
-  await fsp.writeFile(filePath(), JSON.stringify(data, null, 2));
-  return data;
+// Read-modify-write runs one at a time.
+let queue: Promise<unknown> = Promise.resolve();
+function serial<T>(fn: () => Promise<T>): Promise<T> {
+  const next = queue.then(fn, fn);
+  queue = next.catch(() => undefined);
+  return next;
 }
 
-export async function deleteProfile(volumeName: string): Promise<ProfilesFile> {
-  const data = await loadProfiles();
-  delete data.profiles[volumeName];
-  await fsp.writeFile(filePath(), JSON.stringify(data, null, 2));
-  return data;
+export function saveProfile(profile: Profile): Promise<ProfilesFile> {
+  return serial(async () => {
+    const data = await loadProfiles();
+    const now = Date.now();
+    const existing = data.profiles[profile.volumeName];
+    data.profiles[profile.volumeName] = {
+      ...profile,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+    };
+    await writeJson(filePath(), data, 2);
+    return data;
+  });
+}
+
+export function deleteProfile(volumeName: string): Promise<ProfilesFile> {
+  return serial(async () => {
+    const data = await loadProfiles();
+    delete data.profiles[volumeName];
+    await writeJson(filePath(), data, 2);
+    return data;
+  });
 }
