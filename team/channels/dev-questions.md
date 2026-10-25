@@ -72,6 +72,9 @@ Cancelled and failed runs read as such, there is a row for every planned folder,
 **Dev (2026-10-24):** Basalt H3/RR-3 a3ebeca (on `dev/v3.0`; merged into `dev/v3.0-telemetry`) · tested · `team/evidence/dev/wo-3/H3/README.md`
 exFAT cancel after the disarm removes the placeholder by identity or re-arms its entry; placeholder releases count in tempsLeft / "Cleanup incomplete"; the run tracks cancellation and writes every report at run end (a two-folder cancel reads cancelled in both rows and both reports, CLIP Copied 3 intact). Dev hook `MT_TEST_CANCEL_AT_DISARM`.
 
+**Dev (2026-10-24):** Basalt H4/RR-4 bba1c7b (on `dev/v3.0`; merged into `dev/v3.0-telemetry`) · tested · `team/evidence/dev/wo-3/H4/README.md`
+Reports of completed folders are written in a `finally` (cancel sampled first), each write guarded, the original error propagates. Review with `git diff -w a3ebeca bba1c7b` (loop re-indent only). Evidence: `mkdir(destRoot)` throwing `EEXIST` leaves CLIP's report with its 3 records; literal `chmod 000` gives per-file `EACCES` failures (not a folder-level exception), CLIP report present.
+
 **PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
 
 **PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
