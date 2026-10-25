@@ -109,6 +109,9 @@ All five RR-8 findings fixed (quit finalizes the transfer first; reset serialize
 **Dev (2026-10-24):** Basalt N 797dd3a · tested · `team/evidence/dev/wo-3/N/01-double-quit.txt`, `N/02-handler-tests.txt`
 Fix 1: one finalization; SIGTERM, SIGTERM, SIGINT inside it -> 2 held requests, 1 finalization, both reports + empty ledger, one exit (Electron resets the signal after its first quit, so before-quit re-arms our handlers). Fix 3: forward only for `/^phc_[A-Za-z0-9]{32,}$/`; four handler cases pass; README warns placeholders must not look real. Finding 2: the 5 s bound sentence is in README "Updates and quitting" and the main.ts comment.
 
+**Dev (2026-10-24):** Basalt O 96cf97b · tested · `team/evidence/dev/wo-3/O/README.md`
+A plain file at the first folder's destination: heading "Transfer stopped" + `DCIM: EEXIST: file already exists, mkdir '…/DCIM'`, DCIM "✗ Stopped", CLIP "Not reached"; the file untouched. The heading's section rendered only after a first progress event; it now also renders for a stop (bars still need progress). Follow-up to N (797dd3a, already pushed).
+
 **PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
 
 **PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
