@@ -1,0 +1,48 @@
+# VR-4 check 5 - commit 90aecd0. Negative case on exFAT TsDestX4 (fresh): SIGKILL mid-copy of C0004.MP4, replace the leftover by hand with my own file of the same name, then relaunch + run.
+kill -9 39710 at 18:28:08 with /Volumes/TsDestX4/TsCard2/CLIP/C0004.MP4.mtpart at 108003328 bytes
+## temps on /Volumes/TsDestX4/TsCard2
+58 108003328 /Volumes/TsDestX4/TsCard2/CLIP/C0004.MP4.mtpart
+## ledger
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/TsDestX4/TsCard2/CLIP/C0004.MP4.mtpart",
+   "destRoot": "/Volumes/TsDestX4/TsCard2/CLIP",
+   "runId": "6da17599-bc43-49be-a14a-a7a002c3fe72",
+   "createdAt": "2026-10-25T01:28:07.471Z",
+   "identity": null,
+   "provisional": {
+    "dev": "16777383",
+    "birthtimeNs": "1792891687470000000"
+   }
+  }
+ ]
+}## replace the leftover by hand
+before: ino 58 size 108003328 birth 2026-10-24T18:28:07
+mine:   ino 58 size 101 birth 2026-10-24T18:28:12 (1792891692) mtime 2026-10-24T18:28:12
+e514eadf66f0390f040c08ea411f1a07482e739fd2602ad0a4709c9779a56d81  /Volumes/TsDestX4/TsCard2/CLIP/C0004.MP4.mtpart
+## run
+recovery run: ['CLIP\t1\t1\t0\t✗ 1 file failed verification', 'DCIM\t3\t3\t0\t✓ 3 files verified'] ['CLIPC0004.MP4 · temp name taken by an unknown file'] ['Transferring', 'Transfer finished with failures']
+main log:
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+.mtpart after: 1; ledger after: {"version":1,"temps":[]}
+ledger changes:
+  18:28:32.457558000 ['C0004.MP4.mtpart']
+  18:28:35.090686000 ['C0005.MP4.mtpart']
+  18:28:39.366009000 ['C0005.MP4.mtpart']
+  18:28:39.665977000 ['A.JPG.mtpart']
+  18:28:39.731019000 ['a.JPG.mtpart']
+  18:28:39.795603000 []
+hashes:
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsDestX4/TsCard2/CLIP/C0005.MP4
+## my file after the run
+after:  ino 58 size 101 birth 2026-10-24T18:28:12 (1792891692) mtime 2026-10-24T18:28:12
+e514eadf66f0390f040c08ea411f1a07482e739fd2602ad0a4709c9779a56d81  /Volumes/TsDestX4/TsCard2/CLIP/C0004.MP4.mtpart
+## report
+transfer-20261024-182835.json [('C0004.MP4', 'failed', 'temp name taken by an unknown file'), ('C0005.MP4', 'copied-verified', None)]
+Note: exFAT gave my file the same inode (58) as the app's leftover; only the birthtime (18:28:07 -> 18:28:12, recorded as provisional birthtimeNs) told them apart. The ledger's provisional entry was dropped without touching the file.
