@@ -21,8 +21,8 @@ if [ "$CMD" = extra ]; then
   mount | grep -E 'TsDest6|TsDestX'; exit 0
 fi
 if [ "$CMD" = down ]; then
-  for v in TsCard TsCard2 $DESTS TsDest6 TsDestX TsDestX1 TsDestX2 TsDestX3 TsDestX4 TsDest7 TsDest8 TsDestX5 TsDestX6 TsDestX7 TsDest9; do [ -d /Volumes/$v ] && hdiutil detach -quiet /Volumes/$v && echo "detached $v"; done
-  for v in tscard tscard2 tsdest tsdest2 tsdest3 tsdest4 tsdest5 tsdest6 tsdestx tsdestx1 tsdestx2 tsdestx3 tsdestx4 tsdest7 tsdest8 tsdestx5 tsdestx6 tsdestx7 tsdest9; do [ -f $S/$v.dmg ] && /bin/rm -- $S/$v.dmg; done
+  for v in TsCard TsCard2 $DESTS TsDest6 TsDestX TsDestX1 TsDestX2 TsDestX3 TsDestX4 TsDest7 TsDest8 TsDestX5 TsDestX6 TsDestX7 TsDest9 TsDestP1; do [ -d /Volumes/$v ] && hdiutil detach -quiet /Volumes/$v && echo "detached $v"; done
+  for v in tscard tscard2 tsdest tsdest2 tsdest3 tsdest4 tsdest5 tsdest6 tsdestx tsdestx1 tsdestx2 tsdestx3 tsdestx4 tsdest7 tsdest8 tsdestx5 tsdestx6 tsdestx7 tsdest9 tsdestp1; do [ -f $S/$v.dmg ] && /bin/rm -- $S/$v.dmg; done
   exit 0
 fi
 for v in TsCard TsCard2 $DESTS; do [ -e /Volumes/$v ] && { echo "/Volumes/$v already exists"; exit 1; }; done
