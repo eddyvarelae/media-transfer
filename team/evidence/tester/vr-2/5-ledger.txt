@@ -1,0 +1,72 @@
+# VR-2 check 5 - commit 8cf1918. Ownership ledger <user-data-dir>/temps.json. 2026-10-24T17:20:11-07:00
+## (a) during a full run (check 3, local TsCard2 -> TsDest3), each change:
+  17:15:23.370838000 []
+  17:15:26.049185000 ['C0004.MP4.mtpart']
+  17:15:26.367196000 ['C0004.MP4.mtpart', 'C0005.MP4.mtpart']
+  17:15:27.167527000 ['C0005.MP4.mtpart']
+  17:15:27.412714000 []
+## (b) during the in-flight cancel (check 2): both temps listed, then []; 0 .mtpart on TsDest2 afterwards
+  17:17:13.366844000 []
+  17:17:15.619188000 ['C0004.MP4.mtpart']
+  17:17:19.787291000 ['C0004.MP4.mtpart', 'C0005.MP4.mtpart']
+  17:17:19.845661000 []
+## (c) re-run after that cancel:
+  17:17:49.927331000 []
+  17:17:52.261981000 ['C0004.MP4.mtpart']
+  17:17:56.552557000 ['C0004.MP4.mtpart', 'C0005.MP4.mtpart']
+  17:17:56.793930000 ['C0005.MP4.mtpart']
+  17:18:01.001169000 []
+
+## (d) MT_TEST_REMOVE_FAIL=1, same in-flight cancel (C0005 copying, C0004 waiting for read-back)
+{"rows": ["DCIM\t0\t0\t3\t3 files already there, nothing to copy", "CLIP\t0\t0\t0\tCancelled \u00b7 0 files verified"], "h2seen": [{"t": 20, "h2": "Transferring", "conveyor": true}, {"t": 4354, "h2": "Transfer cancelled", "conveyor": false}], "endText": "TRANSFER CANCELLED\n50.9%\n407 MB / 800 MB\n94.0 MB/s\nElapsed 4s\nETA \u2014\nRead back 0.0%\n0 B / 800 MB read back"}
+panel note: Cleanup incomplete: 2 temporary files left on the destination. The next transfer to that folder removes them.  (5-panel-cleanup-incomplete.png)
+main log:
+  owned temp not removed, kept for the next run: EPERM (x2)
+ledger changes:
+  17:19:11.493928000 []
+  17:19:14.113438000 ['C0004.MP4.mtpart']
+  17:19:18.362723000 ['C0004.MP4.mtpart', 'C0005.MP4.mtpart']
+ledger after the cancel:
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/TsDest2/TsCard2/CLIP/C0004.MP4.mtpart",
+   "destRoot": "/Volumes/TsDest2/TsCard2/CLIP",
+   "runId": "cbfcfd93-6d94-479a-b913-5363d3f24fa3",
+   "createdAt": "2026-10-25T00:19:14.107Z",
+   "identity": {
+    "dev": "16777264",
+    "ino": "62",
+    "birthtimeNs": "1792887554107858520"
+   }
+  },
+  {
+   "path": "/Volumes/TsDest2/TsCard2/CLIP/C0005.MP4.mtpart",
+   "destRoot": "/Volumes/TsDest2/TsCard2/CLIP",
+   "runId": "cbfcfd93-6d94-479a-b913-5363d3f24fa3",
+   "createdAt": "2026-10-25T00:19:18.358Z",
+   "identity": {
+    "dev": "16777264",
+    "ino": "63",
+    "birthtimeNs": "1792887558359025998"
+   }
+  }
+ ]
+}temps on disk after the cancel:
+63 8388608 /Volumes/TsDest2/TsCard2/CLIP/C0005.MP4.mtpart
+62 419430400 /Volumes/TsDest2/TsCard2/CLIP/C0004.MP4.mtpart
+CLIP report: cancelled true, tempsLeft 2
+
+## (e) relaunch without the hook, transfer again: leftovers removed at the start, run completes
+  17:19:57.437495000 ['C0004.MP4.mtpart', 'C0005.MP4.mtpart']
+  17:20:00.083958000 ['C0004.MP4.mtpart']
+  17:20:04.336452000 ['C0004.MP4.mtpart', 'C0005.MP4.mtpart']
+  17:20:04.575787000 ['C0005.MP4.mtpart']
+  17:20:08.727438000 []
+{"rows": ["DCIM\t0\t0\t3\t3 files already there, nothing to copy", "CLIP\t2\t2\t0\t\u2713 2 files verified"], "failedList": [], "h2seen": [{"t": 33, "h2": "Transferring", "conveyor": true}, {"t": 8462, "h2": "Verifying", "conveyor": false}, {"t": 8681, "h2": "Transfer complete", "conveyor": false}]}
+.mtpart after: 0; ledger after: {"version":1,"temps":[]}
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsDest2/TsCard2/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsDest2/TsCard2/CLIP/C0005.MP4

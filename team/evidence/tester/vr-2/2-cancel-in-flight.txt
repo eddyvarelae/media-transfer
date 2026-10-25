@@ -1,0 +1,131 @@
+# VR-2 check 2 (+ the cancel half of 9) - commit 8cf1918. Throttled TsCard2 (slowserve 120 MB/s, :8767, read-only http attach) -> TsDest2, plan = CLIP's two 400 MB clips (DCIM already there). 2026-10-24T17:18:30-07:00
+
+## Cancel with two files in flight (ui-driver.js trigger: C0005 copying, C0004 not yet read back)
+{
+ "cancel": {
+  "t": 4226,
+  "copying": {
+   "folderLabel": "CLIP",
+   "currentFile": "C0005.MP4",
+   "filesCopied": 1,
+   "totalFiles": 2,
+   "bytesCopiedFolder": 425721856,
+   "totalBytesFolder": 838860800,
+   "bytesCopiedOverall": 425721856,
+   "totalBytesOverall": 838860800,
+   "bytesPerSecond": 100738725.98201609,
+   "elapsedMs": 4226
+  },
+  "verifying": {
+   "folderLabel": "CLIP",
+   "currentFile": "C0004.MP4",
+   "bytesVerifiedOverall": 0,
+   "totalBytesOverall": 838860800
+  },
+  "curStart": {
+   "name": "C0005.MP4",
+   "at": 420478976
+  },
+  "readBackShortBy": 420478976
+ },
+ "cancelToIdleMs": 19,
+ "rows": [
+  "DCIM\t0\t0\t3\t3 files already there, nothing to copy",
+  "CLIP\t0\t0\t0\tCancelled \u00b7 0 files verified"
+ ],
+ "failedList": [],
+ "h2seen": [
+  {
+   "t": 18,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 4243,
+   "h2": "Transfer cancelled",
+   "conveyor": false
+  }
+ ],
+ "endText": "TRANSFER CANCELLED\n50.7%\n406 MB / 800 MB\n96.1 MB/s\nElapsed 4s\nETA \u2014\nRead back 0.0%\n0 B / 800 MB read back"
+}
+## ledger (temps.json) during that run, each change:
+  17:17:13.366844000 []
+  17:17:15.619188000 ['C0004.MP4.mtpart']
+  17:17:19.787291000 ['C0004.MP4.mtpart', 'C0005.MP4.mtpart']
+  17:17:19.845661000 []
+## .mtpart on TsDest2 after the cancel: 0
+## destination before vs after the cancel (inode size mtime path) - only the empty CLIP folder and the two reports are new
+1c1,4
+< 18 96 2026-10-24T17:17:04 .
+---
+> 18 128 2026-10-24T17:17:15 .
+> 47 96 2026-10-24T17:17:19 ./CLIP
+> 50 96 2026-10-24T17:17:19 ./CLIP/.media-transfer
+> 51 747 2026-10-24T17:17:19 ./CLIP/.media-transfer/transfer-20261024-171715.json
+3c6
+< 29 128 2026-10-24T17:16:40 ./DCIM/.media-transfer
+---
+> 29 160 2026-10-24T17:17:15 ./DCIM/.media-transfer
+5a9
+> 46 897 2026-10-24T17:17:15 ./DCIM/.media-transfer/transfer-20261024-171715.json
+## CLIP report of the cancelled run
+{
+  "version": 1,
+  "app": "3.0.0",
+  "cancelled": true,
+  "startedAt": "2026-10-25T00:17:15.594Z",
+  "finishedAt": "2026-10-25T00:17:19.832Z",
+  "origin": "/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP",
+  "destination": "/Volumes/TsDest2/TsCard2/CLIP",
+  "flatten": false,
+  "files": [
+    {
+      "source": "/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4",
+      "dest": "/Volumes/TsDest2/TsCard2/CLIP/C0004.MP4",
+      "size": 419430400,
+      "mtime": "2026-10-24T23:56:38.870Z",
+      "status": "cancelled"
+    },
+    {
+      "source": "/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4",
+      "dest": "/Volumes/TsDest2/TsCard2/CLIP/C0005.MP4",
+      "size": 419430400,
+      "mtime": "2026-10-24T23:56:39.760Z",
+      "status": "cancelled"
+    }
+  ]
+}
+(DCIM report of that run: no 'cancelled' key - DCIM finished, 3 skipped, before the cancel)
+
+## Earlier attempt, kept as an extra case: cancel fired at the end of C0004's copy, before its read-back (one file in flight)
+{"cancel": {"t": 4231, "copying": {"folderLabel": "CLIP", "currentFile": "C0004.MP4", "filesCopied": 0, "totalFiles": 2, "bytesCopiedFolder": 419430400, "totalBytesFolder": 838860800, "bytesCopiedOverall": 419430400, "totalBytesOverall": 838860800, "bytesPerSecond": 99273467.45562132, "elapsedMs": 4225}, "verifying": {"folderLabel": "CLIP", "currentFile": "C0004.MP4", "bytesVerifiedOverall": 0, "totalBytesOverall": 838860800}, "curStart": {"name": "C0004.MP4", "at": 1048576}, "readBackShortBy": 1048576}, "cancelToIdleMs": 31, "rows": ["DCIM\t0\t0\t3\t3 files already there, nothing to copy", "CLIP\t0\t0\t0\tCancelled \u00b7 0 files verified"], "endText": "TRANSFER CANCELLED\n50.0%\n400 MB / 800 MB\n94.7 MB/s\nElapsed 4s\nETA \u2014\nRead back 0.0%\n0 B / 800 MB read back"}
+  .mtpart after it: 0 (checked before the CLIP folder was removed for the retry); ledger:
+  17:16:38.456684000 []
+  17:16:40.683063000 ['C0004.MP4.mtpart']
+  17:16:44.965407000 []
+
+## Re-run
+{"rows": ["DCIM\t0\t0\t3\t3 files already there, nothing to copy", "CLIP\t2\t2\t0\t\u2713 2 files verified"], "failedList": [], "h2seen": [{"t": 26, "h2": "Transferring", "conveyor": true}, {"t": 8500, "h2": "Verifying", "conveyor": false}, {"t": 8710, "h2": "Transfer complete", "conveyor": false}], "MBps": 98.7}
+## destination before vs after the re-run
+2,3c2,3
+< 47 96 2026-10-24T17:17:19 ./CLIP
+< 50 96 2026-10-24T17:17:19 ./CLIP/.media-transfer
+---
+> 47 160 2026-10-24T17:18:00 ./CLIP
+> 50 128 2026-10-24T17:18:00 ./CLIP/.media-transfer
+4a5,7
+> 59 906 2026-10-24T17:18:00 ./CLIP/.media-transfer/transfer-20261024-171752.json
+> 53 419430400 2026-10-24T16:56:38 ./CLIP/C0004.MP4
+> 54 419430400 2026-10-24T16:56:39 ./CLIP/C0005.MP4
+6c9
+< 29 160 2026-10-24T17:17:15 ./DCIM/.media-transfer
+---
+> 29 192 2026-10-24T17:17:52 ./DCIM/.media-transfer
+9a13
+> 52 897 2026-10-24T17:17:52 ./DCIM/.media-transfer/transfer-20261024-171752.json
+## .mtpart after the re-run: 0; ledger after: {"version":1,"temps":[]}
+## card vs destination
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsDest2/TsCard2/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsDest2/TsCard2/CLIP/C0005.MP4

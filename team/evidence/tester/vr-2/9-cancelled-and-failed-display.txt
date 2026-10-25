@@ -1,0 +1,9 @@
+# VR-2 check 9 - commit 8cf1918. Cancelled and failed runs shown as such.
+Cancel (2-cancel-in-flight.txt, 9-panel-cancelled.png):
+- heading: <span class="warn-text">Transfer cancelled</span>
+- one row per planned folder: DCIM (class muted) "3 files already there, nothing to copy"; CLIP (class warn) "Cancelled · 0 files verified"; no ok/green check anywhere
+- CLIP report: "cancelled": true, both clips "status": "cancelled"; the DCIM report of that run has no cancelled key (DCIM had finished, 3 skipped, before the cancel)
+- with MT_TEST_REMOVE_FAIL=1 the panel adds "Cleanup incomplete: 2 temporary files left on the destination. ..." and the report "tempsLeft": 2 (5-ledger.txt, 5-panel-cleanup-incomplete.png)
+Not covered by this data set: a folder never reached before the cancel ("Not reached (cancelled)" row) - CLIP was the last folder with work in both cancels.
+Forced failure (6-forced-mismatch.txt, 6-panel-forced-mismatch.png):
+- heading "Transfer finished with failures"; DCIM row Copied 202 · Verified 202 (placed files only; 9bebaec showed 203) · "✗ 1 file failed verification" (class fail)

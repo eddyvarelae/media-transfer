@@ -14,7 +14,7 @@ $HERE/vr2.sh $S quit
 for round in 1 2 3; do
   for ver in v2 v3; do
     dir=$V3; [ $ver = v2 ] && dir=$V2
-    [ -d /Volumes/TsDest5/TsCard ] && /bin/rm -r -- /Volumes/TsDest5/TsCard
+    for d in DCIM CLIP THMBNL; do [ -d /Volumes/TsDest5/TsCard/$d ] && /bin/rm -r -- /Volumes/TsDest5/TsCard/$d; done
     [ -d /Volumes/TsCard ] && hdiutil detach -quiet /Volumes/TsCard
     hdiutil attach -quiet -readonly http://127.0.0.1:8766/tscard.dmg; sleep 3
     (cd $dir && exec npx electron . --user-data-dir=$S/ud --remote-debugging-port=9231 > $S/ab-$ver.log 2>&1) &

@@ -1,0 +1,49 @@
+# VR-2 check 6 (B1) + the failure half of 9 - commit 8cf1918. MT_TEST_CORRUPT=DSC00002.JPG, TsCard -> fresh TsDest5. 2026-10-24T17:20:56-07:00
+## driver
+{
+ "rows": [
+  "DCIM\t202\t202\t0\t\u2717 1 file failed verification",
+  "CLIP\t6\t6\t0\t\u2713 6 files verified",
+  "THMBNL\t3\t3\t0\t\u2713 3 files verified"
+ ],
+ "failedList": [
+  "DCIM100MSDCF/DSC00002.JPG \u00b7 checksum mismatch after retry"
+ ],
+ "h2seen": [
+  {
+   "t": 9,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 1514,
+   "h2": "Verifying",
+   "conveyor": false
+  },
+  {
+   "t": 1516,
+   "h2": "Transfer finished with failures",
+   "conveyor": false
+  }
+ ],
+ "endText": "TRANSFER FINISHED WITH FAILURES\n100.0%\n1.01 GB / 1.01 GB\n686 MB/s\nElapsed 2s\nETA \u2014\nRead back 100.0%\n1.01 GB / 1.01 GB read back",
+ "bytes": 1086719010,
+ "verifiedBytes": 1086719010
+}
+## status cells (class: text), heading, failed-row colour
+[
+ "fail: ✗ 1 file failed verification",
+ "ok: ✓ 6 files verified",
+ "ok: ✓ 3 files verified",
+ "TRANSFER FINISHED WITH FAILURES",
+ "rgb(255, 107, 107)"
+]
+## main-process log
+DevTools listening on ws://127.0.0.1:9231/devtools/browser/4ab09480-c3f2-42fb-b352-fd9ec64ad48e
+checksum mismatch, attempt 1 of 2: /Volumes/TsCard/DCIM/100MSDCF/DSC00002.JPG
+checksum mismatch, attempt 2 of 2: /Volumes/TsCard/DCIM/100MSDCF/DSC00002.JPG
+## destination: DCIM files 202; DSC00002* 0; .mtpart 0; ledger {"version":1,"temps":[]}
+## report /Volumes/TsDest5/TsCard/DCIM/.media-transfer/transfer-20261024-172053.json
+{'version': 1, 'app': '3.0.0', 'startedAt': '2026-10-25T00:20:53.553Z', 'finishedAt': '2026-10-25T00:20:54.876Z', 'origin': '/Volumes/TsCard/DCIM', 'destination': '/Volumes/TsDest5/TsCard/DCIM', 'flatten': True}
+[{'source': '/Volumes/TsCard/DCIM/100MSDCF/DSC00002.JPG', 'dest': '/Volumes/TsDest5/TsCard/DCIM/DSC00002.JPG', 'size': 4538944, 'mtime': '2026-10-24T23:56:33.690Z', 'sha256': '9f054d157f1e5be2f2075b0924656c8b1ff05d2581747f142fbe4d4dfc7a583d', 'status': 'failed', 'reason': 'checksum mismatch after retry'}]
+{'copied-verified': 202, 'failed': 1}

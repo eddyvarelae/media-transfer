@@ -1,0 +1,46 @@
+# VR-2 check 4 - commit 8cf1918. Foreign temp: hand-made /Volumes/TsDest4/TsCard2/DCIM/X.JPG.mtpart, then TsCard2 (holds DCIM/102MSDCF/X.JPG) -> TsDest4. 2026-10-24T17:15:40-07:00
+## before
+20 56 Oct 24 17:15:40 2026 /Volumes/TsDest4/TsCard2/DCIM/X.JPG.mtpart
+ee2d2bedbaccf85409a24351f69932d4975d97fa15696fed25aa462eaf997f5c  /Volumes/TsDest4/TsCard2/DCIM/X.JPG.mtpart
+ledger: {"version":1,"temps":[]}
+## driver
+{
+ "rows": [
+  "DCIM\t2\t2\t0\t\u2717 1 file failed verification",
+  "CLIP\t2\t2\t0\t\u2713 2 files verified"
+ ],
+ "failedList": [
+  "DCIM102MSDCF/X.JPG \u00b7 temp name taken by an unknown file"
+ ],
+ "h2seen": [
+  {
+   "t": 4,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 1195,
+   "h2": "Transfer finished with failures",
+   "conveyor": false
+  }
+ ],
+ "endText": "TRANSFER FINISHED WITH FAILURES\n99.9%\n809 MB / 810 MB\n989 MB/s\nElapsed 1s\nETA \u2014\nRead back 90.7%\n735 MB / 810 MB read back"
+}
+## after
+20 56 Oct 24 17:15:40 2026 /Volumes/TsDest4/TsCard2/DCIM/X.JPG.mtpart
+ee2d2bedbaccf85409a24351f69932d4975d97fa15696fed25aa462eaf997f5c  /Volumes/TsDest4/TsCard2/DCIM/X.JPG.mtpart
+total 17744
+21 -rw-r--r--  1 varela  staff  4540146 Oct 24 16:56 A.JPG
+20 -rw-r--r--  1 varela  staff       56 Oct 24 17:15 X.JPG.mtpart
+24 -rw-r--r--  1 varela  staff  4538077 Oct 24 16:56 a-2603a90b.JPG
+ledger: {"version":1,"temps":[]}
+## report entry for X.JPG
+/Volumes/TsDest4/TsCard2/DCIM/.media-transfer/transfer-20261024-171542.json False
+  {"source": "/Volumes/TsCard2/DCIM/102MSDCF/X.JPG", "dest": "/Volumes/TsDest4/TsCard2/DCIM/X.JPG", "size": 1025967, "mtime": "2026-10-24T23:56:38.040Z", "status": "failed", "reason": "temp name taken by an unknown file"}
+
+## Addendum (same commit): read-back counter with a foreign-temp failure, 3 runs + control (TsCard2 local, TsDest4 DCIM+CLIP removed between runs)
+run 0 (above): verified 770344399 / 848964990 = 90.7 %
+run 1: ['DCIM\t2\t2\t0\t✗ 1 file failed verification', 'CLIP\t2\t2\t0\t✓ 2 files verified'] verified 831161807 / 848964990 = 97.9 % ['DCIM102MSDCF/X.JPG · temp name taken by an unknown file']
+run 2: ['DCIM\t2\t2\t0\t✗ 1 file failed verification', 'CLIP\t2\t2\t0\t✓ 2 files verified'] verified 663389647 / 848964990 = 78.1 % ['DCIM102MSDCF/X.JPG · temp name taken by an unknown file']
+control (no foreign temp): ['DCIM\t3\t3\t0\t✓ 3 files verified', 'CLIP\t2\t2\t0\t✓ 2 files verified'] verified 848964990 / 848964990
+Every placed file verified in every run; only the read-back bar/counter stops short when the run has a temp-name failure. B1's checksum failure (check 6) ends at 100 %.

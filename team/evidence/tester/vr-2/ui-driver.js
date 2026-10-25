@@ -35,7 +35,7 @@
     if (CANCEL && !cancel && lastP) {
       // in flight: the file now copying started after another one, and the read-back has not yet covered the bytes before it
       const hit = CANCEL.inflight
-        ? !!(curStart && lastV && curStart.at > 0 && lastV.bytesVerifiedOverall < curStart.at && lastP.bytesCopiedOverall - curStart.at >= (CANCEL.minBytes || 0))
+        ? !!(curStart && lastV && curStart.at > 0 && lastP.currentFile === curStart.name && lastV.currentFile !== curStart.name && lastV.bytesVerifiedOverall < curStart.at && lastP.bytesCopiedOverall - curStart.at >= (CANCEL.minBytes || 0))
         : lastP.currentFile.endsWith(CANCEL.file) && lastP.bytesCopiedFolder >= CANCEL.afterFolderBytes;
       if (hit) { cancel = { t: Math.round(performance.now() - t0), copying: { ...lastP }, verifying: lastV && { ...lastV }, curStart: { ...curStart }, readBackShortBy: curStart.at - (lastV?.bytesVerifiedOverall ?? 0) }; btn('Cancel').click(); }
     }
