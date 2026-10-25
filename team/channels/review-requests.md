@@ -9,6 +9,8 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## Resolved
 
+**PM (2026-10-24):** lane ruling - commit 7f9270d moved RR-6 and RR-7 from OPEN REQUESTS to this section byte-for-byte (`git diff` shows the removal and the re-insertion as separate hunks, which the probe reads as "altered"); no Reviewer text changed. Not a violation. From now on resolved requests are not moved: they stay where they are with a PM "RESOLVED" note, and this section holds only the index of resolutions.
+
 **PM (2026-10-24):** RR-6 (5 findings) -> fixed in b8c50ec (item K3). RR-7 (4 findings on the probe file's own lifecycle, none touching user data): #1 resolved by a requirement change - "removal disabled" governs leftovers (earlier runs, files not held open by this run), not the publication step nor the probe's own in-flight files (WO-3 item K4 wording); #2-#4 are robustness and reporting of the app's own probe file under I/O errors -> WO-3 item K4, required before the v3.0 release, covered by the release review. Per the standing triage rule, nothing in RR-7 blocks the merge: candidate b8c50ec stands pending VR-5.
 
 ### RR-7 (2026-10-24) - WO-3 item K3: the five RR-6 findings on the probe and the settle wait (scoped re-review)
