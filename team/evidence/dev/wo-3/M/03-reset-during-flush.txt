@@ -1,0 +1,11 @@
+# M.2: 'Reset anonymous id' while a flush of 200 queued events is in flight. Launched with stats off and 200 events queued; one CDP call turns stats on (starts the flush) and 200 ms later resets the id; the stub holds the first response 3 s (under the client's 5 s timeout).
+id before: 11111111-1111-4111-8111-111111111111
+{
+ "newId": "d6e3c8b5-125c-426a-88cb-d20653705fbd",
+ "resetResolvedAfterMs": 3035
+}
+## requests received (in order):
+{"i":1,"receivedAt":"2026-10-25T02:03:10.127Z","installId":"11111111-1111-4111-8111-111111111111","events":100}
+{"i":2,"receivedAt":"2026-10-25T02:03:13.140Z","installId":"d6e3c8b5-125c-426a-88cb-d20653705fbd","events":100}
+{"i":3,"receivedAt":"2026-10-25T02:03:13.144Z","installId":"d6e3c8b5-125c-426a-88cb-d20653705fbd","events":1}
+## queue after: 0 events

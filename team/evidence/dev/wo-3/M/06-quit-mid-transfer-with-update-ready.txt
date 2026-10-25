@@ -1,0 +1,7 @@
+# M.1 + M.4: SIGTERM during a transfer while an update is ready (MT_TEST_UPDATE=1), exFAT DevMDest6
+{"started":true}
+## exited 0.08 s after SIGTERM
+## main log (in order):
+active transfer cancelled and finalized before exit
+MT_TEST_UPDATE: quitAndInstall(isSilent=true, isForceRunAfter=false) would run now
+## reports: 2; ledger {"version":1,"temps":[]}; .mtpart 0

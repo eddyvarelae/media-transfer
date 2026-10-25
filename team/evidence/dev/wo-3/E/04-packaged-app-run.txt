@@ -1,0 +1,13 @@
+# packaged app (final unsigned build), --user-data-dir=<scratch> (never the packaged app's real userData), exFAT destination DevKE17, MT_TELEMETRY_URL=local stub
+ "heading": "Transfer complete",
+  "DCIM\t5\t5\t0\t✓ 5 files verified",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+## main log:
+Checking for update
+Error: Error: Cannot find latest-mac.yml in the latest release artifacts (https://github.com/eddyvarelae/media-transfer/releases/download/v2.0.0/latest-mac.yml)
+update check failed: Cannot find latest-mac.yml in the latest release artifacts (https://github.com/eddyvarelae/media-transfer/releases/download/v2.0.0/latest-m
+update check failed: Cannot find latest-mac.yml in the latest release artifacts (https://github.com/eddyvarelae/media-transfer/releases/download/v2.0.0/latest-m
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+## telemetry received:        2 request(s): ['app_launched', 'transfer_started', 'transfer_finished']
+## ledger: {"version":1,"temps":[]}; .mtpart: 0

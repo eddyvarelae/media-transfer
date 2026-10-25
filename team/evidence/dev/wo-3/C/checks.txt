@@ -1,0 +1,59 @@
+# WO-3 C checks (2026-10-24T17:29:43-07:00), telemetry/ on dev/v3.0-telemetry. No dev stage was deployed (grant pending with Eddy); the first real deploy is the PM's.
+
+$ npx sst version
+sst 4.17.1
+
+$ npx tsc --noEmit   (sst.config.ts, infra/, src/, scripts/, against .sst/platform types)
+(no output, exit 0)
+
+$ npm test
+
+> media-transfer-telemetry@1.0.0 test
+> tsx scripts/test-handler.ts
+
+{"accepted":1,"forwarded":"ok"}
+PASS  app body with 1 event(s) -> 202  {"accepted":1}
+{"accepted":2,"forwarded":"ok"}
+PASS  app body with 2 event(s) -> 202  {"accepted":2}
+{"accepted":2,"forwarded":"ok"}
+PASS  app body with 2 event(s) -> 202  {"accepted":2}
+{"accepted":5,"forwarded":"ok"}
+PASS  app body with 5 event(s) -> 202  {"accepted":5}
+PASS  every event stored (10)  stored=10
+PASS  item shape: pk installId, sk <at>#<name>#<uuid>, receivedAt, app, os, props  {"installId":"6912385f-293c-42f3-93d5-ee4288e00f0b","sk":"2026-10-25T00:15:07.400Z#telemetry_toggled#e5fb7945-5365-43c4-8c94-9e1bebba1bec","name":"telemetry_toggled","at":"2026-10-25T00:15:07.400Z","receivedAt":"2026-10-25T00:29:47.904Z","sentAt":"2026-10-25T00:15:07.401Z","app":{"name":"media-transfer","version":"3.0.0"},"os":{"platform":"darwin","release":"26.7.0","arch":"arm64"},"props":{"state":"on"}}
+PASS  no IP or request context stored
+PASS  PostHog: us.i.posthog.com/batch, api_key from the secret
+PASS  PostHog: distinct_id = installId, event name as-is, $geoip_disable, no $set
+{"forwardFailed":2,"error":"TypeError"}
+{"accepted":2,"forwarded":"failed"}
+PASS  PostHog down -> still 202, events stored
+{"rejected":1,"reason":"empty body"}
+PASS  empty body -> 400  {"error":"empty body"}
+{"rejected":1,"reason":"not JSON"}
+PASS  not JSON -> 400  {"error":"not JSON"}
+{"rejected":1,"reason":"bad installId"}
+PASS  bad installId -> 400  {"error":"bad installId"}
+{"rejected":1,"reason":"bad app"}
+PASS  wrong app name -> 400  {"error":"bad app"}
+{"rejected":1,"reason":"unknown event"}
+PASS  unknown event name -> 400  {"error":"unknown event"}
+{"rejected":1,"reason":"unknown prop"}
+PASS  unknown prop -> 400  {"error":"unknown prop"}
+{"rejected":1,"reason":"props must be scalar"}
+PASS  non-scalar prop -> 400  {"error":"props must be scalar"}
+{"rejected":1,"reason":"too many events"}
+PASS  101 events -> 400  {"error":"too many events"}
+{"rejected":1,"reason":"body too large"}
+PASS  body over 64 KB -> 400  {"error":"body too large"}
+
+ALL PASS (12 items stored, 5 PostHog calls)
+
+$ scripts/dns.sh ... --dry-run
+DRY RUN - would GET https://developers.hostinger.com/api/dns/v1/zones/buildsomethingeveryday.com (backup), POST https://developers.hostinger.com/api/dns/v1/zones/buildsomethingeveryday.com/validate and PUT https://developers.hostinger.com/api/dns/v1/zones/buildsomethingeveryday.com with:
+{"overwrite":false,"zone":[{"name":"_3f2a9c.media-transfer-api","type":"CNAME","ttl":300,"records":[{"content":"_9b1d.acm-validations.aws."}]}]}
+DRY RUN - would GET https://developers.hostinger.com/api/dns/v1/zones/buildsomethingeveryday.com (backup), POST https://developers.hostinger.com/api/dns/v1/zones/buildsomethingeveryday.com/validate and PUT https://developers.hostinger.com/api/dns/v1/zones/buildsomethingeveryday.com with:
+{"overwrite":false,"zone":[{"name":"media-transfer-api","type":"CNAME","ttl":300,"records":[{"content":"d-abc123.execute-api.us-east-1.amazonaws.com."}]}]}
+record foo.example.com is not in buildsomethingeveryday.com
+exit=2 (name outside the zone refused)
+
+## SST's default HTTP API stage access-log format (why infra/api.ts drops it):

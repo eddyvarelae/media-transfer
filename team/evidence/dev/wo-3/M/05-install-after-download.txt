@@ -1,0 +1,3 @@
+# M.5 (allowed case): installUpdate() after the download (MT_TEST_UPDATE=1)
+"resolved"
+MT_TEST_UPDATE: quitAndInstall(isSilent=false, isForceRunAfter=true) would run now

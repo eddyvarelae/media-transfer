@@ -1,0 +1,5 @@
+ALL PASS (12 items stored, 5 PostHog calls)
+PASS  PosthogKey="": status 202, stored 1, PostHog calls 0 (expected 0)
+PASS  PosthogKey="unset": status 202, stored 1, PostHog calls 0 (expected 0)
+PASS  PosthogKey="phc_unset": status 202, stored 1, PostHog calls 0 (expected 0)
+PASS  PosthogKey="phc_TESTkeyNOTrealAAAAAAAAAAAAAAAAAAAAAAAAAA": status 202, stored 1, PostHog calls 1 (expected 1)

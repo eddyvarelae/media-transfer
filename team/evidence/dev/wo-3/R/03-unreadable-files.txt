@@ -1,0 +1,16 @@
+# R.3: a truncated (0-byte) userData file at launch, in the app (dev build, isolated userData, no transfer)
+
+## (a) notifications.json 0 bytes, notifications.json.bak = the earlier list -> restored once, the warning appears once
+notifications.json did not parse (0 bytes); restored from notifications.json.bak
+{"notifications.json": {"kinds": ["new-drive", "transfer-done"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": "MISSING", "telemetry-queue.json": {"events": ["app_launched"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD23"]}, "stray": [], "bak": ["notifications.json.bak", "telemetry-queue.json.bak"]}
+["new-drive","transfer-done"]  <- the bell's list as the renderer gets it
+after quit: notifications.json 491 bytes, parses: yes
+
+## (b) notifications.json 0 bytes, no .bak -> set aside as .corrupt-<time> (logged), the bell starts empty
+notifications.json did not parse (0 bytes) and has no usable .bak; kept as notifications.json.corrupt-1792896117752, starting from the default
+{"notifications.json": "MISSING", "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": "MISSING", "telemetry-queue.json": {"events": ["app_launched", "app_launched"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD23"]}, "stray": ["notifications.json.corrupt-1792896117752"], "bak": ["telemetry-queue.json.bak"]}
+
+## (c) profiles.json 0 bytes, no .bak (strict: nothing is seeded over it; state:get fails as it did before R)
+log lines naming it: 6
+Error occurred in handler for 'state:get': Error: profiles.json did not parse (0 bytes) and has no usable .bak
+profiles.json after launch: 0 bytes; files: profiles.json 

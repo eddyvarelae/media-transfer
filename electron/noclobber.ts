@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
+import { readJson, writeJson } from './jsonstore';
 
 /**
  * The one gate for destination writes (v3.0 invariant): a file that already exists on the
@@ -12,6 +13,12 @@ import path from 'node:path';
  * only when the file at that path still has that identity. Every open-for-write, rename and
  * unlink of a destination path goes through a `noClobber*` function in this file; grep for
  * `noClobber`.
+ *
+ * "Removal disabled" (a volume profile with removalEnabled false) governs leftovers only: files
+ * of earlier runs, or files this run no longer holds open. It does not govern the publication
+ * step (hard link, then unlink of our own source name) nor the probe's own files, which this run
+ * claimed, created exclusively and identifies through its handle where that is stable, or by
+ * path right after the close otherwise (WO-3 RR-7 #1, PM requirement).
  *
  * Threat model (accepted limit): the app assumes it is the only writer to the destination folder
  * during a transfer. Another process replacing a file between our last identity check and the
@@ -36,6 +43,17 @@ export class ForeignTempError extends Error {
   }
 }
 
+/**
+ * The ownership ledger could not be read and was left as it is (RR-13 #1): nothing is claimed,
+ * created or removed until it can be; the file in question fails.
+ */
+export class LedgerUnavailableError extends Error {
+  constructor(detail: string) {
+    super(`the app's record of its temporary files (temps.json) is unreadable: ${detail}`);
+    this.name = 'LedgerUnavailableError';
+  }
+}
+
 /** The temp name is held by one of this run's own temps (an alias of a file still in flight). */
 export class TempBusyError extends Error {
   constructor(temp: string) {
@@ -55,7 +73,7 @@ export function aliasKey(p: string): string {
 
 // ---------------------------------------------------------------- dev-only test hooks
 
-// MT_TEST_LEDGER_FAIL=1: ledger writes fail right after a publication (bookkeeping failure).
+// MT_TEST_LEDGER_FAIL=1: the next ledger write after each publication fails (bookkeeping failure).
 // MT_TEST_REMOVE_FAIL=1: removing an owned temp fails with EPERM (cleanup failure).
 const TEST_LEDGER_FAIL = process.env.MT_TEST_LEDGER_FAIL === '1';
 const TEST_REMOVE_FAIL = process.env.MT_TEST_REMOVE_FAIL === '1';
@@ -91,41 +109,90 @@ type LedgerFile = { version: 1; temps: LedgerEntry[] };
 
 let ledgerFile: string | null = null;
 let ledger: Map<string, LedgerEntry> | null = null; // keyed by aliasKey(path)
+let ledgerError: LedgerUnavailableError | null = null; // retried at the next folder's cleanup
 
 /** Where the ledger lives (main: `userData/temps.json`); must be set before any transfer. */
 export function setLedgerFile(p: string) {
   ledgerFile = p;
   ledger = null;
+  ledgerError = null;
 }
 
 async function entries(): Promise<Map<string, LedgerEntry>> {
   if (ledger) return ledger;
+  if (ledgerError) throw ledgerError;
   if (!ledgerFile) throw new Error('ownership ledger not configured');
   const m = new Map<string, LedgerEntry>();
+  let raw: LedgerFile | null;
   try {
-    const raw = JSON.parse(await fsp.readFile(ledgerFile, 'utf8')) as LedgerFile;
-    for (const e of Array.isArray(raw?.temps) ? raw.temps : []) {
-      if (e && typeof e.path === 'string') m.set(aliasKey(e.path), { ...e, identity: e.identity ?? null });
-    }
-  } catch {
-    /* missing or unreadable ledger = we own nothing */
+    // WO-3 R: an unparsable ledger falls back to its .bak (atomic writes, jsonstore.ts); a missing
+    // one, or one set aside as .corrupt (logged), means we own nothing.
+    raw = (await readJson(ledgerFile)).data as LedgerFile | null;
+  } catch (e: any) {
+    // RR-13 #1: unreadable and not set aside: never replaced by an empty ledger. Not cached as
+    // "own nothing"; the error is, until the next folder's cleanup retries.
+    ledgerError = new LedgerUnavailableError(String(e?.message ?? e));
+    throw ledgerError;
+  }
+  for (const e of Array.isArray(raw?.temps) ? raw.temps : []) {
+    if (e && typeof e.path === 'string') m.set(aliasKey(e.path), { ...e, identity: e.identity ?? null });
   }
   ledger = m;
   return m;
 }
 
 // Writes run one at a time and always write the latest map; a failed write rejects its caller.
+// Only a claim (it must precede the create) and the exFAT disarm / re-arm wait for their write;
+// identity records and releases mark the ledger dirty and are written at most every 250 ms and
+// at the end of a run (noClobberFlush). A crash before a deferred write leaves an entry without
+// its identity (never removed, the safe side) or an entry whose file is gone (dropped later).
 let writing: Promise<unknown> = Promise.resolve();
+let dirty = false;
+let flushTimer: NodeJS.Timeout | null = null;
+const FLUSH_MS = 250;
+
 function persist(): Promise<void> {
+  dirty = false;
   const next = writing.then(async () => {
-    if (failLedgerWrites) throw Object.assign(new Error('EIO (MT_TEST_LEDGER_FAIL)'), { code: 'EIO' });
+    if (failLedgerWrites) {
+      failLedgerWrites = false;
+      throw Object.assign(new Error('EIO (MT_TEST_LEDGER_FAIL)'), { code: 'EIO' });
+    }
     if (!ledgerFile || !ledger) return;
-    await fsp.mkdir(path.dirname(ledgerFile), { recursive: true });
     const body: LedgerFile = { version: 1, temps: [...ledger.values()] };
-    await fsp.writeFile(ledgerFile, JSON.stringify(body, null, 1));
+    await writeJson(ledgerFile, body, 1);
   });
   writing = next.catch(() => undefined);
   return next;
+}
+
+/** Deferred write: coalesces the identity records and releases of many files into one write. */
+function persistSoon(): void {
+  dirty = true;
+  if (flushTimer) return;
+  flushTimer = setTimeout(() => {
+    flushTimer = null;
+    if (!dirty) return;
+    persist().catch((e) => {
+      dirty = true; // retried with the next write
+      console.warn('ledger write failed (retried at the next write):', e?.code ?? e);
+    });
+  }, FLUSH_MS);
+  flushTimer.unref?.();
+}
+
+/** End of a run: writes whatever is still deferred. Failures are logged, never thrown. */
+export async function noClobberFlush(): Promise<void> {
+  if (flushTimer) {
+    clearTimeout(flushTimer);
+    flushTimer = null;
+  }
+  if (dirty) {
+    await persist().catch((e) => {
+      dirty = true;
+      console.warn('ledger write failed:', e?.code ?? e);
+    });
+  } else await writing;
 }
 
 /** Phase 1: the entry is on disk before the file exists. A failed write = no claim. */
@@ -243,7 +310,8 @@ async function profileOf(p: string): Promise<VolumeProfile> {
   return e ? profileFor(e.destRoot) : CAUTIOUS;
 }
 
-// Dev-only hook MT_TEST_PROBE_FAIL=<step> (write | utimes | rename): the probe fails at that step.
+// Dev-only hook MT_TEST_PROBE_FAIL=<step> (write | stat-after-write | utimes | rename |
+// stat-after-publish): the probe fails at that step.
 const TEST_PROBE_FAIL = process.env.MT_TEST_PROBE_FAIL || '';
 
 function probeStep(step: string) {
@@ -290,8 +358,13 @@ export async function noClobberProbe(
       // still lets the cleanup remove it.
       const c = await lstatExact(probe);
       await setIdentity(probe, { dev: String(c.dev), ino: String(c.ino) });
+      // K4: the inode just recorded may be exFAT's synthetic one, which changes at the first
+      // write; dev + birthtime keep the record resolvable across that transition.
+      const ce = await ownerOf(probe);
+      if (ce) ce.provisional = { dev: String(c.dev), birthtimeNs: String(c.birthtimeNs) };
       probeStep('write');
       await fh.write(Buffer.alloc(1536 * 1024, 0x6d));
+      probeStep('stat-after-write');
       h1 = show('written 1.5 MB (handle)', await fh.stat({ bigint: true }));
     } finally {
       await fh.close();
@@ -313,12 +386,13 @@ export async function noClobberProbe(
     await setIdentity(probe, { dev: String(p2.dev), ino: String(p2.ino) });
     // Publication exactly like a placement: link, or the exclusive placeholder; never a rename
     // over an existing name.
+    // K4: the published name adopts the probe's record before the source's is released.
     probeStep('rename');
-    if ((await noClobberRename(probe, published, destRoot, runId, () => false)) !== 'placed') {
+    if ((await noClobberRename(probe, published, destRoot, runId, () => false, true)) !== 'placed') {
       throw new Error('probe publication cancelled');
     }
+    probeStep('stat-after-publish');
     const p3 = show('published (path)', await lstatSettled(published));
-    await claim(published, destRoot, runId);
     await setIdentity(published, { dev: String(p3.dev), ino: String(p3.ino) });
 
     const sameFile = (a: fs.BigIntStats, b: fs.BigIntStats) => a.dev === b.dev && a.ino === b.ino;
@@ -347,7 +421,13 @@ export async function noClobberProbe(
 
 /** Removes a probe file of ours by its exact dev + ino; false when it is still there (kept). */
 async function dropProbeFile(p: string): Promise<boolean> {
-  const e = await ownerOf(p);
+  let e: LedgerEntry | null;
+  try {
+    e = await ownerOf(p);
+  } catch (err) {
+    if (err instanceof LedgerUnavailableError) return true; // nothing was claimed (RR-13 #1)
+    throw err;
+  }
   if (!e) return true; // never ours (or already released): nothing to do
   let st: fs.BigIntStats;
   try {
@@ -357,12 +437,17 @@ async function dropProbeFile(p: string): Promise<boolean> {
     await forget(p);
     return true;
   }
-  if (!e.identity || e.identity.dev !== String(st.dev) || e.identity.ino !== String(st.ino)) {
-    if (!e.identity) return false; // created but never identified: kept on record, reported
+  const byIdentity = !!e.identity && e.identity.dev === String(st.dev) && e.identity.ino === String(st.ino);
+  const byProvisional =
+    !!e.provisional && e.provisional.dev === String(st.dev) && e.provisional.birthtimeNs === String(st.birthtimeNs);
+  if (!byIdentity && !byProvisional) {
+    // Unresolved (no identity, or exFAT's synthetic inode that has since changed): kept, counted.
+    if (!e.identity || BigInt(e.identity.ino) < 0n) return false;
     await forget(p); // a different file there now: left alone
     return true;
   }
   try {
+    if (TEST_REMOVE_FAIL) throw Object.assign(new Error('EPERM (MT_TEST_REMOVE_FAIL)'), { code: 'EPERM' });
     await fsp.unlink(p);
   } catch {
     return false;
@@ -402,16 +487,15 @@ async function setIdentity(p: string, id: Identity): Promise<Identity> {
   if (e) {
     e.identity = id;
     delete e.provisional; // the full identity replaces the provisional one
-    // Not on disk = the next run may not remove it (the safe side); this run keeps it in memory.
-    await persist().catch((err) => console.warn('ledger identity not persisted:', err?.code ?? err));
+    // Deferred: not yet on disk = the next run may not remove it (the safe side).
+    persistSoon();
   }
   return id;
 }
 
-/** Drops an entry (the file itself is not touched); failures are logged, never thrown. */
+/** Drops an entry (the file itself is not touched); written with the next deferred write. */
 async function forget(p: string): Promise<void> {
-  if (!(await entries()).delete(aliasKey(p))) return;
-  await persist().catch((e) => console.warn('ledger entry not dropped on disk:', e?.code ?? e));
+  if ((await entries()).delete(aliasKey(p))) persistSoon();
 }
 
 async function ownerOf(p: string): Promise<LedgerEntry | null> {
@@ -475,7 +559,16 @@ async function removeOwned(p: string): Promise<Removal> {
  */
 export async function noClobberCleanup(destRoot: string, runId: string): Promise<number> {
   let left = 0;
-  for (const e of [...(await entries()).values()]) {
+  ledgerError = null; // each folder tries the ledger again
+  let all: Map<string, LedgerEntry>;
+  try {
+    all = await entries();
+  } catch (e) {
+    if (!(e instanceof LedgerUnavailableError)) throw e;
+    console.error(`${e.message}; nothing is removed, and every file of this folder fails`);
+    return 0;
+  }
+  for (const e of [...all.values()]) {
     if (e.destRoot !== destRoot || e.runId === runId) continue;
     const result = !e.identity && e.provisional ? await removeCrashLeftover(e) : await removeOwned(e.path);
     if (result === 'failed') left += 1;
@@ -551,8 +644,10 @@ export async function noClobberTempStream(
   // left by a crash or an unplug mid-copy is still recognized as ours.
   ws.once('drain', () => void recordIdentity(temp, fh).catch(() => {}));
   let sealed: Promise<void> | null = null;
+  // Tracked like a background recording: reads, checks and removals of this temp wait for it
+  // (noClobberSettled), the copy loop does not.
   const seal = () =>
-    (sealed ??= (async () => {
+    (sealed ??= trackRecording(temp, (async () => {
       try {
         await recordIdentity(temp, fh);
       } catch (e: any) {
@@ -563,15 +658,11 @@ export async function noClobberTempStream(
         ws.destroy();
         await fh.close().catch(() => {});
       }
-      // exFAT: the real inode settles only after the close, so record it by path in the
-      // background (checks and removals of this temp wait for it, the copy loop does not).
+      // exFAT: the real inode settles only after the close; record it by path.
       if (!(await profileOf(temp)).handleStable) {
-        void trackRecording(
-          temp,
-          recordIdentityByPath(temp).catch((e: any) => console.warn('temp identity not recorded:', e?.code ?? e)),
-        );
+        await recordIdentityByPath(temp).catch((e: any) => console.warn('temp identity not recorded:', e?.code ?? e));
       }
-    })());
+    })()) as Promise<void>);
   return { ws, seal };
 }
 
@@ -614,10 +705,19 @@ export async function noClobberDropTemp(temp: string): Promise<boolean> {
  * Removes every temp and placeholder this run still has on record (cancel, end of run), each
  * only on an identity match. Resolves the number that could not be removed.
  */
-export async function noClobberDropRun(runId: string): Promise<number> {
+export async function noClobberDropRun(runId: string, destRoot: string): Promise<number> {
   let left = 0;
-  for (const e of [...(await entries()).values()]) {
-    if (e.runId === runId && (await removeOwned(e.path)) === 'failed') left += 1;
+  // Per destination folder (K4): an entry retained in an earlier folder of the run is that
+  // folder's to count, not every later folder's too.
+  let all: Map<string, LedgerEntry>;
+  try {
+    all = await entries();
+  } catch (e) {
+    if (e instanceof LedgerUnavailableError) return 0; // nothing was claimed, nothing to remove
+    throw e;
+  }
+  for (const e of [...all.values()]) {
+    if (e.runId === runId && e.destRoot === destRoot && (await removeOwned(e.path)) === 'failed') left += 1;
   }
   return left;
 }
@@ -647,6 +747,7 @@ export async function noClobberRename(
   destRoot: string,
   runId: string,
   shouldCancel: () => boolean,
+  adopt = false, // the probe (K4): the published name keeps the source's ownership record
 ): Promise<'placed' | 'cancelled'> {
   try {
     await assertOwned(temp, shouldCancel);
@@ -664,7 +765,8 @@ export async function noClobberRename(
     if (e?.code === 'EEXIST') throw new ClobberError(target);
     if (!['ENOTSUP', 'EPERM', 'EXDEV', 'ENOSYS', 'EOPNOTSUPP'].includes(e?.code)) throw e;
   }
-  if (!linked) return placeViaPlaceholder(temp, target, destRoot, runId, shouldCancel);
+  if (!linked) return placeViaPlaceholder(temp, target, destRoot, runId, shouldCancel, adopt);
+  if (adopt) await adoptRecord(target, temp);
   await afterPublish(async () => {
     await fsp.unlink(temp);
     await forget(temp);
@@ -672,15 +774,34 @@ export async function noClobberRename(
   return 'placed';
 }
 
+/**
+ * K4: after publication the target carries the source's ownership record (same file: a hard
+ * link, or the renamed temp), set in memory before the source's record is released, never
+ * failing (written with the next deferred write).
+ */
+async function adoptRecord(target: string, from: string): Promise<void> {
+  const m = await entries();
+  const src = m.get(aliasKey(from));
+  const prev = m.get(aliasKey(target));
+  m.set(aliasKey(target), {
+    path: target,
+    destRoot: src?.destRoot ?? prev?.destRoot ?? '',
+    runId: src?.runId ?? prev?.runId ?? '',
+    createdAt: new Date().toISOString(),
+    identity: src?.identity ?? null,
+    ...(src?.provisional ? { provisional: src.provisional } : {}),
+  });
+  persistSoon();
+}
+
 /** Bookkeeping after a successful publication: errors are logged, entries kept for the next run. */
 async function afterPublish(fn: () => Promise<void>) {
-  failLedgerWrites = TEST_LEDGER_FAIL;
+  // MT_TEST_LEDGER_FAIL: the next ledger write after this publication fails.
+  if (TEST_LEDGER_FAIL) failLedgerWrites = true;
   try {
     await fn();
   } catch (e: any) {
     console.warn('placed; bookkeeping left for the next run:', e?.code ?? e);
-  } finally {
-    failLedgerWrites = false;
   }
 }
 
@@ -690,6 +811,7 @@ async function placeViaPlaceholder(
   destRoot: string,
   runId: string,
   shouldCancel: () => boolean,
+  adopt = false,
 ): Promise<'placed' | 'cancelled'> {
   if (await ownerOf(target)) throw new ClobberError(target);
   await claim(target, destRoot, runId);
@@ -733,9 +855,10 @@ async function placeViaPlaceholder(
   } finally {
     await fh.close().catch(() => {});
   }
+  if (adopt) await adoptRecord(target, temp);
   await afterPublish(async () => {
     await forget(temp);
-    await forget(target);
+    if (!adopt) await forget(target);
   });
   return 'placed';
 }

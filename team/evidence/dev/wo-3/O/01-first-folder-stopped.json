@@ -1,0 +1,8 @@
+{
+ "heading": "Transfer stopped",
+ "detail": "DCIM: EEXIST: file already exists, mkdir '/Volumes/DevODest/DevOCard/DCIM'",
+ "rows": [
+  "DCIM000✗ Stopped",
+  "CLIP000Not reached"
+ ]
+}

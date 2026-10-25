@@ -1,0 +1,9 @@
+# M.4 + M.5 with MT_TEST_UPDATE=1 (update-available at 1.5 s, update-downloaded at 3.5 s after launch)
+## M.5: installUpdate() before the download:
+"rejected: Error invoking remote method 'update:install': Error: No downloaded update to install"
+## bell rows after the download: ["update-downloaded3.0.1"]
+## M.4: remove the update row:
+"0 update rows left"
+## quit (SIGTERM), no transfer running:
+## main log:
+update waiting and no transfer: the normal quit path installs it

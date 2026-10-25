@@ -1,15 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type {
   AppState,
   PlanSummary,
   Profile,
   Progress,
+  SettingsPatch,
   VerifyProgress,
   VerifyReport,
 } from './types';
 import { bytes, duration } from './format';
 import ProfileEditor from './ProfileEditor';
 import TopBar from './TopBar';
+import { ConsentModal } from './Privacy';
 import ThumbConveyor from './ThumbConveyor';
 
 type Phase = 'idle' | 'planning' | 'ready' | 'copying' | 'verifying' | 'done' | 'error';
@@ -38,6 +40,7 @@ export default function App() {
     volumes: [],
     profiles: {},
     notifications: [],
+    settings: null,
   });
   const [dismissing, setDismissing] = useState<Set<string>>(new Set());
   const [editingVolume, setEditingVolume] = useState<string | null>(null);
@@ -50,6 +53,8 @@ export default function App() {
   const [report, setReport] = useState<VerifyReport[] | null>(null);
   const [phase, setPhase] = useState<Phase>('idle');
   const [error, setError] = useState<string | null>(null);
+  const progressRef = useRef<HTMLElement>(null);
+  const scrolledFor = useRef(false);
 
   useEffect(() => {
     window.api.getState().then(setState);
@@ -93,6 +98,13 @@ export default function App() {
     }
   }, [mountedOrigins, mountedDestinations, originVolume, destVolume]);
 
+  // On Start, bring the progress section into view once it renders (BL-12).
+  useEffect(() => {
+    if (phase !== 'copying' || scrolledFor.current || !progressRef.current) return;
+    scrolledFor.current = true;
+    progressRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [phase, progress]);
+
   // Each file is read back right after its copy; once the last byte is copied, what remains is verifying.
   useEffect(() => {
     if (phase === 'copying' && progress && progress.bytesCopiedOverall >= progress.totalBytesOverall)
@@ -131,6 +143,7 @@ export default function App() {
   async function doStart() {
     setError(null);
     setVerify(null);
+    scrolledFor.current = false;
     setPhase('copying');
     try {
       await window.api.startTransfer();
@@ -165,6 +178,17 @@ export default function App() {
     }
   }
 
+  async function changeSettings(patch: SettingsPatch) {
+    const next = await window.api.setSettings(patch);
+    setState((s) => ({ ...s, settings: next }));
+  }
+
+  // First launch: ask once; closing without choosing = off.
+  const consent =
+    state.settings?.telemetry === 'unasked' ? (
+      <ConsentModal onChoose={(on) => void changeSettings({ telemetry: on ? 'on' : 'off' })} />
+    ) : null;
+
   async function removeNotification(id: string) {
     const next = await window.api.removeNotification(id);
     setState((s) => ({ ...s, notifications: next }));
@@ -197,6 +221,7 @@ export default function App() {
   const running = phase === 'copying' || phase === 'verifying';
   const wasCancelled = phase === 'done' && !!report?.some((r) => r.cancelled);
   const hadFailures = phase === 'done' && !!report?.some((r) => r.filesFailed > 0);
+  const stopped = phase === 'done' ? report?.find((r) => r.stoppedError) ?? null : null;
   const tempsLeft = report?.reduce((a, r) => a + r.tempsLeft, 0) ?? 0;
 
   const topBar = (
@@ -205,6 +230,9 @@ export default function App() {
       volumes={state.volumes}
       onLabel={setEditingVolume}
       onRemove={removeNotification}
+      onInstallUpdate={() => window.api.installUpdate().catch((e) => console.warn('install refused:', e?.message ?? e))}
+      settings={state.settings}
+      onSettings={changeSettings}
     />
   );
 
@@ -212,6 +240,7 @@ export default function App() {
     return (
       <>
         {topBar}
+        {consent}
         <div className="app">
           <header>
             <h1>Edit profile</h1>
@@ -234,6 +263,7 @@ export default function App() {
   return (
     <>
       {topBar}
+      {consent}
       <div className="app">
 
         {unknownVolumes.length > 0 && (
@@ -359,10 +389,15 @@ export default function App() {
           </section>
         )}
 
-        {(running || phase === 'done') && progress && (
-          <section className="progress-section">
+        {/* A run that ends before the first progress event (the first folder cannot be created,
+            VR-6 #47; every file failed, RR-13 #1) still gets its heading and error; the bars
+            need progress. */}
+        {(running || phase === 'done') && (progress || stopped || (phase === 'done' && report)) && (
+          <section className="progress-section" ref={progressRef}>
             <h2>
-              {wasCancelled ? (
+              {stopped ? (
+                <span className="fail-text">Transfer stopped</span>
+              ) : wasCancelled ? (
                 <span className="warn-text">Transfer cancelled</span>
               ) : hadFailures ? (
                 <span className="fail-text">Transfer finished with failures</span>
@@ -374,43 +409,53 @@ export default function App() {
                 'Transferring'
               )}
             </h2>
+            {stopped && (
+              <div className="fail-text stop-detail">
+                {stopped.label}: {stopped.stoppedError}
+              </div>
+            )}
             {phase === 'copying' && thumbsEnabled && <ThumbConveyor />}
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${overallPct}%` }} />
-            </div>
-            <div className="progress-stats">
-              <span>{overallPct.toFixed(1)}%</span>
-              <span>
-                {bytes(progress.bytesCopiedOverall)} / {bytes(progress.totalBytesOverall)}
-              </span>
-              <span>{bytes(progress.bytesPerSecond)}/s</span>
-              <span>Elapsed {duration(progress.elapsedMs / 1000)}</span>
-              <span>ETA {phase === 'done' ? '—' : duration(etaSec)}</span>
-            </div>
-            <div className="progress-bar verify-bar">
-              <div className="progress-fill" style={{ width: `${verifiedPct}%` }} />
-            </div>
-            <div className="progress-stats">
-              <span>Read back {verifiedPct.toFixed(1)}%</span>
-              <span>
-                {bytes(verify?.bytesVerifiedOverall ?? 0)} / {bytes(progress.totalBytesOverall)} read
-                back
-              </span>
-            </div>
-            <div className="current-file muted">
-              {phase === 'copying' && (
-                <>
-                  <span className="tag">{progress.folderLabel}</span>
-                  {progress.currentFile} · {progress.filesCopied + 1}/{progress.totalFiles}
-                </>
-              )}
-              {phase === 'verifying' && verify && (
-                <>
-                  <span className="tag">{verify.folderLabel}</span>
-                  verifying {verify.currentFile}
-                </>
-              )}
-            </div>
+            {progress && (
+              <>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${overallPct}%` }} />
+              </div>
+              <div className="progress-stats">
+                <span>{overallPct.toFixed(1)}%</span>
+                <span>
+                  {bytes(progress.bytesCopiedOverall)} / {bytes(progress.totalBytesOverall)}
+                </span>
+                <span>{bytes(progress.bytesPerSecond)}/s</span>
+                <span>Elapsed {duration(progress.elapsedMs / 1000)}</span>
+                <span>ETA {phase === 'done' ? '—' : duration(etaSec)}</span>
+              </div>
+              <div className="progress-bar verify-bar">
+                <div className="progress-fill" style={{ width: `${verifiedPct}%` }} />
+              </div>
+              <div className="progress-stats">
+                <span>Read back {verifiedPct.toFixed(1)}%</span>
+                <span>
+                  {bytes(verify?.bytesVerifiedOverall ?? 0)} /{' '}
+                  {bytes(verify?.totalBytesOverall ?? progress.totalBytesOverall)} read
+                  back
+                </span>
+              </div>
+              <div className="current-file muted">
+                {phase === 'copying' && (
+                  <>
+                    <span className="tag">{progress.folderLabel}</span>
+                    {progress.currentFile} · {progress.filesCopied + 1}/{progress.totalFiles}
+                  </>
+                )}
+                {phase === 'verifying' && verify && (
+                  <>
+                    <span className="tag">{verify.folderLabel}</span>
+                    verifying {verify.currentFile}
+                  </>
+                )}
+              </div>
+              </>
+            )}
           </section>
         )}
 
@@ -472,7 +517,8 @@ const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one :
 
 // What one folder's row says: failures first, then cancel, then what actually happened.
 function folderStatus(r: VerifyReport): { cls: string; text: string } {
-  if (!r.reached) return { cls: 'warn', text: 'Not reached (cancelled)' };
+  if (r.stoppedError) return { cls: 'fail', text: '✗ Stopped' };
+  if (!r.reached) return { cls: 'warn', text: r.cancelled ? 'Not reached (cancelled)' : 'Not reached' };
   if (r.filesFailed > 0) {
     return { cls: 'fail', text: `✗ ${plural(r.filesFailed, 'file', 'files')} failed verification` };
   }

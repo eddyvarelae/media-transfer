@@ -117,6 +117,18 @@ button.bell:hover:not(:disabled), button.bell.open { background: var(--panel-2);
 .notif-title { font-size: 11px; color: #7fb3ff; text-transform: uppercase; letter-spacing: 0.04em; }
 .notif-name { display: flex; align-items: center; gap: 8px; }
 .notif-actions { display: flex; flex-direction: column; gap: 6px; }
+.notif-row.transfer-done .notif-title { color: var(--ok); }
+.notif-row.transfer-failed .notif-title { color: var(--fail); }
+.notif-row.transfer-cancelled .notif-title { color: var(--warn); }
+.fail-text { color: var(--fail); }
+.notif-failed {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  font-size: 11px;
+  color: var(--fail);
+}
+.notif-failed code { color: var(--fail); }
 .pill {
   font-size: 10px;
   padding: 1px 6px;
@@ -332,6 +344,7 @@ td.fail { color: var(--fail); }
 td.warn, .warn-text { color: var(--warn); }
 .fail-text { color: var(--fail); }
 .cleanup-note { margin-top: 10px; }
+.stop-detail { margin: -4px 0 10px; font-size: 13px; overflow-wrap: anywhere; }
 .failed-files {
   list-style: none;
   margin: 10px 0 0;
@@ -561,3 +574,56 @@ button.accordion-head:hover h2, button.accordion-head:hover .chevron { color: va
   user-select: none;
 }
 .flatten-toggle input { margin: 0; }
+
+/* v3.0: gear + settings panel, consent modal */
+.topbar-actions { display: flex; align-items: center; gap: 4px; }
+.settings-panel { width: 320px; }
+.setting-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-row input { margin-top: 3px; }
+.setting-row.actions-row { align-items: center; cursor: default; justify-content: space-between; }
+.setting-row.actions-row button.link { margin-top: 0; }
+.block { display: block; margin-top: 2px; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal {
+  position: relative;
+  width: 520px;
+  max-width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
+  padding: 22px 24px 18px;
+}
+.modal h2 { margin: 0 0 10px; font-size: 18px; color: var(--text); }
+.modal p { margin: 0 0 10px; line-height: 1.45; }
+.modal-close { position: absolute; top: 12px; right: 12px; }
+.consent-label {
+  margin: 14px 0 6px !important;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.consent-list { margin: 0 0 4px; padding-left: 18px; line-height: 1.5; font-size: 13px; }
+.consent-never { font-size: 13px; }
+.consent-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0 6px; }

@@ -1,7 +1,7 @@
 // WO-3 K3 probe cases on a rig volume: node probe-cases.js <volume> ; env LEDGER, MT_TEST_PROBE_FAIL
 import fs from 'node:fs';
 import fsp from 'node:fs/promises';
-import { setLedgerFile, noClobberProbe } from '../../../../../electron/noclobber';
+import { setLedgerFile, noClobberProbe, noClobberFlush } from '../../../../../electron/noclobber';
 setLedgerFile(process.env.LEDGER!);
 const ls = (d: string) => fs.readdirSync(d).filter((f) => f.startsWith('probe-')).map((f) => `${f} ino=${fs.statSync(`${d}/${f}`).ino} ${fs.readFileSync(`${d}/${f}`, 'utf8').slice(0, 30)}`);
 (async () => {
@@ -12,6 +12,7 @@ const ls = (d: string) => fs.readdirSync(d).filter((f) => f.startsWith('probe-')
     await fsp.mkdir(dir, { recursive: true });
     for (const n of names) await fsp.writeFile(`${dir}/probe-RUNID.${n}`, `user file at .${n}`);
     const r = await noClobberProbe(root, 'RUNID');
+    await noClobberFlush(); // as executePlan does at the end of a run (deferred ledger writes)
     console.log(`== ${vol}: ${label}${process.env.MT_TEST_PROBE_FAIL ? ` (MT_TEST_PROBE_FAIL=${process.env.MT_TEST_PROBE_FAIL})` : ''}`);
     console.log('  profile', JSON.stringify(r.profile), 'left', r.left);
     r.observations.filter((o) => /failed|left|profile/.test(o)).forEach((o) => console.log('  ' + o));

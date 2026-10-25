@@ -1,0 +1,19 @@
+# T.2 (RR-13 #2): in the app, MT_TEST_UPDATE=1 (update ready at 3.5 s, Restart to install only logs) + MT_TEST_HOLD_SAVE_READ_MS=8000; no transfer
+# t=0 profile:save DevTA (held 8 s); t=0.3 s Restart to install -> its finalization times out at 5 s and closes the store; the install does not exit and no quit is held -> reopenStore; t=8 s the held save completes (the old drain ends); t=10 s profile:save DevTB; then SIGTERM
+"save A invoked"
+"restart invoked"
+"save B resolved"
+"{\"saveA\":\"saved\",\"restart\":\"resolved\"}"
+
+## main log
+MT_TEST_HOLD_SAVE_READ_MS: profile save holds 8000 ms before its read
+transfer and pending writes did not finalize within 5000 ms; exiting anyway
+pending writes after the flush did not finish in time; exiting anyway
+MT_TEST_UPDATE: quitAndInstall(isSilent=false, isForceRunAfter=true) would run now
+MT_TEST_HOLD_SAVE_READ_MS: profile save written
+a drain from before the store was reopened finished; the store stays open
+MT_TEST_HOLD_SAVE_READ_MS: profile save holds 8000 ms before its read
+MT_TEST_HOLD_SAVE_READ_MS: profile save written
+update waiting and no transfer: the normal quit path installs it
+
+## profiles.json after exit: ['DevTA', 'DevTB', 'DevTOld']

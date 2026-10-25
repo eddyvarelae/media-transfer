@@ -1,0 +1,18 @@
+# S.1 (RR-12 #1): MT_TEST_HOLD_RECOVERY_MS=400 node s-unit.js race (unit.ts bundled with esbuild)
+# a) held recovery read, then a save (file unparsable, .bak = {A})
+MT_TEST_HOLD_RECOVERY_MS: profiles.json recovery holds 400 ms after reading the .bak
+  53 ms  save B admitted while the reader holds its recovery
+profiles.json did not parse (17 bytes); restored from profiles.json.bak
+ 417 ms  reader: recovered ["A"]
+ 418 ms  save B: read ok ["A"]
+ 428 ms  save B: written
+ 428 ms  file now: ["A","B"]
+PASS  the save survives (A + B), the restore of A ran before it, under the lock
+PASS  a later read: ok, B present, no restore
+# b) the file parses by the time the held recovery re-checks it
+MT_TEST_HOLD_RECOVERY_MS: profiles.json recovery holds 400 ms after reading the .bak
+ 482 ms  file replaced with a valid {C} during the hold
+profiles.json parses now; not restored from profiles.json.bak
+ 831 ms  reader: ok ["C"]
+PASS  not restored: the file still holds C
+ALL PASS

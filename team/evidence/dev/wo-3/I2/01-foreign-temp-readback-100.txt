@@ -1,0 +1,7 @@
+# I2: foreign X.JPG.mtpart on the destination (APFS, DevKE16): X fails before its read-back; the read-back counter still reaches 100 %
+ "heading": "Transfer finished with failures",
+  "DCIM\t4\t4\t0\t✗ 1 file failed verification",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+  "DCIM100MSDCF/X.JPG · temp name taken by an unknown file"
+     "relPath": "100MSDCF/X.JPG",
+     "destName": "X.JPG",

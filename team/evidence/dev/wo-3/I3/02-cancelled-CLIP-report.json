@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "app": "3.0.0",
+  "cancelled": true,
+  "startedAt": "2026-10-25T01:42:55.594Z",
+  "finishedAt": "2026-10-25T01:42:55.801Z",
+  "origin": "/Volumes/DevKCard/CLIP",
+  "destination": "/Volumes/DevKE15/DevKCard/CLIP",
+  "flatten": false,
+  "files": [
+    {
+      "source": "/Volumes/DevKCard/CLIP/C0001.MP4",
+      "dest": "/Volumes/DevKE15/DevKCard/CLIP/C0001.MP4",
+      "size": 56723410,
+      "mtime": "2026-10-25T01:02:02.140Z",
+      "status": "cancelled"
+    },
+    {
+      "source": "/Volumes/DevKCard/CLIP/C0002.MP4",
+      "dest": "/Volumes/DevKE15/DevKCard/CLIP/C0002.MP4",
+      "size": 56723410,
+      "mtime": "2026-10-25T01:02:08.590Z",
+      "status": "not-started"
+    }
+  ]
+}

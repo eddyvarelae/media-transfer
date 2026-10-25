@@ -1,0 +1,24 @@
+{
+  "name": "media-transfer-telemetry",
+  "private": true,
+  "version": "1.0.0",
+  "description": "POST /v1/events for Media Transfer's opt-in usage stats: API Gateway + Lambda -> DynamoDB, forwarded to PostHog. Separate from the Electron app; nothing here ships in the DMG.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "tsx scripts/test-handler.ts && PH_KEY= tsx scripts/test-skip.ts && PH_KEY=unset tsx scripts/test-skip.ts && PH_KEY=phc_unset tsx scripts/test-skip.ts && PH_KEY=phc_TESTkeyNOTrealAAAAAAAAAAAAAAAAAAAAAAAAAA EXPECT=forward tsx scripts/test-skip.ts && PH_KEY=phc_TESTkeyNOTrealAAAAAAAAAAAAAAAAAAAAAAAAAA PH_NEWLINE=1 EXPECT=forward tsx scripts/test-skip.ts",
+    "deploy": "sst deploy"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "3.1141.0",
+    "@aws-sdk/lib-dynamodb": "3.1141.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "8.10.163",
+    "@types/node": "^20.11.0",
+    "aws-sdk-client-mock": "^4.1.0",
+    "sst": "4.17.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.3.0"
+  }
+}

@@ -1,0 +1,28 @@
+# T.1 (RR-13 #1): in the app, MT_TEST_SETASIDE_FAIL=1; temps.json and telemetry-queue.json truncated (unparsable), no .bak; telemetry on; full transfer DevRCard (213 files) -> fresh exFAT DevRD73
+
+## run
+{"heading": "Transfer finished with failures", "rows": ["DCIM\t0\t0\t0\t\u2717 204 files failed verification", "CLIP\t0\t0\t0\t\u2717 6 files failed verification", "THMBNL\t0\t0\t0\t\u2717 3 files failed verification"], "failedFiles": 213, "failedReasons": ["the app's record of its temporary files (temps.json) is unreadable: temps.json is unreadable and could not be set aside"], "stopped": []}
+
+## main log (counted)
+   1 telemetry queue kept in memory only (telemetry-queue.json is unreadable and could not be set aside); the file is left as it is
+   1 telemetry-queue.json did not parse (63 bytes), has no usable .bak and could not be set aside (EIO); left as it is, nothing written
+   4 temps.json did not parse (63 bytes), has no usable .bak and could not be set aside (EIO); left as it is, nothing written
+   3 the app's record of its temporary files (temps.json) is unreadable: temps.json is unreadable and could not be set aside; nothing is removed, and every file of this folder fails
+   1 userData writes settled before exit
+   1 volume probe CLIP: {"handleStable":false,"useBirth":false,"removalEnabled":false}
+   1 volume probe DCIM: {"handleStable":false,"useBirth":false,"removalEnabled":false}
+   1 volume probe THMBNL: {"handleStable":false,"useBirth":false,"removalEnabled":false}
+
+## originals after exit
+temps.json byte-identical: yes; telemetry-queue.json byte-identical: yes
+userData: notifications.json notifications.json.bak profiles.json settings.json telemetry-queue.json temps.json 
+destination: 0 .mtpart, 0 files placed, 3 reports, 0 probe leftovers
+
+## relaunch without the hook: both are set aside (logged) and the same transfer runs normally
+{"heading": "Transfer complete", "rows": ["DCIM\t204\t204\t0\t\u2713 204 files verified", "CLIP\t6\t6\t0\t\u2713 6 files verified", "THMBNL\t3\t3\t0\t\u2713 3 files verified"], "failedFiles": 0, "failedReasons": [], "stopped": []}
+telemetry-queue.json did not parse (63 bytes) and has no usable .bak; kept as telemetry-queue.json.corrupt-1792897583290, starting from the default
+temps.json did not parse (63 bytes) and has no usable .bak; kept as temps.json.corrupt-1792897590179, starting from the default
+{"notifications.json": {"kinds": ["new-drive", "transfer-done", "transfer-failed", "transfer-done"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "transfer_finished"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD73"]}, "stray": ["telemetry-queue.json.corrupt-1792897583290", "temps.json.corrupt-1792897590179"], "bak": ["notifications.json.bak", "telemetry-queue.json.bak", "temps.json.bak"]}
+kept copies identical to the originals: temps yes, queue yes
+destination: 0 .mtpart, 213 files placed
+hash-equal: 213, mismatched: 0

@@ -10,7 +10,7 @@ export type Profile = {
   updatedAt: number;
 };
 
-export type NotificationItem = {
+export type NewDriveItem = {
   id: string;
   kind: 'new-drive';
   volumeName: string;
@@ -18,10 +18,49 @@ export type NotificationItem = {
   dismissedAt: number;
 };
 
+export type TransferItem = {
+  id: string;
+  kind: 'transfer-done' | 'transfer-failed' | 'transfer-cancelled';
+  at: number;
+  origin: string;
+  destination: string;
+  summary: {
+    copied: number;
+    verified: number;
+    skipped: number;
+    failed: number;
+    failedNames: string[];
+    durationMs: number;
+  };
+};
+
+export type UpdateItem = {
+  id: string;
+  kind: 'update-available' | 'update-downloaded';
+  at: number;
+  version: string;
+};
+
+export type NotificationItem = NewDriveItem | TransferItem | UpdateItem;
+
+export type Settings = {
+  version: 1;
+  installId: string;
+  telemetry: 'unasked' | 'on' | 'off';
+  updateCheck: boolean;
+};
+
+export type SettingsPatch = {
+  telemetry?: 'on' | 'off';
+  updateCheck?: boolean;
+  resetInstallId?: boolean;
+};
+
 export type AppState = {
   volumes: string[];
   profiles: Record<string, Profile>;
   notifications: NotificationItem[];
+  settings: Settings | null;
 };
 
 export type FileStart = { absPath: string; name: string };
@@ -71,6 +110,7 @@ export type VerifyReport = {
   reached: boolean;
   cancelled: boolean;
   tempsLeft: number;
+  stoppedError?: string;
   filesCopied: number;
   filesVerified: number;
   filesSkipped: number;
@@ -86,6 +126,10 @@ declare global {
       deleteProfile: (volumeName: string) => Promise<Record<string, Profile>>;
       dismissNotification: (volumeName: string) => Promise<NotificationItem[]>;
       removeNotification: (id: string) => Promise<NotificationItem[]>;
+      installUpdate: () => Promise<void>;
+      getSettings: () => Promise<Settings>;
+      setSettings: (patch: SettingsPatch) => Promise<Settings>;
+      openExternal: (url: string) => Promise<void>;
       getThumbnail: (absPath: string) => Promise<string | null>;
       listTree: (absDir: string) => Promise<TreeNode[]>;
       buildPlan: (

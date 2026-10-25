@@ -1,0 +1,31 @@
+# R.2: MT_TEST_CRASH_BEFORE_RENAME=notifications.json: the process is SIGKILLed after notifications.json's tmp is written and fsync'ed, before the rename. Trigger: a full transfer DevRCard -> exFAT DevRD61 ends and adds its bell entry.
+
+## log
+MT_TEST_CRASH_BEFORE_RENAME: killing the process before renaming notifications.json.tmp-38501
+/Users/varela/Projects/media-transfer-dev/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron exited with signal SIGKILL
+
+## userData right after the kill
+notifications.json
+notifications.json.tmp-38501
+profiles.json
+settings.json
+telemetry-queue.json
+telemetry-queue.json.bak
+temps.json
+temps.json.bak
+notifications.json identical to the content before the write: yes
+tmp holds the new list: ['new-drive', 'transfer-done', 'transfer-done']
+
+## relaunch without the hook (the stray tmp of the dead pid is removed at the first read)
+{"notifications.json": {"kinds": ["new-drive", "transfer-done"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "app_launched"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD61"]}, "stray": [], "bak": ["telemetry-queue.json.bak", "temps.json.bak"]}
+notifications.json still the previous content: yes
+
+## after a clean quit
+notifications.json
+profiles.json
+settings.json
+telemetry-queue.json
+telemetry-queue.json.bak
+temps.json
+temps.json.bak
+{"notifications.json": {"kinds": ["new-drive", "transfer-done"], "seed-drive kept": true, "seed-done kept": true}, "settings.json": {"telemetry": "on", "installId kept": true}, "temps.json": {"temps": 0}, "telemetry-queue.json": {"events": ["app_launched", "transfer_started", "app_launched"]}, "profiles.json": {"profiles": ["DevRCard", "DevRD61"]}, "stray": [], "bak": ["telemetry-queue.json.bak", "temps.json.bak"]}

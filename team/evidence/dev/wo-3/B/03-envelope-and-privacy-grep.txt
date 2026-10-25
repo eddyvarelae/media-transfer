@@ -1,0 +1,86 @@
+# Captured POST /v1/events bodies (local stub, MT_TELEMETRY_URL=http://127.0.0.1:8790), 4 requests over 3 app sessions
+
+## first request, verbatim:
+{
+ "installId": "6912385f-293c-42f3-93d5-ee4288e00f0b",
+ "app": {
+  "name": "media-transfer",
+  "version": "3.0.0"
+ },
+ "os": {
+  "platform": "darwin",
+  "release": "26.7.0",
+  "arch": "arm64"
+ },
+ "sentAt": "2026-10-25T00:15:07.401Z",
+ "events": [
+  {
+   "name": "telemetry_toggled",
+   "at": "2026-10-25T00:15:07.400Z",
+   "props": {
+    "state": "on"
+   }
+  }
+ ]
+}
+
+## envelope keys of every request: [('app', 'events', 'installId', 'os', 'sentAt')]
+## events (name: props):
+  telemetry_toggled {"state": "on"}
+  transfer_started {"folders": 2, "files": 6, "bytes": 183786084, "flatten": true}
+  transfer_cancelled {"bytesDone": 57771986, "durationMs": 660}
+  transfer_started {"folders": 2, "files": 6, "bytes": 183786084, "flatten": true}
+  transfer_finished {"copied": 5, "verified": 5, "skipped": 0, "failed": 1, "bytes": 183786084, "durationMs": 1395, "mbps": 131.7}
+  app_launched {"version": "3.0.0", "macos": "26.7.0", "arch": "arm64", "locale": "en-US", "profiles": 2}
+  update_available {"version": "3.0.1"}
+  transfer_started {"folders": 2, "files": 1, "bytes": 4538944, "flatten": true}
+  transfer_finished {"copied": 1, "verified": 1, "skipped": 5, "failed": 0, "bytes": 4538944, "durationMs": 101, "mbps": 44.9}
+  app_launched {"version": "3.0.0", "macos": "26.7.0", "arch": "arm64", "locale": "en-US", "profiles": 2}
+
+## privacy grep over every byte sent (file names, paths, volume/drive names, user name):
+  'DevACard': 0 hits
+  'DevADest': 0 hits
+  '/Volumes': 0 hits
+  '.MP4': 0 hits
+  '.JPG': 0 hits
+  'DSC0': 0 hits
+  'C000': 0 hits
+  'varela': 0 hits
+  'Users': 0 hits
+  'mtpart': 0 hits
+  'Scratch1': 0 hits
+  'TM-MINI': 0 hits
+  'Ts': 0 hits
+  'CLIP': 0 hits
+  'DCIM': 0 hits
+## prop value types: ['bool', 'float', 'int', 'str']
+
+## code: every track() call site (the only way an event is queued) and the typed prop schema
+electron/main.ts:106:    available: (version) => void track('update_available', { version }).then(flush),
+electron/main.ts:116:  await track('app_launched', {
+electron/main.ts:157:    await track('telemetry_toggled', { state: 'on' });
+electron/main.ts:218:      void track('transfer_failed', { stage: 'plan', errorType: errorType(e) });
+electron/main.ts:274:  void track('transfer_started', {
+electron/main.ts:288:    void track('transfer_failed', { stage: 'copy', errorType: errorType(e) }).then(flush);
+electron/main.ts:307:    ? track('transfer_cancelled', { bytesDone, durationMs })
+electron/main.ts:308:    : track('transfer_finished', {
+electron/telemetry.ts:114:  if (previous) await track('update_installed', { version });
+
+export type EventProps = {
+  app_launched: { version: string; macos: string; arch: string; locale: string; profiles: number };
+  transfer_started: { folders: number; files: number; bytes: number; flatten: boolean };
+  transfer_finished: {
+    copied: number;
+    verified: number;
+    skipped: number;
+    failed: number;
+    bytes: number;
+    durationMs: number;
+    mbps: number;
+  };
+  transfer_failed: { stage: 'plan' | 'copy'; errorType: string };
+  transfer_cancelled: { bytesDone: number; durationMs: number };
+  update_available: { version: string };
+  update_installed: { version: string };
+  telemetry_toggled: { state: 'on' };
+};
