@@ -1,0 +1,10 @@
+# VR-8 check 2 - commit 592f74b. MT_TEST_UPDATE=1 + MT_TEST_FINALIZE_DELAY_MS=1500, no transfer.
+## (a) 'Restart to install', then SIGTERM 0.3 s later (inside the delay)
+update entries before: [update-downloaded]; exit 1.19 s after the SIGTERM, 0 processes left; main log:
+quit requested again while finalizing: held until the first finalization completes
+MT_TEST_UPDATE: quitAndInstall(isSilent=false, isForceRunAfter=true) would run now
+install did not exit: releasing the held quit
+## (b) 'Restart to install' with no quit held: the app stays open (alive after 4 s, window answers); a later SIGTERM exits in 0.19 s; main log:
+MT_TEST_UPDATE: quitAndInstall(isSilent=false, isForceRunAfter=true) would run now
+update waiting and no transfer: the normal quit path installs it
+notifications.json parses after both

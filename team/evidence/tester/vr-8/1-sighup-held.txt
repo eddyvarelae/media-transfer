@@ -1,0 +1,22 @@
+# VR-8 check 1 - commit 592f74b (item P). MT_TEST_FINALIZE_DELAY_MS=1500; throttled TsCard2 -> exFAT TsDestX6 (CLIP/DCIM emptied first); SIGHUP 1.5 s after the first temp, a second SIGHUP 200 ms later (term-mid-transfer.sh ... 1 HUP).
+temps at SIGTERM: /Volumes/TsDestX6/TsCard2/CLIP/C0004.MP4.mtpart 149946368 
+second SIGHUP sent
+exit after 1.63 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+SIGHUP: quit requested
+quit requested again while finalizing: held until the first finalization completes
+## reports
+CLIP transfer-20261024-193254.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+{
+ "version": 1,
+ "temps": []
+}
+notifications.json after: 740 B, parses (the delay hook lets the write finish; see VR-7 item 55 for the plain-quit case)
+next run (no hook): ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified']
+.mtpart 0; ledger []
