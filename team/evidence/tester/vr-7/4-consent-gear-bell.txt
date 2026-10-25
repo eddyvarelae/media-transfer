@@ -1,0 +1,49 @@
+# VR-7 check 4 - commit 96cf97b. VR-6 checks 3 and 6 again.
+## consent + gear (fresh userData udC; second fresh udD for 'Send anonymous stats')
+fresh launch: modal=true  settings: unasked True d5708beb
+after x: off True d5708beb
+relaunch: modal=false  settings: off True d5708beb
+gear open:
+false,true SETTINGS / Send anonymous usage stats / No file names, paths or drive names, ever. / Check for updates automatically / Reset anonymous id / What is sent
+   settings: off True d5708beb
+stats on:
+true,true SETTINGS / Send anonymous usage stats / No file names, paths or drive names, ever. / Check for updates automatically / Reset anonymous id / What is sent
+   settings: on True d5708beb
+updates off:
+true,false SETTINGS / Send anonymous usage stats / No file names, paths or drive names, ever. / Check for updates automatically / Reset anonymous id / What is sent
+   settings: on False d5708beb
+updates on:
+true,true SETTINGS / Send anonymous usage stats / No file names, paths or drive names, ever. / Check for updates automatically / Reset anonymous id / What is sent
+   settings: on True d5708beb
+reset id:
+true,true SETTINGS / Send anonymous usage stats / No file names, paths or drive names, ever. / Check for updates automatically / Reset anonymous id / New id created / What is sent
+   settings: on True 12bb8a39
+stats off:
+false,true SETTINGS / Send anonymous usage stats / No file names, paths or drive names, ever. / Check for updates automatically / Reset anonymous id / New id created / What is sent
+   settings: off True 12bb8a39
+second fresh userData, 'Send anonymous stats': on
+
+## bell: three transfer kinds (MT_TEST_CORRUPT=A.JPG for the failure; throttled cancel)
+failed run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t2\t2\t0\t✗ 1 file failed verification'] ['DCIM100MSDCF/A.JPG · checksum mismatch after retry']
+cancel run: ['CLIP\t0\t0\t0\tCancelled · 0 files verified', 'DCIM\t0\t0\t0\tNot reached (cancelled)']
+{
+ "label": "Notifications (6)",
+ "rows": [
+  "TRANSFER CANCELLED | TsCard2 | → | TsDest7 | 0 verified · 0 skipped · 1s · just now | Remove",
+  "TRANSFER FINISHED WITH FAILURES | TsCard2 | → | TsDest | 4 verified · 0 skipped · 1 failed · 1s · just now | 100MSDCF/A.JPG | Remove",
+  "TRANSFER COMPLETE | TsCard2 | → | TsDest9 | 5 verified · 0 skipped · 9s · 1 min ago | Remove",
+  "TRANSFER COMPLETE | TsCard2 | → | TsDestX7 | 5 verified · 0 skipped · 9s · 2 min ago | Remove",
+  "TRANSFER CANCELLED | TsCard2 | → | TsDestX7 | 0 verified · 0 skipped · 2s · 3 min ago | Remove",
+  "TRANSFER COMPLETE | TsCard2 | → | TsDestX6 | 5 verified · 0 skipped · 9s · 4 min ago | Remove"
+ ]
+}
+
+## FINDING 4b: notifications.json emptied by a SIGTERM during a transfer
+The bell above has 6 entries; every entry older than 02:24:27 (VR-6's eight, and VR-7 check 1(a)'s TsDestX5 completion) had vanished.
+Repro x2 (term-mid-transfer.sh, plain SIGTERM 1.5 s into a throttled transfer, no hook):
+  run 1: notifications.json before = 6 items (4b-notifications-before-sigterm.json); exit 0.11 s; after = 0 bytes (4b-notifications-after-sigterm.json)
+  run 2: relaunch on the 0-byte file -> still 0 bytes after launch (not repaired, not reported); SIGTERM again -> 0 bytes
+  profiles.json, settings.json, temps.json, telemetry-queue.json: all parse after both runs.
+Cause (code reading): electron/notifications.ts:67 writes with fsp.writeFile (truncate, then write); the quit finalization records the cancelled transfer
+(main.ts recordTransfer -> addTransferNotification) and the process exits before that write completes. With MT_TEST_FINALIZE_DELAY_MS=1500 (check 1c) the write finished and the cancelled entry exists.
+Effect on a real install: a quit during a transfer wipes the bell history AND the persisted new-drive dismissals (same file); the next write starts a fresh list.

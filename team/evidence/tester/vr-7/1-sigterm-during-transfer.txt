@@ -1,0 +1,83 @@
+# VR-7 check 1 - commit 96cf97b (items M, N). SIGTERM to the Electron main process 1.5 s after the first temp appears, throttled TsCard2 (120 MB/s, profile [CLIP, DCIM]) -> fresh exFAT image; then relaunch + run. Script term-mid-transfer.sh. Screen locked: no Cmd-Q.
+
+## (a) one SIGTERM, TsDestX5
+temps at SIGTERM: /Volumes/TsDestX5/TsCard2/CLIP/C0004.MP4.mtpart 152043520 
+exit after 0.15 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+## reports
+CLIP transfer-20261024-192242.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+{
+ "version": 1,
+ "temps": []
+}next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified'] [] ['Transferring', 'Verifying', 'Transfer complete']
+.mtpart 0; ledger {"version":1,"temps":[]}
+2db4162796b3 /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+d69d240c4c46 /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+2a0abe6a97f2 /Volumes/TsCard2/DCIM/100MSDCF/A.JPG
+2603a90b4e8f /Volumes/TsCard2/DCIM/101MSDCF/a.JPG
+8e4eae159d1d /Volumes/TsCard2/DCIM/102MSDCF/X.JPG
+2db4162796b3 /Volumes/TsDestX5/TsCard2/CLIP/C0004.MP4
+d69d240c4c46 /Volumes/TsDestX5/TsCard2/CLIP/C0005.MP4
+2a0abe6a97f2 /Volumes/TsDestX5/TsCard2/DCIM/A.JPG
+8e4eae159d1d /Volumes/TsDestX5/TsCard2/DCIM/X.JPG
+2603a90b4e8f /Volumes/TsDestX5/TsCard2/DCIM/a-2603a90b.JPG
+
+## (b) two SIGTERMs 200 ms apart, TsDestX6, no hook: the app was already gone at +200 ms (no 'second SIGTERM sent' line), so this run does not exercise the held second request
+temps at SIGTERM: /Volumes/TsDestX6/TsCard2/CLIP/C0004.MP4.mtpart 147849216 
+exit after 0.24 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+## reports
+CLIP transfer-20261024-192356.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+{
+ "version": 1,
+ "temps": []
+}next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified'] [] ['Transferring', 'Verifying', 'Transfer complete']
+.mtpart 0; ledger {"version":1,"temps":[]}
+2db4162796b3 /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+d69d240c4c46 /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+2a0abe6a97f2 /Volumes/TsCard2/DCIM/100MSDCF/A.JPG
+2603a90b4e8f /Volumes/TsCard2/DCIM/101MSDCF/a.JPG
+8e4eae159d1d /Volumes/TsCard2/DCIM/102MSDCF/X.JPG
+2db4162796b3 /Volumes/TsDestX6/TsCard2/CLIP/C0004.MP4
+d69d240c4c46 /Volumes/TsDestX6/TsCard2/CLIP/C0005.MP4
+2a0abe6a97f2 /Volumes/TsDestX6/TsCard2/DCIM/A.JPG
+8e4eae159d1d /Volumes/TsDestX6/TsCard2/DCIM/X.JPG
+2603a90b4e8f /Volumes/TsDestX6/TsCard2/DCIM/a-2603a90b.JPG
+
+## (c) two SIGTERMs 200 ms apart with MT_TEST_FINALIZE_DELAY_MS=1500 (dev hook) so the second lands during the finalization, TsDestX7
+temps at SIGTERM: /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart 152043520 
+second SIGTERM sent
+exit after 1.61 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+SIGTERM: quit requested
+quit requested again while finalizing: held until the first finalization completes
+## reports
+CLIP transfer-20261024-192503.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+{
+ "version": 1,
+ "temps": []
+}reports in CLIP/.media-transfer after (c) + next run: transfer-20261024-192503.json transfer-20261024-192545.json  (one from the quit, one from the next run)
+next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified'] [] ['Transferring', 'Verifying', 'Transfer complete']
+.mtpart 0; ledger {"version":1,"temps":[]}
+2db4162796b3 /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+d69d240c4c46 /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+2db4162796b3 /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4
+d69d240c4c46 /Volumes/TsDestX7/TsCard2/CLIP/C0005.MP4
