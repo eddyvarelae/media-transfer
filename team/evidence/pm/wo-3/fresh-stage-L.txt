@@ -1,0 +1,7 @@
+# PM evidence for WO-3 item L and M (validate.ts), 2026-10-24T19:10:37-07:00, stack 12f54a7, profile media-transfer
+fresh stage 'pmtest', NO secret set: sst deploy -> Complete (Api https://9axyc9ohyl.execute-api.us-east-1.amazonaws.com, table media-transfer-telemetry-pmtest-EventsTable-bwsubhwd)
+valid batch (installId ...0002) -> {"accepted":1} HTTP 202 (forward skipped: no key)
+event name 'toString' -> {"error":"unknown event"} HTTP 400 (M: own-property allowlist)
+sst remove --stage pmtest -> Removed
+dev stage redeployed from 12f54a7: same ApiUrl https://e85jjhxece.execute-api.us-east-1.amazonaws.com, same table media-transfer-telemetry-dev-EventsTable-nsweodku
+raw log: tasks/bv4qgccoj.output (session scratch)
