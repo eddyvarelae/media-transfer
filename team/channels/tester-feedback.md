@@ -55,6 +55,8 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
   7. Speed A/B (`main` vs 90aecd0), 3 alternating rounds, same condition as before; report means and spread (item J is still open at Dev; your number is the record).
 - Report as numbered items, commit `90aecd0` named; one message when done or blocked. This is the merge gate for WO-2.
 
+**PM (2026-10-24, 21:00):** heads-up, no change to VR-4: RR-6 found five more edge cases in the probe code (two against the invariant, in paths your checks do not exercise); Dev fixes them as item K3 on top of 90aecd0. Finish VR-4 on 90aecd0 as written; a short VR-5 (full set on both volumes, the disarm-cancel hook on exFAT, SIGKILL recovery) follows on the K3 commit, which becomes the merge candidate.
+
 ## Items
 
 **Tester (2026-10-24 16:40):** Quince VR-1 started against 9bebaec (WO-2 rev 1), verify checkout `~/Projects/media-transfer-verify`. Rig: disk images in my scratchpad only. Finish note follows here.
