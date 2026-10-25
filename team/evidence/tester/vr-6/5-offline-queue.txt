@@ -1,0 +1,14 @@
+# VR-6 check 5 - commit e5590cb. Offline queue. Telemetry on, MT_TELEMETRY_URL=http://127.0.0.1:8799 with nothing listening.
+Cap test: my scratch telemetry-queue.json seeded with 498 old events (transfer_cancelled, bytesDone 0..497) before launch, instead of 500 launches.
+## offline session: launch, transfer TsCard2 -> TsDest4, SIGTERM
+transfer: ['DCIM\t3\t3\t0\t✓ 3 files verified', 'CLIP\t2\t2\t0\t✓ 2 files verified'] Transfer complete (unaffected)
+queue after the offline session: 500 events (cap 500); oldest kept bytesDone 1 (seed 0 dropped); last 3 ['app_launched', 'transfer_started', 'transfer_finished']
+SIGTERM to exit while offline: 0.10 s (5 s request timeout does not hold the quit)
+
+## stub up (stub.mjs 8799), relaunch
+  2026-10-25T02:00:01.182Z POST /v1/events events 100 envelope ['app', 'events', 'installId', 'os', 'sentAt']
+  2026-10-25T02:00:01.187Z POST /v1/events events 100 envelope ['app', 'events', 'installId', 'os', 'sentAt']
+  2026-10-25T02:00:01.189Z POST /v1/events events 100 envelope ['app', 'events', 'installId', 'os', 'sentAt']
+  2026-10-25T02:00:01.190Z POST /v1/events events 100 envelope ['app', 'events', 'installId', 'os', 'sentAt']
+  2026-10-25T02:00:01.191Z POST /v1/events events 100 envelope ['app', 'events', 'installId', 'os', 'sentAt']
+5 requests, 500 events (the new app_launched pushed one more seed event out at the cap); queue after relaunch: 0

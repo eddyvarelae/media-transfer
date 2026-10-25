@@ -1,0 +1,5 @@
+# VR-6 check 9 - commit e5590cb. Screen locked (CGSSessionScreenIsLocked=Yes): no Dock/Finder look.
+iconutil -c iconset of the packaged bundle's Contents/Resources/icon.icns (byte-identical to build/icon.icns): 10 slots
+(16, 16@2x, 32, 32@2x, 128, 128@2x, 256, 256@2x, 512, 512@2x), all with alpha.
+- 512: option 2 "Card to drive" (SD card with mountain, blue arrow down, drive bar) on the light rounded square = team/evidence/pm/logo/option-2.png (9-icon_512x512.png)
+- 16 and 32: the simplified drawing (card, arrow, drive; no mountain or card detail), readable as card -> drive at 32, a blob at 16 as expected (9-icon_16x16.png, 9-icon_32x32.png)

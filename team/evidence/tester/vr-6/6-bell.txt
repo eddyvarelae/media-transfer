@@ -1,0 +1,8 @@
+# VR-6 check 6 - commit e5590cb. Bell entries (production-like build, scratch userData).
+- done: TsCard2 -> TsDest5 -> new top row "TRANSFER COMPLETE | TsCard2 → TsDest5 | 5 verified · 0 skipped · 1s · just now | Remove"; badge 5 -> 6 (earlier VR-6 runs had made 5 done entries)
+- failed (MT_TEST_CORRUPT=A.JPG): TsCard2 -> TsDest8 -> "TRANSFER FINISHED WITH FAILURES | TsCard2 → TsDest8 | 4 verified · 0 skipped · 1 failed · 1s | 100MSDCF/A.JPG | Remove"
+- MT_TEST_UPDATE=1, state sampled every 100 ms from launch: update-available 3.0.1 at 1346 ms, replaced by update-downloaded 3.0.1 at 3413 ms; bell row "UPDATE READY | Media Transfer 3.0.1 | Installs when you restart | Restart to install | Remove" (6-bell-update-ready.png). Badge 6 -> 8 (failed + update).
+- "Restart to install" click: main log "MT_TEST_UPDATE: quitAndInstall() would run now"; app stays up (hook)
+- Remove (the TsDestX1 entry): badge 8 -> 7; entry gone from notifications.json
+- cancelled (throttled TsCard2 -> TsDestX2, Cancel 50 MB into C0004): "TRANSFER CANCELLED | TsCard2 → TsDestX2 | 3 verified · 0 skipped · 1s | Remove"; badge 7 -> 8 (6-bell-three-kinds.png)
+- notifications.json transfer summaries carry { copied, verified, skipped, failed, failedNames, durationMs } as documented

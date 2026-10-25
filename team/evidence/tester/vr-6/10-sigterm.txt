@@ -1,0 +1,7 @@
+# VR-6 check 10 - commit e5590cb. SIGTERM to the Electron main process -> all app processes gone (seconds, polled every 20 ms).
+telemetry on, stub reachable (flush on quit):       0.08 s
+telemetry on, stub reachable, run 2:                0.07 s
+telemetry on, endpoint unreachable:                 0.08 s
+telemetry on, no endpoint configured:               0.07 s
+(check 5 offline session: 0.10 s)
+update downloaded (MT_TEST_UPDATE=1), SIGTERM: 0.08 s
