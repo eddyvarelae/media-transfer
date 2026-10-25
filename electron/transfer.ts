@@ -314,126 +314,138 @@ export async function executePlan(
 
   await fsp.mkdir(plan.destBase, { recursive: true });
 
-  for (const folder of plan.folders) {
-    await fsp.mkdir(folder.destRoot, { recursive: true });
-    let tempsLeft = await noClobberCleanup(folder.destRoot, runId);
-    const run: Run = { runId, destRoot: folder.destRoot, shouldCancel: cancelRequested };
-    let bytesCopiedFolder = 0;
-    let filesCopied = 0;
-    const records: FileRecord[] = folder.toSkip.map((f) => ({
-      ...fileFacts(f, path.join(folder.destRoot, f.destRel)),
-      status: 'skipped',
-    }));
-    let cancelled = false;
+  try {
+    for (const folder of plan.folders) {
+      await fsp.mkdir(folder.destRoot, { recursive: true });
+      let tempsLeft = await noClobberCleanup(folder.destRoot, runId);
+      const run: Run = { runId, destRoot: folder.destRoot, shouldCancel: cancelRequested };
+      let bytesCopiedFolder = 0;
+      let filesCopied = 0;
+      const records: FileRecord[] = folder.toSkip.map((f) => ({
+        ...fileFacts(f, path.join(folder.destRoot, f.destRel)),
+        status: 'skipped',
+      }));
+      let cancelled = false;
 
-    // One-deep pipeline: file i is copied off the card while file i-1 is read back from the
-    // destination. Two files whose destinations may be the same entry (same name, or a case or
-    // Unicode alias on APFS / exFAT) are never in flight together.
-    type Pending = { key: string; file: FileEntry; dest: string; done: Promise<FileRecord | 'cancelled'> };
-    let pending = null as Pending | null;
-    let verifiedDone = bytesVerifiedOverall;
-    const settle = async () => {
-      if (!pending) return;
-      const { file, dest, done } = pending;
-      const outcome = await done;
-      pending = null;
-      if (outcome === 'cancelled') {
-        cancelled = true;
-        records.push(cancelledRecord(file, dest));
-      } else records.push(outcome);
-    };
+      // One-deep pipeline: file i is copied off the card while file i-1 is read back from the
+      // destination. Two files whose destinations may be the same entry (same name, or a case or
+      // Unicode alias on APFS / exFAT) are never in flight together.
+      type Pending = { key: string; file: FileEntry; dest: string; done: Promise<FileRecord | 'cancelled'> };
+      let pending = null as Pending | null;
+      let verifiedDone = bytesVerifiedOverall;
+      const settle = async () => {
+        if (!pending) return;
+        const { file, dest, done } = pending;
+        const outcome = await done;
+        pending = null;
+        if (outcome === 'cancelled') {
+          cancelled = true;
+          records.push(cancelledRecord(file, dest));
+        } else records.push(outcome);
+      };
 
-    for (const file of folder.toCopy) {
-      if (cancelled || cancelRequested()) {
-        cancelled = true;
-        break;
-      }
-      const plainDest = path.join(folder.destRoot, file.relPath);
-      const temp = plainDest + TEMP_SUFFIX;
-      await fsp.mkdir(path.dirname(plainDest), { recursive: true });
-      if (pending?.key === aliasKey(plainDest)) await settle();
+      for (const file of folder.toCopy) {
+        if (cancelled || cancelRequested()) {
+          cancelled = true;
+          break;
+        }
+        const plainDest = path.join(folder.destRoot, file.relPath);
+        const temp = plainDest + TEMP_SUFFIX;
+        await fsp.mkdir(path.dirname(plainDest), { recursive: true });
+        if (pending?.key === aliasKey(plainDest)) await settle();
 
-      let copied: string | 'cancelled' | FileRecord;
-      try {
-        copied = await copyToTemp(
-          file,
-          temp,
-          run,
-          (chunk) => {
-            bytesCopiedFolder += chunk;
-            bytesCopiedOverall += chunk;
-            const elapsedMs = Date.now() - startedAt;
-            const elapsedSec = elapsedMs / 1000;
-            const bps = elapsedSec > 0 ? bytesCopiedOverall / elapsedSec : 0;
-            onProgress(
-              {
-                folderLabel: folder.label,
-                currentFile: file.relPath,
-                filesCopied,
-                totalFiles: folder.toCopy.length,
-                bytesCopiedFolder,
-                totalBytesFolder: folder.totalBytesToCopy,
-                bytesCopiedOverall,
-                totalBytesOverall,
-                bytesPerSecond: bps,
-                elapsedMs,
-              },
-              file.absPath,
-            );
-          },
-          settle,
-        );
-      } catch (e) {
-        copied = await failedRecord(file, plainDest, temp, e);
+        let copied: string | 'cancelled' | FileRecord;
+        try {
+          copied = await copyToTemp(
+            file,
+            temp,
+            run,
+            (chunk) => {
+              bytesCopiedFolder += chunk;
+              bytesCopiedOverall += chunk;
+              const elapsedMs = Date.now() - startedAt;
+              const elapsedSec = elapsedMs / 1000;
+              const bps = elapsedSec > 0 ? bytesCopiedOverall / elapsedSec : 0;
+              onProgress(
+                {
+                  folderLabel: folder.label,
+                  currentFile: file.relPath,
+                  filesCopied,
+                  totalFiles: folder.toCopy.length,
+                  bytesCopiedFolder,
+                  totalBytesFolder: folder.totalBytesToCopy,
+                  bytesCopiedOverall,
+                  totalBytesOverall,
+                  bytesPerSecond: bps,
+                  elapsedMs,
+                },
+                file.absPath,
+              );
+            },
+            settle,
+          );
+        } catch (e) {
+          copied = await failedRecord(file, plainDest, temp, e);
+        }
+        await settle();
+        filesCopied += 1;
+        if (copied === 'cancelled' || cancelled) {
+          cancelled = true;
+          // The file being copied was interrupted (its temp goes with the cancel cleanup).
+          if (typeof copied === 'string') records.push(cancelledRecord(file, plainDest));
+          else records.push(copied);
+          break;
+        }
+        if (typeof copied !== 'string') {
+          records.push(copied);
+          continue;
+        }
+
+        const onReadBack = (n: number) => {
+          bytesVerifiedOverall = verifiedDone + n;
+          onVerify({
+            folderLabel: folder.label,
+            currentFile: file.relPath,
+            bytesVerifiedOverall,
+            totalBytesOverall,
+          });
+        };
+        const verifying = verifyAndPlace(file, plainDest, temp, copied, onReadBack, run);
+        const done: Pending['done'] = verifying.then((outcome) => {
+          verifiedDone += file.size;
+          bytesVerifiedOverall = verifiedDone;
+          return outcome;
+        });
+        pending = { key: aliasKey(plainDest), file, dest: plainDest, done };
       }
       await settle();
-      filesCopied += 1;
-      if (copied === 'cancelled' || cancelled) {
-        cancelled = true;
-        // The file being copied was interrupted (its temp goes with the cancel cleanup).
-        if (typeof copied === 'string') records.push(cancelledRecord(file, plainDest));
-        else records.push(copied);
+      // Nothing of this run stays in flight: on cancel that removes the temps that were being
+      // copied or read back; otherwise only temps whose unlink failed after placement.
+      tempsLeft += await noClobberDropRun(runId);
+
+      reached.push({ folder, records, tempsLeft });
+      if (cancelled) {
+        runCancelled = true;
         break;
       }
-      if (typeof copied !== 'string') {
-        records.push(copied);
-        continue;
-      }
-
-      const onReadBack = (n: number) => {
-        bytesVerifiedOverall = verifiedDone + n;
-        onVerify({
-          folderLabel: folder.label,
-          currentFile: file.relPath,
-          bytesVerifiedOverall,
-          totalBytesOverall,
-        });
-      };
-      const verifying = verifyAndPlace(file, plainDest, temp, copied, onReadBack, run);
-      const done: Pending['done'] = verifying.then((outcome) => {
-        verifiedDone += file.size;
-        bytesVerifiedOverall = verifiedDone;
-        return outcome;
-      });
-      pending = { key: aliasKey(plainDest), file, dest: plainDest, done };
     }
-    await settle();
-    // Nothing of this run stays in flight: on cancel that removes the temps that were being
-    // copied or read back; otherwise only temps whose unlink failed after placement.
-    tempsLeft += await noClobberDropRun(runId);
-
-    reached.push({ folder, records, tempsLeft });
-    if (cancelled) {
-      runCancelled = true;
-      break;
+  } finally {
+    // Every exit, also an exception in a later folder (say mkdir of its destRoot failing):
+    // completed folders keep their reports. One more cancel sample after the last
+    // publication, so a cancel during final bookkeeping counts. A failing report write is
+    // logged and never masks the error that is propagating.
+    if (cancelRequested()) runCancelled = true;
+    for (const r of reached) {
+      try {
+        await writeTransferReport(r.folder, appVersion, startedAt, r.records, runCancelled, r.tempsLeft);
+      } catch (e) {
+        console.error('transfer report not written:', e);
+      }
     }
   }
-  // One more sample after the last publication: a cancel during final bookkeeping counts.
-  if (cancelRequested()) runCancelled = true;
   for (const r of reached) {
     const flags = { reached: true, cancelled: runCancelled, tempsLeft: r.tempsLeft };
     reports.push(summarize(r.folder, r.records, flags));
-    await writeTransferReport(r.folder, appVersion, startedAt, r.records, runCancelled, r.tempsLeft);
   }
   // Every planned folder gets a row; the ones a cancel never reached say so (no report file).
   for (const folder of plan.folders.slice(reports.length)) {
