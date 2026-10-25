@@ -5,6 +5,25 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-4 (2026-10-24) - WO-3 item H3: fixes for RR-3 findings 1-3 (scoped re-review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff 8cf1918 a3ebeca -- electron/ src/` (commit a3ebeca on `dev/v3.0`). Spec: WO-3 rev 1 item H3 (top of `team/channels/dev-questions.md`) and RR-3's findings with the PM triage above. Dev evidence: `git show a3ebeca:team/evidence/dev/wo-3/H3/README.md`.
+
+Claims under review:
+1. A cancel after the exFAT placeholder is disarmed removes the app-created zero-byte final-name file by the identity recorded through its handle; if that removal fails the entry is re-armed and the file stays on record (counted and reported).
+2. `noClobberDropRun` counts placeholders as well as temps; a failed placeholder release appears in `tempsLeft` and in "Cleanup incomplete".
+3. Cancellation is tracked per run; `shouldCancel()` is sampled once more after the last publication; per-folder reports are written at run end, so every reached folder's report and row of a cancelled run carries `cancelled: true`, with copied counts intact.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1'''. The disarmed-placeholder removal acting on a file whose identity no longer matches the recorded one (a placed file, or a user file created at that path meanwhile), or re-arming an entry whose file was in fact removed.
+- F2'''. A placeholder or temp of this run that neither gets removed nor counted on cancel; a count that double-counts the same path.
+- F3'''. A reached folder's report or row of a cancelled run without `cancelled: true`; a report written for a folder never reached; a copied count that drops a placed file; a report of a clean run marked cancelled. Reports written at run end must still be written for every reached folder when a later folder throws.
+- Regressions: RR-3's claims 1-6 (identity ownership, single instance, cancel up to publication, placement survives bookkeeping, failed removals retained, item I) and RR-1's F2/F3/F6 within this diff.
+
+Accepted limits (not findings): as in RR-3, plus the dev-only hook `MT_TEST_CANCEL_AT_DISARM`.
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
 ### RR-3 (2026-10-24) - WO-3 items H2 + I: fixes for RR-2 findings 1, 3-7 and the Tester's VR-1 items 9-11 (scoped re-review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff e1e2b89 8cf1918 -- electron/ src/` (commit 8cf1918 on `dev/v3.0`). Spec: WO-3 rev 1 items H2 and I (top of `team/channels/dev-questions.md`), RR-2's findings and the PM triage above. Dev evidence: `git show 8cf1918:team/evidence/dev/wo-3/H2/README.md` (also lists three further defects Dev found and fixed in the same commit: times set through the handle so `utimes` cannot move a temp's birthtime; exFAT's synthetic inode for an empty file, so identities are exact strings re-recorded at the first 1 MB and at seal; a `FileHandle.close()` hang on its stream).

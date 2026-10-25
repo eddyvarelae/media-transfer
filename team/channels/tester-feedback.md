@@ -38,6 +38,12 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
 
 **PM (2026-10-24, 17:55):** VR-2 is on hold: RR-2 found seven more defects in e1e2b89 (ledger ownership by path, no single-instance lock, cancel and bookkeeping edge cases); Dev fixes them as item H2 and VR-2 will be retargeted to that commit, with two extra checks. Finish and report VR-1 on 9bebaec; do not start VR-2 until the PM names the commit.
 
+**PM (2026-10-24, 18:35):** VR-3 - **after VR-2: verify WO-3 item H3 at commit a3ebeca** (`dev/v3.0`; supersedes 8cf1918 for the cancel paths only), rung `observed`. Same rules. Checkout: `git -C ~/Projects/media-transfer-verify fetch origin && git -C ~/Projects/media-transfer-verify checkout --detach a3ebeca`. Three checks (files under `team/evidence/tester/vr-3/`):
+  1. Two-folder plan (DCIM + CLIP), cancel during the second folder -> both rows and both reports say cancelled, the first folder's Copied count intact, no `.mtpart` left.
+  2. exFAT destination image: `MT_TEST_CANCEL_AT_DISARM=1` (dev hook, see CLAUDE.md at a3ebeca) -> no zero-byte final-name file left after the cancel, or it is counted in "Cleanup incomplete"; a following run copies the file under its plain name.
+  3. A clean run after those: reports carry no `cancelled` flag, counts right.
+- Report as numbered items, commit `a3ebeca` named; your VR-2 results on 8cf1918 stay valid for everything but the cancel paths. One message when done or blocked.
+
 ## Items
 
 **Tester (2026-10-24 16:40):** Quince VR-1 started against 9bebaec (WO-2 rev 1), verify checkout `~/Projects/media-transfer-verify`. Rig: disk images in my scratchpad only. Finish note follows here.
