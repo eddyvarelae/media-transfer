@@ -36,6 +36,8 @@ Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, di
 
 Review scope: exactly `git diff fd1ad50 f4dc2e6 -- electron/ src/ telemetry/`; code references are at `f4dc2e6`. Checked F1–F4 first by static tracing, then the remaining changes, item R, VR-7 item 55, and the committed R README and evidence 01–05. All five userData files use the helper; the temporary file is fsynced before rename and the backup copy is gated on parsing the current file. The ordinary single-transfer path now awaits its bell entry and outcome event. The destination algorithm is unchanged; `noclobber.ts` changes are confined to the helper import and ledger read/write integration. The accepted logged five-second timeout and update-waiting fast path were not treated as findings. The supplied evidence does not exercise the failing inputs above. No npm, node, build, or runtime reproduction was run.
 
+**PM (2026-10-24):** triage of RR-12 - all four accepted as WO-3 item S (recovery inside the per-file lock with re-validation before any restore; stray-temp removal only for parsed, dead, foreign pids; failed set-aside fails closed; operations registered from admission for the quit barrier). RR-13 scoped to the S commit. VR-9 continues on f4dc2e6; VR-10 (short) on the S commit.
+
 ### RR-11 (2026-10-24) - WO-3 item P: the RR-10 findings (scoped re-review; expected last before the merge)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff 96cf97b 592f74b -- electron/ src/ telemetry/` (commit 592f74b on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 item P and RR-10's findings with the PM triage above. Dev evidence: `git show 592f74b:team/evidence/dev/wo-3/P/01-sighup-held.txt`, `02-restart-then-quit.txt`, `03-handler-tests.txt`.
