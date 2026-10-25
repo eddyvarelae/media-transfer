@@ -1,0 +1,116 @@
+# VR-3 check 2 - commit bba1c7b. BLOCKED by a regression: placement on an exFAT destination fails for (almost) every file, so the disarm window is never reached. 2026-10-24T17:43:02-07:00
+Destination: /Volumes/TsDestX, exFAT disk image ((exfat, local, nodev, nosuid, noowners, noatime, fskit, mounted by varela))
+
+## (a) MT_TEST_CANCEL_AT_DISARM=1, TsCard2 (local) -> TsDestX
+{
+ "rows": [
+  "DCIM\t0\t0\t0\t\u2717 3 files failed verification",
+  "CLIP\t0\t0\t0\tCancelled \u00b7 0 files verified"
+ ],
+ "failedList": [
+  "DCIM100MSDCF/A.JPG \u00b7 Temp replaced: /Volumes/TsDestX/TsCard2/DCIM/A.JPG.mtpart",
+  "DCIM101MSDCF/a.JPG \u00b7 temp name taken by an unknown file",
+  "DCIM102MSDCF/X.JPG \u00b7 Temp replaced: /Volumes/TsDestX/TsCard2/DCIM/X.JPG.mtpart"
+ ],
+ "h2seen": [
+  {
+   "t": 12,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 999,
+   "h2": "Transfer cancelled",
+   "conveyor": false
+  }
+ ],
+ "endText": "TRANSFER CANCELLED\n99.5%\n805 MB / 810 MB\n1.06 GB/s\nElapsed 1s\nETA \u2014\nRead back 36.1%\n292 MB / 810 MB read back"
+}
+panel: no 'Cleanup incomplete' note (2-panel-disarm-cancel.png); ledger after: {"version":1,"temps":[]}
+files left (inode size mtime path):
+9 4540146 Oct 24 17:31:02 2026 /Volumes/TsDestX/TsCard2/DCIM/A.JPG.mtpart
+148 1025967 Oct 24 17:31:02 2026 /Volumes/TsDestX/TsCard2/DCIM/X.JPG.mtpart
+25784 747 Oct 24 17:31:03 2026 /Volumes/TsDestX/TsCard2/CLIP/.media-transfer/transfer-20261024-173102.json
+25270 1114 Oct 24 17:31:03 2026 /Volumes/TsDestX/TsCard2/DCIM/.media-transfer/transfer-20261024-173102.json
+-> two .mtpart files remain on the destination while the ledger is empty: the next run treats them as foreign ('temp name taken by an unknown file') and that file can never be backed up there until someone removes them by hand. a.JPG already failed that way inside the same run (A.JPG.mtpart is its case-insensitive alias).
+reports:
+--- /Volumes/TsDestX/TsCard2/CLIP/.media-transfer/transfer-20261024-173102.json
+{
+  "version": 1,
+  "app": "3.0.0",
+  "cancelled": true,
+  "startedAt": "2026-10-25T00:31:02.172Z",
+  "finishedAt": "2026-10-25T00:31:03.159Z",
+  "origin": "/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP",
+  "destination": "/Volumes/TsDestX/TsCard2/CLIP",
+  "flatten": false,
+  "files": [
+    {
+      "source": "/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4",
+      "dest": "/Volumes/TsDestX/TsCard2/CLIP/C0004.MP4",
+      "size": 419430400,
+      "mtime": "2026-10-24T23:56:38.870Z",
+      "status": "cancelled"
+    },
+    {
+      "source": "/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4",
+      "dest": "/Volumes/TsDestX/TsCard2/CLIP/C0005.MP4",
+      "size": 419430400,
+      "mtime": "2026-10-24T23:56:39.760Z",
+      "status": "cancelled"
+    }
+  ]
+}
+--- /Volumes/TsDestX/TsCard2/DCIM/.media-transfer/transfer-20261024-173102.json
+{
+  "version": 1,
+  "app": "3.0.0",
+  "cancelled": true,
+  "startedAt": "2026-10-25T00:31:02.172Z",
+  "finishedAt": "2026-10-25T00:31:03.150Z",
+  "origin": "/Volumes/TsCard2/DCIM",
+  "destination": "/Volumes/TsDestX/TsCard2/DCIM",
+  "flatten": true,
+  "files": [
+    {
+      "source": "/Volumes/TsCard2/DCIM/100MSDCF/A.JPG",
+      "dest": "/Volumes/TsDestX/TsCard2/DCIM/A.JPG",
+      "size": 4540146,
+      "mtime": "2026-10-24T23:56:38.030Z",
+      "status": "failed",
+      "reason": "Temp replaced: /Volumes/TsDestX/TsCard2/DCIM/A.JPG.mtpart"
+    },
+    {
+      "source": "/Volumes/TsCard2/DCIM/101MSDCF/a.JPG",
+      "dest": "/Volumes/TsDestX/TsCard2/DCIM/a.JPG",
+      "size": 4538077,
+      "mtime": "2026-10-24T23:56:38.030Z",
+      "status": "failed",
+      "reason": "temp name taken by an unknown file"
+    },
+    {
+      "source": "/Volumes/TsCard2/DCIM/102MSDCF/X.JPG",
+      "dest": "/Volumes/TsDestX/TsCard2/DCIM/X.JPG",
+      "size": 1025967,
+      "mtime": "2026-10-24T23:56:38.040Z",
+      "status": "failed",
+      "reason": "Temp replaced: /Volumes/TsDestX/TsCard2/DCIM/X.JPG.mtpart"
+    }
+  ]
+}
+
+## (b) control without any hook, TsCard (212 files, local) -> fresh folder on TsDestX, bba1c7b
+[{'t': 21, 'h2': 'Transferring', 'conveyor': True}, {'t': 11768, 'h2': 'Transfer finished with failures', 'conveyor': False}] ['DCIM\t1\t1\t0\t✗ 202 files failed verification', 'CLIP\t0\t0\t0\t✗ 6 files failed verification', 'THMBNL\t0\t0\t0\t✗ 3 files failed verification'] 211 failures; reasons: ['Temp replaced', 'temp name taken by an unknown file']
+first: ['DCIM100MSDCF/DSC00001.JPG · Temp replaced: /Volumes/TsDestX/TsCard/DCIM/DSC00001.JPG.mtpart', 'DCIM100MSDCF/DSC00002.JPG · Temp replaced: /Volumes/TsDestX/TsCard/DCIM/DSC00002.JPG.mtpart', 'DCIM100MSDCF/DSC00101.JPG · Temp replaced: /Volumes/TsDestX/TsCard/DCIM/DSC00101.JPG.mtpart']
+files on the destination after it: 214 (210 .mtpart + 1 placed + reports; list in 2-exfat-files-after-failed-run.txt); ledger empty
+
+## (c) bisect, same control (TsCard -> TsDestX/TsCard emptied between runs; each commit built from git archive in my scratchpad, same userData)
+9bebaec ['DCIM\t203\t203\t0\t✓ 203 files verified', 'CLIP\t6\t6\t0\t✓ 6 files verified', 'THMBNL\t3\t3\t0\t✓ 3 files verified'] failures 0
+e1e2b89 ['DCIM\t203\t203\t0\t✓ 203 files verified', 'CLIP\t6\t6\t0\t✓ 6 files verified', 'THMBNL\t3\t3\t0\t✓ 3 files verified'] failures 0
+8cf1918 ['DCIM\t0\t0\t0\t✗ 203 files failed verification', 'CLIP\t1\t1\t0\t✗ 5 files failed verification', 'THMBNL\t0\t0\t0\t✗ 3 files failed verification'] failures 211
+a3ebeca ['DCIM\t0\t0\t0\t✗ 203 files failed verification', 'CLIP\t0\t0\t0\t✗ 6 files failed verification', 'THMBNL\t0\t0\t0\t✗ 3 files failed verification'] failures 212
+bba1c7b ['DCIM\t1\t1\t0\t✗ 202 files failed verification', 'CLIP\t0\t0\t0\t✗ 6 files failed verification', 'THMBNL\t0\t0\t0\t✗ 3 files failed verification'] failures 211
+-> introduced in 8cf1918 (H2: identity-based ownership ledger). 9bebaec and e1e2b89 copy and verify 212/212 on the same exFAT image.
+VR-2 on 8cf1918 used APFS destinations only, so its PASSes did not cover exFAT. Not tested on a real exFAT drive (rule: disk images only).
+
+## (d) the rest of check 2 (no zero-byte final file at the disarm window; next run copies under the plain name) cannot be exercised until exFAT placement works.
