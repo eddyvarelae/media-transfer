@@ -17,10 +17,18 @@ const TEST = process.env.MT_TEST_UPDATE === '1';
 let items: UpdateItem[] = [];
 let onChange: () => void = () => {};
 let onAvailable: (version: string) => void = () => {};
+// The downloaded version, if any (RR-8 #4): state of its own, so removing the bell row does not
+// change whether an update is waiting.
+let readyVersion: string | null = null;
 
-/** True once an update is downloaded and will install when the app quits. */
+/** True once an update is downloaded and will install when the app quits (or the dev hook's). */
 export function updateWaiting(): boolean {
-  return !TEST && items.some((n) => n.kind === 'update-downloaded');
+  return readyVersion !== null && (app.isPackaged || TEST);
+}
+
+/** May "Restart to install" run? A packaged build (or the dev hook) with a downloaded update. */
+export function updateReady(): boolean {
+  return readyVersion !== null && (app.isPackaged || TEST);
 }
 
 export function updateItems(): UpdateItem[] {
@@ -52,7 +60,10 @@ export function startUpdates(opts: {
       show('update-available', '3.0.1');
       onAvailable('3.0.1');
     }, 1500);
-    setTimeout(() => show('update-downloaded', '3.0.1'), 3500);
+    setTimeout(() => {
+      readyVersion = '3.0.1';
+      show('update-downloaded', '3.0.1');
+    }, 3500);
     return;
   }
   if (!app.isPackaged) return;
@@ -63,7 +74,10 @@ export function startUpdates(opts: {
     show('update-available', info.version);
     onAvailable(info.version);
   });
-  autoUpdater.on('update-downloaded', (info) => show('update-downloaded', info.version));
+  autoUpdater.on('update-downloaded', (info) => {
+    readyVersion = info.version;
+    show('update-downloaded', info.version);
+  });
   autoUpdater.on('error', (e) => console.warn('update check failed:', e?.message ?? e));
 
   const check = async () => {
@@ -74,11 +88,16 @@ export function startUpdates(opts: {
   setInterval(check, SIX_HOURS).unref();
 }
 
-/** "Restart to install". The caller flushes telemetry first. */
-export function installNow() {
+/**
+ * Installs the downloaded update. `restart` = "Restart to install" (relaunch after); false = the
+ * user quit (install, don't relaunch). The caller finalizes the transfer and flushes telemetry.
+ * Returns whether the app is now quitting (quitAndInstall quits it; the dev hook does not).
+ */
+export function installNow(restart: boolean): boolean {
   if (TEST) {
-    console.log('MT_TEST_UPDATE: quitAndInstall() would run now');
-    return;
+    console.log(`MT_TEST_UPDATE: quitAndInstall(isSilent=${!restart}, isForceRunAfter=${restart}) would run now`);
+    return false; // nothing quits under the hook: the caller exits if it must
   }
-  autoUpdater.quitAndInstall();
+  autoUpdater.quitAndInstall(!restart, restart);
+  return true;
 }

@@ -76,6 +76,12 @@ const bad: [string, string | undefined][] = [
   ["non-scalar prop", JSON.stringify({ ...good, events: [{ name: "transfer_started", at: good.sentAt, props: { files: [1, 2] } }] })],
   ["101 events", JSON.stringify({ ...good, events: Array(101).fill(good.events[0]) })],
   ["body over 64 KB", JSON.stringify({ ...good, pad: "x".repeat(65 * 1024) })],
+  // RR-8 #3: names that exist on Object.prototype are unknown events / props, never a TypeError
+  ...["toString", "constructor", "__proto__", "hasOwnProperty", "valueOf"].map(
+    (n) => [`event named ${n}`, JSON.stringify({ ...good, events: [{ name: n, at: good.sentAt, props: {} }] })] as [string, string],
+  ),
+  ["prop named toString", JSON.stringify({ ...good, events: [{ name: "app_launched", at: good.sentAt, props: { toString: 1 } }] })],
+  ["prop named __proto__", `{"installId":"${good.installId}","app":{"name":"media-transfer","version":"3.0.0"},"os":{"platform":"darwin","release":"26","arch":"arm64"},"sentAt":"${good.sentAt}","events":[{"name":"app_launched","at":"${good.sentAt}","props":{"__proto__":{"x":1}}}]}`],
 ];
 for (const [label, body] of bad) {
   const n = stored.length;

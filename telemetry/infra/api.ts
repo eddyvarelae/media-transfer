@@ -1,7 +1,10 @@
 import { table } from "./database";
 import { cert, DOMAIN_ENABLED, API_DOMAIN } from "./dns";
 
-export const posthogKey = new sst.Secret("PosthogKey");
+// Production requires a real key (`sst secret set`); other stages default to empty, so a fresh
+// dev deploy needs no secret and the Lambda simply skips the forward (WO-3 L).
+export const posthogKey =
+  $app.stage === "production" ? new sst.Secret("PosthogKey") : new sst.Secret("PosthogKey", "");
 
 // No CORS: the client is the app's main process, not a web page. No access logs on the stage:
 // they would record the caller's IP, and PRIVACY.md says it is not stored. Route throttle

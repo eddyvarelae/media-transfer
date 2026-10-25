@@ -230,7 +230,7 @@ export default function App() {
       volumes={state.volumes}
       onLabel={setEditingVolume}
       onRemove={removeNotification}
-      onInstallUpdate={() => window.api.installUpdate()}
+      onInstallUpdate={() => window.api.installUpdate().catch((e) => console.warn('install refused:', e?.message ?? e))}
       settings={state.settings}
       onSettings={changeSettings}
     />

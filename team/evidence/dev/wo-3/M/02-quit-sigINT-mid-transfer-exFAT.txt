@@ -1,0 +1,17 @@
+# M.1: SIGINT 1 s into a transfer (exFAT, DevMDest2), in the app
+{"started":true}
+## exited 0.14 s after SIGINT
+## main log:
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+## reports on the destination:
+  CLIP/.media-transfer/transfer-20261024-190050.json: cancelled=1 ['copied-verified', 'cancelled', 'not-started']
+  DCIM/.media-transfer/transfer-20261024-190050.json: cancelled=1 ['copied-verified', 'copied-verified', 'copied-verified']
+## ledger after exit: {"version":1,"temps":[]}
+## .mtpart: 0
+## next run (no hook):
+ "heading": "Transfer complete",
+  "DCIM\t0\t0\t3\t3 files already there, nothing to copy",
+  "CLIP\t2\t2\t1\t✓ 2 files verified"
+## after: .mtpart 0; ledger {"version":1,"temps":[]}

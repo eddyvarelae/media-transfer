@@ -61,7 +61,7 @@ pbpaste | npx sst secret set PosthogKey --stage production
 pbcopy < /dev/null                                     # clear the clipboard
 ```
 
-Without it the Lambda stores events and skips the forward (`forwarded: "skipped"` in the logs).
+Production requires it. Other stages default the secret to empty, so `npx sst deploy --stage dev` works with no secret set. Without a PostHog project key (a value starting `phc_`; empty or a placeholder like `unset`) the Lambda stores the events and skips the forward (`forwarded: "skipped"` in the logs).
 
 ## DNS (`scripts/dns.sh`)
 

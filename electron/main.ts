@@ -22,8 +22,8 @@ import {
 import { getThumbnail } from './thumbnails';
 import { setLedgerFile } from './noclobber';
 import { loadSettings, updateSettings, SettingsPatch } from './settings';
-import { track, flush, dropQueue, noteLaunchVersion, flushBeforeQuit } from './telemetry';
-import { startUpdates, updateItems, removeUpdateItem, installNow, updateWaiting } from './updates';
+import { track, flush, dropQueue, noteLaunchVersion, flushBeforeQuit, withIdReset } from './telemetry';
+import { startUpdates, updateItems, removeUpdateItem, installNow, updateWaiting, updateReady } from './updates';
 
 let win: BrowserWindow | null = null;
 let activePlan: TransferPlan | null = null;
@@ -129,11 +129,36 @@ async function launchTelemetry() {
 // install on quit, the quit is left alone: electron-updater installs it from the normal quit
 // path, and the queue is on disk for the next launch anyway.
 let quitFlushed = false;
+// RR-8 #1: an active transfer is cancelled and its finalization (reports, ledger writes) awaited
+// before anything exits; a cancel returns promptly, so the wait is bounded at a few seconds.
+const FINALIZE_MAX_MS = 5000;
+
+async function finalizeBeforeExit(): Promise<void> {
+  if (activeRun) {
+    cancelFlag = true;
+    const timedOut = await Promise.race([
+      activeRun.then(() => false, () => false),
+      new Promise<boolean>((r) => setTimeout(() => r(true), FINALIZE_MAX_MS)),
+    ]);
+    if (timedOut) console.warn(`transfer did not finalize within ${FINALIZE_MAX_MS} ms; exiting anyway`);
+    else console.log('active transfer cancelled and finalized before exit');
+  }
+  await flushBeforeQuit();
+}
+
 app.on('before-quit', (e) => {
-  if (quitFlushed || updateWaiting()) return;
+  if (quitFlushed) return;
+  // Nothing running and an update waiting: electron-updater's normal quit path installs it.
+  if (!activeRun && updateWaiting()) {
+    console.log('update waiting and no transfer: the normal quit path installs it');
+    return;
+  }
   quitFlushed = true;
   e.preventDefault();
-  flushBeforeQuit().finally(() => app.exit(0));
+  finalizeBeforeExit().finally(() => {
+    // Re-checked here (RR-8 #4): an update that finished downloading meanwhile still installs.
+    if (!(updateWaiting() && installNow(false))) app.exit(0);
+  });
 });
 
 app.on('window-all-closed', () => {
@@ -151,8 +176,9 @@ ipcMain.handle('shell:openExternal', async (_e, url: string) => {
 });
 
 ipcMain.handle('settings:set', async (_e, patch: SettingsPatch) => {
+  // A reset runs after the batch in flight and before the next one (withIdReset).
   const before = await loadSettings();
-  const after = await updateSettings(patch);
+  const after = patch.resetInstallId ? await withIdReset(() => updateSettings(patch)) : await updateSettings(patch);
   if (before.telemetry !== 'on' && after.telemetry === 'on') {
     await track('telemetry_toggled', { state: 'on' });
     void flush();
@@ -188,10 +214,12 @@ ipcMain.handle('notification:remove', async (_e, id: string) => {
   return [...data.items, ...updateItems()];
 });
 
+// RR-8 #5: only a packaged build with a downloaded update may install; anything else is refused.
 ipcMain.handle('update:install', async () => {
-  await flushBeforeQuit();
+  if (!updateReady()) throw new Error('No downloaded update to install');
   quitFlushed = true;
-  installNow();
+  await finalizeBeforeExit();
+  installNow(true);
 });
 
 // Thumbnails come from the origin card only: the path must be a source file of the active plan.
@@ -278,7 +306,11 @@ ipcMain.handle('transfer:start', async () => {
     flatten: plan.folders.some((f) => f.flatten),
   });
   try {
-    const report = await runTransfer(plan);
+    const run = runTransfer(plan);
+    activeRun = run;
+    const report = await run.finally(() => {
+      if (activeRun === run) activeRun = null;
+    });
     await recordTransfer(plan, startedAt, report).catch(() => {});
     trackOutcome(startedAt, report);
     win?.webContents.send('transfer:done', report);
@@ -294,6 +326,9 @@ ipcMain.handle('transfer:start', async () => {
     return rows;
   }
 });
+
+// The transfer in progress, if any (quit waits for its finalization).
+let activeRun: Promise<unknown> | null = null;
 
 // Bytes copied in the current transfer (for telemetry only).
 let bytesDone = 0;

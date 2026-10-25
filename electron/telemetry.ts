@@ -118,21 +118,59 @@ let sending: Promise<void> | null = null;
 let retryTimer: NodeJS.Timeout | null = null;
 let failures = 0;
 
+let again = false; // an id reset mid-flush: send the rest in a fresh flush with the new id
+let posting: Promise<unknown> | null = null;
+
 /** Sends queued events in batches; on failure retries after 1 min, 5 min, then every 30 min. */
 export function flush(): Promise<void> {
-  if (!sending) sending = sendAll().finally(() => (sending = null));
+  if (!sending) {
+    sending = sendAll().finally(() => {
+      sending = null;
+      if (again) {
+        again = false;
+        void flush();
+      }
+    });
+  }
   return sending;
+}
+
+// RR-8 #2: an id reset holds this gate from the moment it is requested until the new id is
+// stored; the flush loop waits on it before it reads consent and the id for its next batch.
+let resetGate: Promise<unknown> = Promise.resolve();
+
+/** Runs an id reset serialized with the flush: after the batch in flight, before the next one. */
+export function withIdReset<T>(apply: () => Promise<T>): Promise<T> {
+  const run = (async () => {
+    await posting?.catch(() => {});
+    return apply();
+  })();
+  resetGate = run.catch(() => undefined);
+  return run;
 }
 
 async function sendAll(): Promise<void> {
   const url = endpoint();
   if (!url) return;
-  const settings = await loadSettings();
-  if (settings.telemetry !== 'on') return;
   const q = await loadQueue();
+  let installId: string | null = null;
   while (q.events.length > 0) {
+    // RR-8 #2: consent and the anonymous id are re-read before every batch. Consent withdrawn ->
+    // stop; id reset -> stop and send the rest in a fresh flush, under the new id.
+    await resetGate;
+    const settings = await loadSettings();
+    if (settings.telemetry !== 'on') return;
+    if (installId !== null && settings.installId !== installId) {
+      again = true;
+      return;
+    }
+    installId = settings.installId;
     const batch = q.events.slice(0, BATCH);
-    const status = await post(url, settings.installId, batch);
+    const sent = post(url, installId, batch);
+    posting = sent;
+    const status = await sent.finally(() => {
+      if (posting === sent) posting = null;
+    });
     if (status === 'retry') {
       scheduleRetry();
       return;

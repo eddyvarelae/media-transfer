@@ -5,8 +5,10 @@
 export const MAX_BODY_BYTES = 64 * 1024;
 export const MAX_EVENTS = 100;
 
-// Known event names and, for each, the props it may carry (anything else is rejected).
-export const EVENT_PROPS: Record<string, readonly string[]> = {
+// Known event names and, for each, the props it may carry (anything else is rejected). Looked up
+// through a Map built from own properties only (RR-8 #3): "toString", "constructor", "__proto__"
+// and friends are unknown names, never a prototype hit.
+const EVENT_PROPS_TABLE: Record<string, readonly string[]> = {
   app_launched: ["version", "macos", "arch", "locale", "profiles"],
   transfer_started: ["folders", "files", "bytes", "flatten"],
   transfer_finished: ["copied", "verified", "skipped", "failed", "bytes", "durationMs", "mbps"],
@@ -16,6 +18,9 @@ export const EVENT_PROPS: Record<string, readonly string[]> = {
   update_installed: ["version"],
   telemetry_toggled: ["state"],
 };
+export const EVENT_PROPS: ReadonlyMap<string, ReadonlySet<string>> = new Map(
+  Object.entries(EVENT_PROPS_TABLE).map(([name, props]) => [name, new Set(props)]),
+);
 
 export type Scalar = string | number | boolean;
 export type Event = { name: string; at: string; props: Record<string, Scalar> };
@@ -58,12 +63,12 @@ export function validateBody(raw: string | undefined | null): { ok: true; batch:
   if (!Array.isArray(events) || events.length === 0) return { ok: false, reason: "no events" };
   if (events.length > MAX_EVENTS) return { ok: false, reason: "too many events" };
   for (const e of events) {
-    if (!isObject(e) || typeof e.name !== "string" || !(e.name in EVENT_PROPS)) return { ok: false, reason: "unknown event" };
+    const allowed = isObject(e) && typeof e.name === "string" ? EVENT_PROPS.get(e.name) : undefined;
+    if (!isObject(e) || !allowed) return { ok: false, reason: "unknown event" };
     if (!isoDate(e.at)) return { ok: false, reason: "bad event time" };
     if (!isObject(e.props)) return { ok: false, reason: "bad props" };
-    const allowed = EVENT_PROPS[e.name];
     for (const [k, v] of Object.entries(e.props)) {
-      if (!allowed.includes(k)) return { ok: false, reason: "unknown prop" };
+      if (!allowed.has(k)) return { ok: false, reason: "unknown prop" };
       if (!scalar(v)) return { ok: false, reason: "props must be scalar" };
     }
   }

@@ -1,0 +1,29 @@
+PASS  app body with 1 event(s) -> 202  {"accepted":1}
+PASS  app body with 2 event(s) -> 202  {"accepted":2}
+PASS  app body with 2 event(s) -> 202  {"accepted":2}
+PASS  app body with 5 event(s) -> 202  {"accepted":5}
+PASS  every event stored (10)  stored=10
+PASS  item shape: pk installId, sk <at>#<name>#<uuid>, receivedAt, app, os, props  {"installId":"6912385f-293c-42f3-93d5-ee4288e00f0b","sk":"2026-10-25T00:15:07.400Z#telemetry_toggled#0fdfcc6a-f8ff-4cdf-a3b3-c39ff46366cd","name":"telemetry_toggled","at":"2026-10-25T00:15:07.400Z","receivedAt":"2026-10-25T02:07:07.760Z","sentAt":"2026-10-25T00:15:07.401Z","app":{"name":"media-transfer","version":"3.0.0"},"os":{"platform":"darwin","release":"26.7.0","arch":"arm64"},"props":{"state":"on"}}
+PASS  no IP or request context stored
+PASS  PostHog: us.i.posthog.com/batch, api_key from the secret
+PASS  PostHog: distinct_id = installId, event name as-is, $geoip_disable, no $set
+PASS  PostHog down -> still 202, events stored
+PASS  empty body -> 400  {"error":"empty body"}
+PASS  not JSON -> 400  {"error":"not JSON"}
+PASS  bad installId -> 400  {"error":"bad installId"}
+PASS  wrong app name -> 400  {"error":"bad app"}
+PASS  unknown event name -> 400  {"error":"unknown event"}
+PASS  unknown prop -> 400  {"error":"unknown prop"}
+PASS  non-scalar prop -> 400  {"error":"props must be scalar"}
+PASS  101 events -> 400  {"error":"too many events"}
+PASS  body over 64 KB -> 400  {"error":"body too large"}
+PASS  event named toString -> 400  {"error":"unknown event"}
+PASS  event named constructor -> 400  {"error":"unknown event"}
+PASS  event named __proto__ -> 400  {"error":"unknown event"}
+PASS  event named hasOwnProperty -> 400  {"error":"unknown event"}
+PASS  event named valueOf -> 400  {"error":"unknown event"}
+PASS  prop named toString -> 400  {"error":"unknown prop"}
+PASS  prop named __proto__ -> 400  {"error":"unknown prop"}
+ALL PASS (12 items stored, 5 PostHog calls)
+PASS  PosthogKey="": status 202, stored 1, PostHog calls 0
+PASS  PosthogKey="unset": status 202, stored 1, PostHog calls 0
