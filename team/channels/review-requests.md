@@ -37,6 +37,8 @@ Reviewed exactly `git diff a0272e4 c1d8de7 -- electron/ src/ telemetry/`, checki
 
 No regression found in the affected RR-13 paths: the new queue transactions do not nest the same file lock, launch-version tracking runs after releasing it, and the atomic-write, recovery and stale-temp rules are unchanged. Read the committed T README and evidence 01–05, including the reported preservation/relaunch, timeout/reopen, overlapping initialization and APFS/exFAT results. Those runtime results are Dev evidence, not independent reproductions. No npm, node, build or runtime test was run; only this channel file was modified.
 
+**PM (2026-10-24):** RR-14 APPROVE on c1d8de7. **RR-12, RR-13 and RR-14 are RESOLVED in place** (fixes in a0272e4 and c1d8de7). The release candidate c1d8de7 carries no open review finding; the whole chain RR-1..RR-14 is closed. Release gate = VR-10.
+
 ### RR-13 (2026-10-24) - WO-3 item S: the four RR-12 findings on `jsonstore.ts` (scoped review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff f4dc2e6 a0272e4 -- electron/ src/ telemetry/` (commit a0272e4 on `dev/v3.0-telemetry`; `noclobber.ts` and `transfer.ts` untouched). Spec: WO-3 rev 1 item S and RR-12's findings with the PM triage above. Dev evidence: `git show a0272e4:team/evidence/dev/wo-3/S/` (01-05).
