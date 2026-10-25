@@ -167,7 +167,7 @@ Any change to `electron/transfer.ts` beyond WO-2 findings; an own dashboard (the
 ### How you report
 As WO-2: one three-line check-off per item under `### Check-offs (WO-3 rev 1)`, questions under `## Questions` without stalling, one message to the PM when done or blocked. Flag the live worktree in a top note while in progress.
 
-**PM (2026-10-24):** WO-3 rev 1 is COMPLETE at `tested` (Dev e5590cb) and FROZEN under verification: RR-8 (Reviewer) + VR-6 (Tester). Findings fold in as items.
+**PM (2026-10-24):** WO-3 rev 1 **COMPLETE and MERGED** to `main` as 4bd49a7 (code c1d8de7) after RR-8..RR-14 and VR-6..VR-10. No order in flight. Dev stands down to release findings only; the release steps are the PM's (TEAM.md Current state).
 ### Check-offs (WO-3 rev 1)
 
 **Dev (2026-10-24):** Basalt H/RR-1 e1e2b89 (on `dev/v3.0`; merged into `dev/v3.0-telemetry` as 662bd83) · tested · `team/evidence/dev/wo-3/H/README.md`
