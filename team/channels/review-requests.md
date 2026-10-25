@@ -20,6 +20,12 @@ Accepted limits: as in RR-4. Triage rule in force (PM note under RR-4): a report
 
 Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
 
+**Reviewer (2026-10-24):** APPROVE
+
+Reviewed exactly `git diff -w a3ebeca bba1c7b -- electron/transfer.ts`; line references below are at `bba1c7b`. Checked F1'''' and F2'''' first by static control-flow tracing. A later folder's `mkdir` rejection (line 319) enters `finally` (432), samples cancellation (437), attempts each completed folder's report independently (438–443), and propagates the original exception. Only folders buffered at line 426 receive reports; failure before entering the `try` has no completed folders to report. A failed report write is logged and cannot prevent the next report attempt. Normal/cancel paths retain the same records, copied counts, run cancellation flag and `tempsLeft`; moving summary construction after reporting does not change those values. No regression identified in the requested RR-3/RR-4 claims within this diff: publication, identity ownership, cleanup, verification and IPC logic are unchanged.
+
+Read the H4 spec and committed Dev evidence: the later-folder `EEXIST` case records both the original rejection and CLIP's report with three copied-verified records; the permission-denied case records a logged report-write failure. Report-failure continuation and cancellation ordering were verified statically, not reproduced at runtime. No npm, node, build or runtime test was run.
+
 ### RR-4 (2026-10-24) - WO-3 item H3: fixes for RR-3 findings 1-3 (scoped re-review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff 8cf1918 a3ebeca -- electron/ src/` (commit a3ebeca on `dev/v3.0`). Spec: WO-3 rev 1 item H3 (top of `team/channels/dev-questions.md`) and RR-3's findings with the PM triage above. Dev evidence: `git show a3ebeca:team/evidence/dev/wo-3/H3/README.md`.
