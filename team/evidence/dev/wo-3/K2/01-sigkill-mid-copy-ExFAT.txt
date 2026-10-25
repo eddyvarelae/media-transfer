@@ -1,0 +1,16 @@
+# K2: SIGKILL of the app mid-copy (ExFAT, DevKE7), then a normal run
+## SIGKILL at 11534336 bytes of C0001.MP4
+## leftovers:
+11534336 /Volumes/DevKE7/DevKCard/CLIP/C0001.MP4.mtpart
+## ledger after the kill:
+   C0001.MP4.mtpart no identity provisional
+## next run (no hook):
+ "heading": "Transfer complete",
+  "DCIM\t0\t0\t5\t5 files already there, nothing to copy",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+ "failed": [],
+   "failed": []
+   "failed": []
+## after: .mtpart 0; ledger: {"version":1,"temps":[]}
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  CLIP/C0001.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  CLIP/C0002.MP4

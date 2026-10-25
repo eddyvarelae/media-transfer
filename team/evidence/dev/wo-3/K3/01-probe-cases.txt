@@ -1,0 +1,190 @@
+== DevK3PA: pre-existing file at the .mtpart probe name
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=18 user file at .mtpart"]
+  ledger entries: 0
+== DevK3PA: pre-existing file at the published probe name
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (Refusing to overwrite an existing file: /Volumes/DevK3PA/k3-probe/.media-transfer/probe-RUNID.probe): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=21 user file at .probe"]
+  ledger entries: 0
+== DevK3PA: pre-existing files at both probe names
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=27 user file at .mtpart","probe-RUNID.probe ino=28 user file at .probe"]
+  ledger entries: 0
+== DevK3PA: no pre-existing file
+  profile {"handleStable":true,"useBirth":false,"removalEnabled":true} left 0
+  profile {"handleStable":true,"useBirth":false,"removalEnabled":true}
+  files after: []
+  ledger entries: 0
+== DevK3FA: pre-existing file at the .mtpart probe name (MT_TEST_PROBE_FAIL=write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=18 user file at .mtpart"]
+  ledger entries: 0
+== DevK3FA: pre-existing file at the published probe name (MT_TEST_PROBE_FAIL=write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=21 user file at .probe"]
+  ledger entries: 0
+== DevK3FA: pre-existing files at both probe names (MT_TEST_PROBE_FAIL=write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=25 user file at .mtpart","probe-RUNID.probe ino=26 user file at .probe"]
+  ledger entries: 0
+== DevK3FA: no pre-existing file (MT_TEST_PROBE_FAIL=write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: []
+  ledger entries: 0
+== DevK3FA: pre-existing file at the .mtpart probe name (MT_TEST_PROBE_FAIL=utimes)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=18 user file at .mtpart"]
+  ledger entries: 0
+== DevK3FA: pre-existing file at the published probe name (MT_TEST_PROBE_FAIL=utimes)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=21 user file at .probe"]
+  ledger entries: 0
+== DevK3FA: pre-existing files at both probe names (MT_TEST_PROBE_FAIL=utimes)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=25 user file at .mtpart","probe-RUNID.probe ino=26 user file at .probe"]
+  ledger entries: 0
+== DevK3FA: no pre-existing file (MT_TEST_PROBE_FAIL=utimes)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: []
+  ledger entries: 0
+== DevK3FA: pre-existing file at the .mtpart probe name (MT_TEST_PROBE_FAIL=rename)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=18 user file at .mtpart"]
+  ledger entries: 0
+== DevK3FA: pre-existing file at the published probe name (MT_TEST_PROBE_FAIL=rename)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=21 user file at .probe"]
+  ledger entries: 0
+== DevK3FA: pre-existing files at both probe names (MT_TEST_PROBE_FAIL=rename)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=25 user file at .mtpart","probe-RUNID.probe ino=26 user file at .probe"]
+  ledger entries: 0
+== DevK3FA: no pre-existing file (MT_TEST_PROBE_FAIL=rename)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: []
+  ledger entries: 0
+== DevK3PE: pre-existing file at the .mtpart probe name
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=11 user file at .mtpart"]
+  ledger entries: 0
+== DevK3PE: pre-existing file at the published probe name
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (Refusing to overwrite an existing file: /Volumes/DevK3PE/k3-probe/.media-transfer/probe-RUNID.probe): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=14 user file at .probe"]
+  ledger entries: 0
+== DevK3PE: pre-existing files at both probe names
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=401 user file at .mtpart","probe-RUNID.probe ino=402 user file at .probe"]
+  ledger entries: 0
+== DevK3PE: no pre-existing file
+  profile {"handleStable":false,"useBirth":true,"removalEnabled":true} left 0
+  profile {"handleStable":false,"useBirth":true,"removalEnabled":true}
+  files after: []
+  ledger entries: 0
+== DevK3FE: pre-existing file at the .mtpart probe name (MT_TEST_PROBE_FAIL=write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=11 user file at .mtpart"]
+  ledger entries: 0
+== DevK3FE: pre-existing file at the published probe name (MT_TEST_PROBE_FAIL=write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=14 user file at .probe"]
+  ledger entries: 0
+== DevK3FE: pre-existing files at both probe names (MT_TEST_PROBE_FAIL=write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=17 user file at .mtpart","probe-RUNID.probe ino=18 user file at .probe"]
+  ledger entries: 0
+== DevK3FE: no pre-existing file (MT_TEST_PROBE_FAIL=write)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: []
+  ledger entries: 0
+== DevK3FE: pre-existing file at the .mtpart probe name (MT_TEST_PROBE_FAIL=utimes)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=11 user file at .mtpart"]
+  ledger entries: 0
+== DevK3FE: pre-existing file at the published probe name (MT_TEST_PROBE_FAIL=utimes)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=14 user file at .probe"]
+  ledger entries: 0
+== DevK3FE: pre-existing files at both probe names (MT_TEST_PROBE_FAIL=utimes)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=401 user file at .mtpart","probe-RUNID.probe ino=402 user file at .probe"]
+  ledger entries: 0
+== DevK3FE: no pre-existing file (MT_TEST_PROBE_FAIL=utimes)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: []
+  ledger entries: 0
+== DevK3FE: pre-existing file at the .mtpart probe name (MT_TEST_PROBE_FAIL=rename)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=11 user file at .mtpart"]
+  ledger entries: 0
+== DevK3FE: pre-existing file at the published probe name (MT_TEST_PROBE_FAIL=rename)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.probe ino=14 user file at .probe"]
+  ledger entries: 0
+== DevK3FE: pre-existing files at both probe names (MT_TEST_PROBE_FAIL=rename)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (EEXIST): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: ["probe-RUNID.mtpart ino=401 user file at .mtpart","probe-RUNID.probe ino=402 user file at .probe"]
+  ledger entries: 0
+== DevK3FE: no pre-existing file (MT_TEST_PROBE_FAIL=rename)
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false} left 0
+  probe failed (ENOSPC): profile stays CAUTIOUS
+  profile {"handleStable":false,"useBirth":false,"removalEnabled":false}
+  files after: []
+  ledger entries: 0

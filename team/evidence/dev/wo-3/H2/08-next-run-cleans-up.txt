@@ -1,0 +1,44 @@
+# next transfer, same userData, no hook: the two kept temps are removed by the start-of-run cleanup (identity match), then everything copies
+{
+ "heading": "Transfer complete",
+ "rows": [
+  "CLIP\t3\t3\t0\t✓ 3 files verified",
+  "DCIM\t3\t3\t0\t✓ 3 files verified"
+ ],
+ "failed": [],
+ "note": null,
+ "report": [
+  {
+   "reached": true,
+   "cancelled": false,
+   "tempsLeft": 0,
+   "filesCopied": 3,
+   "filesVerified": 3,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  },
+  {
+   "reached": true,
+   "cancelled": false,
+   "tempsLeft": 0,
+   "filesCopied": 3,
+   "filesVerified": 3,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  }
+ ]
+}
+## ledger after:
+{
+ "version": 1,
+ "temps": []
+}
+total 332376
+drwxr-xr-x  6 varela  staff       192 Oct 24 17:09 .
+drwxr-xr-x  4 varela  staff       128 Oct 24 17:09 ..
+drwxr-xr-x  4 varela  staff       128 Oct 24 17:09 .media-transfer
+-rw-r--r--  1 varela  staff  56723410 Oct 24 16:53 C0001.MP4
+-rw-r--r--  1 varela  staff  56723410 Oct 24 16:53 C0002.MP4
+-rw-r--r--  1 varela  staff  56723410 Oct 24 16:53 C0003.MP4

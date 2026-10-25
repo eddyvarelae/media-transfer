@@ -1,0 +1,96 @@
+{
+ "heading": "Transfer cancelled",
+ "rows": [
+  "CLIP\t0\t0\t0\tCancelled · 0 files verified",
+  "DCIM\t0\t0\t0\tNot reached (cancelled)"
+ ],
+ "note": "Cleanup incomplete: 2 temporary files left on the destination. The next transfer to that folder removes them.",
+ "report": [
+  {
+   "label": "CLIP",
+   "ok": true,
+   "reached": true,
+   "cancelled": true,
+   "tempsLeft": 2,
+   "filesCopied": 0,
+   "filesVerified": 0,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  },
+  {
+   "label": "DCIM",
+   "ok": true,
+   "reached": false,
+   "cancelled": true,
+   "tempsLeft": 0,
+   "filesCopied": 0,
+   "filesVerified": 0,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  }
+ ]
+}
+## ledger after the cancel:
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/DevADest2/DevACard/CLIP/C0001.MP4.mtpart",
+   "destRoot": "/Volumes/DevADest2/DevACard/CLIP",
+   "runId": "b6543e0a-2a3a-4120-bb5c-16f0e5f45949",
+   "createdAt": "2026-10-25T00:08:55.730Z",
+   "identity": {
+    "dev": "16777309",
+    "ino": "20",
+    "birthtimeNs": "1792886935731524441"
+   }
+  },
+  {
+   "path": "/Volumes/DevADest2/DevACard/CLIP/C0002.MP4.mtpart",
+   "destRoot": "/Volumes/DevADest2/DevACard/CLIP",
+   "runId": "b6543e0a-2a3a-4120-bb5c-16f0e5f45949",
+   "createdAt": "2026-10-25T00:08:56.327Z",
+   "identity": {
+    "dev": "16777309",
+    "ino": "21",
+    "birthtimeNs": "1792886936327492135"
+   }
+  }
+ ]
+}
+total 114888
+drwxr-xr-x  5 varela  staff       160 Oct 24 17:08 .
+drwxr-xr-x  3 varela  staff        96 Oct 24 17:08 ..
+drwxr-xr-x  3 varela  staff        96 Oct 24 17:08 .media-transfer
+-rw-r--r--  1 varela  staff  56723410 Oct 24 17:08 C0001.MP4.mtpart
+-rw-r--r--  1 varela  staff   2097152 Oct 24 17:08 C0002.MP4.mtpart
+## report JSON of the cancelled run:
+{
+  "version": 1,
+  "app": "3.0.0",
+  "cancelled": true,
+  "tempsLeft": 2,
+  "startedAt": "2026-10-25T00:08:55.729Z",
+  "finishedAt": "2026-10-25T00:08:56.358Z",
+  "origin": "/Volumes/DevACard/CLIP",
+  "destination": "/Volumes/DevADest2/DevACard/CLIP",
+  "flatten": false,
+  "files": [
+    {
+      "source": "/Volumes/DevACard/CLIP/C0001.MP4",
+      "dest": "/Volumes/DevADest2/DevACard/CLIP/C0001.MP4",
+      "size": 56723410,
+      "mtime": "2026-10-24T23:53:35.520Z",
+      "status": "cancelled"
+    },
+    {
+      "source": "/Volumes/DevACard/CLIP/C0002.MP4",
+      "dest": "/Volumes/DevADest2/DevACard/CLIP/C0002.MP4",
+      "size": 56723410,
+      "mtime": "2026-10-24T23:53:41.990Z",
+      "status": "cancelled"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+# H2.1b (APFS, DevH2Dest4A) crash 10 MB into B.MP4 (unplug-like), nobody touches the temp; next run must recognize and remove it
+## simulated crash 10 MB into B.MP4 (unplug-like)
+total 129224
+18 -rw-r--r--  1 varela  staff  56723410 Oct 24 17:11 A.MP4.mtpart
+21 -rw-r--r--  1 varela  staff   9437184 Oct 24 17:11 B.MP4.mtpart
+
+## ledger at the crash
+   "identity": {
+    "dev": "16777297",
+    "ino": "18",
+    "birthtimeNs": "1792887088835033582"
+   }
+--
+   "identity": {
+    "dev": "16777297",
+    "ino": "21",
+    "birthtimeNs": "1792887088867534627"
+   }
+# next run
+## plan [["A.MP4","B.MP4"]]
+## report [
+ {
+  "reached": true,
+  "cancelled": false,
+  "tempsLeft": 0,
+  "filesCopied": 2,
+  "filesVerified": 2,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 154136
+22 -rw-r--r--  1 varela  staff  56723410 Oct 24 16:58 A.MP4
+23 -rw-r--r--  1 varela  staff  22188711 Oct 24 16:58 B.MP4
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+## any .mtpart left:
+       0
+
+# H2.1b (ExFAT, DevH2Dest4E) crash 10 MB into B.MP4 (unplug-like), nobody touches the temp; next run must recognize and remove it
+## simulated crash 10 MB into B.MP4 (unplug-like)
+total 129280
+   9 -rwx------  1 varela  staff  56723410 Oct 24 17:11 A.MP4.mtpart
+1741 -rwx------  1 varela  staff   9437184 Oct 24 17:11 B.MP4.mtpart
+
+## ledger at the crash
+   "identity": {
+    "dev": "16777305",
+    "ino": "9",
+    "birthtimeNs": "1792887095380000000"
+   }
+--
+   "identity": {
+    "dev": "16777305",
+    "ino": "1741",
+    "birthtimeNs": "1792887095450000000"
+   }
+# next run
+## plan [["A.MP4","B.MP4"]]
+## report [
+ {
+  "reached": true,
+  "cancelled": false,
+  "tempsLeft": 0,
+  "filesCopied": 2,
+  "filesVerified": 2,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 154240
+1741 -rwx------  1 varela  staff  56723410 Oct 24 16:58 A.MP4
+3473 -rwx------  1 varela  staff  22188711 Oct 24 16:58 B.MP4
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+## any .mtpart left:
+       0
+

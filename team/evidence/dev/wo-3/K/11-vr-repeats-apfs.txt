@@ -1,0 +1,32 @@
+# APFS: VR-2 1/3/5 (A1/A2, alias, ledger)
+ "heading": "Transfer complete",
+  "DCIM\t5\t5\t0\t✓ 5 files verified",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+A.JPG DSC00001-9f054d15.JPG DSC00001.JPG X.JPG a-12696f3b.JPG 
+  ledger: {"version":1,"temps":[]}
+ "nothingToCopy": true,
+  second run: listing identical
+# APFS: VR-2 2/5 (cancel with two MP4s in flight)
+ "heading": "Transfer cancelled",
+  "CLIP\t0\t0\t0\tCancelled · 0 files verified"
+  .mtpart: 0; ledger: {"version":1,"temps":[]}
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+# APFS: VR-2 4 (foreign temp)
+  "DCIM100MSDCF/X.JPG · temp name taken by an unknown file"
+     "relPath": "100MSDCF/X.JPG",
+     "destName": "X.JPG",
+  hand-made file: inode same, hash same
+# APFS: VR-2 6 (forced mismatch)
+  "DCIM100MSDCF/X.JPG · checksum mismatch after retry"
+     "relPath": "100MSDCF/X.JPG",
+     "destName": "X.JPG",
+  mismatch log lines: 2
+  X.JPG* on dest: 0
+# APFS: VR-3 1 (cancel in the second folder)
+ "heading": "Transfer cancelled",
+  "DCIM\t5\t5\t0\tCancelled · 5 files verified",
+  "CLIP\t0\t0\t0\tCancelled · 0 files verified"
+  reports cancelled: 2 of 2; .mtpart: 0
+# APFS: VR-3 2/3 (MT_TEST_CANCEL_AT_DISARM has no exFAT placeholder on APFS: link path) then clean run
+ "heading": "Transfer complete",
+  zero-byte final files: 0

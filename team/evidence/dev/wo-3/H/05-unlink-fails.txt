@@ -1,0 +1,33 @@
+# H.6 link succeeds, the temp's unlink fails once (injected EPERM), APFS DevHDest, BIG
+## plan [{"toCopy":["A.MP4","B.MP4"],"toSkip":0}]
+## injected EPERM on unlink of /Volumes/DevHDest/DevHCard/BIG/A.MP4.mtpart
+placed, temp left for cleanup: EPERM
+## report [
+ {
+  "label": "BIG",
+  "ok": true,
+  "filesCopied": 2,
+  "filesVerified": 2,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 154136
+drwxr-xr-x  5 varela  staff       160 Oct 24 16:47 .
+drwxr-xr-x  6 varela  staff       192 Oct 24 16:47 ..
+drwxr-xr-x  4 varela  staff       128 Oct 24 16:47 .media-transfer
+-rw-r--r--  1 varela  staff  56723410 Oct 24 16:46 A.MP4
+-rw-r--r--  1 varela  staff  22188711 Oct 24 16:46 B.MP4
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/DevHDest/DevHCard/BIG/A.MP4
+b422a2e91b7e01b3655c97d9bd9ccdd171a0af2400846ae76dc3a3a37373c7c4  /Volumes/DevHDest/DevHCard/BIG/B.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/DevHCard/BIG/A.MP4
+b422a2e91b7e01b3655c97d9bd9ccdd171a0af2400846ae76dc3a3a37373c7c4  /Volumes/DevHCard/BIG/B.MP4
+   2       "status": "copied-verified"

@@ -1,0 +1,16 @@
+TestCard {
+  hardLink: 'ENOTSUP',
+  renameOntoExistingRefused: true,
+  existingStill: 'keep me',
+  freshPlaced: 'new',
+  tempGone: true,
+  writeFileOntoExistingRefused: true
+}
+TestDest3 {
+  hardLink: 'link ok',
+  renameOntoExistingRefused: true,
+  existingStill: 'keep me',
+  freshPlaced: 'new',
+  tempGone: true,
+  writeFileOntoExistingRefused: true
+}

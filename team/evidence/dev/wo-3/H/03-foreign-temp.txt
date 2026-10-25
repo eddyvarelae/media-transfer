@@ -1,0 +1,41 @@
+# H.2 foreign X.JPG.mtpart on the destination (not in the ledger), transfer of FOREIGN/X.JPG
+total 8
+35 -rw-r--r--  1 varela  staff  49 Oct 24 16:47:05 2026 X.JPG.mtpart
+5cb4072dadc7e307d45669c244b6331bb357b246c94368ecf8043d28b415d955  /Volumes/DevHDest/DevHCard/FOREIGN/X.JPG.mtpart
+## plan [{"toCopy":["X.JPG"],"toSkip":0}]
+## report [
+ {
+  "label": "FOREIGN",
+  "ok": false,
+  "filesCopied": 1,
+  "filesVerified": 0,
+  "filesSkipped": 0,
+  "filesFailed": 1,
+  "failed": [
+   {
+    "relPath": "X.JPG",
+    "destName": "X.JPG",
+    "reason": "temp name taken by an unknown file"
+   }
+  ]
+ }
+]
+## destination after
+total 8
+drwxr-xr-x  4 varela  staff  128 Oct 24 16:47 .
+drwxr-xr-x  5 varela  staff  160 Oct 24 16:47 ..
+drwxr-xr-x  3 varela  staff   96 Oct 24 16:47 .media-transfer
+-rw-r--r--  1 varela  staff   49 Oct 24 16:47 X.JPG.mtpart
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+## foreign file after:
+35 -rw-r--r--  1 varela  staff  49 Oct 24 16:47:05 2026 /Volumes/DevHDest/DevHCard/FOREIGN/X.JPG.mtpart
+5cb4072dadc7e307d45669c244b6331bb357b246c94368ecf8043d28b415d955  /Volumes/DevHDest/DevHCard/FOREIGN/X.JPG.mtpart
+## report file entry:
+      "status": "failed",
+      "reason": "temp name taken by an unknown file"
+      "reason": "temp name taken by an unknown file"

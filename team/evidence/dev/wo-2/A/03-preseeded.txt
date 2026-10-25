@@ -1,0 +1,28 @@
+# A (3) final code - TestDest6 pre-seeded with a third, different DSC00001.JPG
+total 120
+20 -rw-r--r--  1 varela  staff  60149 Oct 24 16:26:06 2026 DSC00001.JPG
+8cf665886276a4f5164d9a90b16288848d35d6d33808ac060a4dd02d105c3df9  /Volumes/TestDest6/TestCard/DCIM/DSC00001.JPG
+
+ "ms": 9496,
+ "copied": 921671980,
+ "verified": 921671980,
+ "report": [
+  {
+   "label": "DCIM",
+   "ok": true,
+   "filesCopied": 203,
+   "filesVerified": 203,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  }
+ ]
+}
+
+## after, DSC00001*
+ 21 -rw-r--r--  1 varela  staff  4537421 Oct 24 15:44:10 2026 DSC00001-3de55bfb.JPG
+625 -rw-r--r--  1 varela  staff  4538944 Oct 24 15:44:10 2026 DSC00001-9f054d15.JPG
+ 20 -rw-r--r--  1 varela  staff    60149 Oct 24 16:26:06 2026 DSC00001.JPG
+3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035  /Volumes/TestDest6/TestCard/DCIM/DSC00001-3de55bfb.JPG
+9f054d157f1e5be2f2075b0924656c8b1ff05d2581747f142fbe4d4dfc7a583d  /Volumes/TestDest6/TestCard/DCIM/DSC00001-9f054d15.JPG
+8cf665886276a4f5164d9a90b16288848d35d6d33808ac060a4dd02d105c3df9  /Volumes/TestDest6/TestCard/DCIM/DSC00001.JPG

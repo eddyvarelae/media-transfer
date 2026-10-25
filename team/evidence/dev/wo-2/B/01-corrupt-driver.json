@@ -1,0 +1,19 @@
+{
+ "thumbs": true,
+ "destBase": "/Volumes/TestDest7/TestCard",
+ "bytes": 921671980,
+ "elapsedMs": 9620,
+ "MBps": 95.8,
+ "wallMs": 9644,
+ "verifiedBytes": 921671980,
+ "verifyPhaseSeenAt": null,
+ "tiles": 19,
+ "rows": [
+  "DCIM\t203\t202\t0\t✗ 1 file failed verification",
+  "CLIP\t0\t0\t6\t✓ 0 files verified",
+  "THMBNL\t0\t0\t3\t✓ 0 files verified"
+ ],
+ "failedList": [
+  "DCIM100MSDCF/DSC00002.JPG · checksum mismatch after retry"
+ ]
+}

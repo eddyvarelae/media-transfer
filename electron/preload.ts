@@ -27,6 +27,11 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.on('transfer:progress', listener);
     return () => ipcRenderer.removeListener('transfer:progress', listener);
   },
+  onVerify: (cb: (v: any) => void) => {
+    const listener = (_: unknown, v: any) => cb(v);
+    ipcRenderer.on('transfer:verify', listener);
+    return () => ipcRenderer.removeListener('transfer:verify', listener);
+  },
   onFileStart: (cb: (f: any) => void) => {
     const listener = (_: unknown, f: any) => cb(f);
     ipcRenderer.on('transfer:file-start', listener);

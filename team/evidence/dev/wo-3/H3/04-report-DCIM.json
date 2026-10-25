@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "app": "3.0.0",
+  "cancelled": true,
+  "startedAt": "2026-10-25T00:19:32.792Z",
+  "finishedAt": "2026-10-25T00:19:34.582Z",
+  "origin": "/Volumes/DevACard/DCIM",
+  "destination": "/Volumes/DevADest5/DevACard/DCIM",
+  "flatten": true,
+  "files": [
+    {
+      "source": "/Volumes/DevACard/DCIM/100MSDCF/DSC00001.JPG",
+      "dest": "/Volumes/DevADest5/DevACard/DCIM/DSC00001.JPG",
+      "size": 4537421,
+      "mtime": "2026-10-24T23:53:29.030Z",
+      "status": "cancelled"
+    }
+  ]
+}

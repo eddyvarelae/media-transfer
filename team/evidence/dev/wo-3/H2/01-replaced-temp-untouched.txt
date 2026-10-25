@@ -1,0 +1,130 @@
+# H2.1 (APFS, DevH2Dest1A) crash mid-copy, then the user replaces the leftover B.MP4.mtpart with their own file; next run
+## simulated crash at the first chunk of B.MP4
+total 110792
+20 -rw-r--r--  1 varela  staff  56723410 Oct 24 17:11 A.MP4.mtpart
+21 -rw-r--r--  1 varela  staff         0 Oct 24 17:11 B.MP4.mtpart
+
+## ledger at the crash
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/DevH2Dest1A/DevH2Card/BIG/A.MP4.mtpart",
+   "identity": {
+    "dev": "16777285",
+    "ino": "20",
+    "birthtimeNs": "1792887084374592630"
+   }
+  },
+  {
+   "path": "/Volumes/DevH2Dest1A/DevH2Card/BIG/B.MP4.mtpart",
+   "identity": {
+    "dev": "16777285",
+    "ino": "21",
+    "birthtimeNs": "1792887084420047867"
+   }
+  }
+ ]
+}
+## user's file:
+22 -rw-r--r--  1 varela  staff  25 Oct 24 17:11 /Volumes/DevH2Dest1A/DevH2Card/BIG/B.MP4.mtpart
+0f05b942d62098a3803ac1f6722b8f56a90269cb213ee72d66e655814c8b9d4c  /Volumes/DevH2Dest1A/DevH2Card/BIG/B.MP4.mtpart
+# next run
+## plan [["A.MP4","B.MP4"]]
+## report [
+ {
+  "reached": true,
+  "cancelled": false,
+  "tempsLeft": 0,
+  "filesCopied": 1,
+  "filesVerified": 1,
+  "filesSkipped": 0,
+  "filesFailed": 1,
+  "failed": [
+   {
+    "relPath": "B.MP4",
+    "destName": "B.MP4",
+    "reason": "temp name taken by an unknown file"
+   }
+  ]
+ }
+]
+## destination after
+total 110800
+23 -rw-r--r--  1 varela  staff  56723410 Oct 24 16:58 A.MP4
+22 -rw-r--r--  1 varela  staff        25 Oct 24 17:11 B.MP4.mtpart
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+## user's file after:
+22 -rw-r--r--  1 varela  staff  25 Oct 24 17:11 /Volumes/DevH2Dest1A/DevH2Card/BIG/B.MP4.mtpart
+0f05b942d62098a3803ac1f6722b8f56a90269cb213ee72d66e655814c8b9d4c  /Volumes/DevH2Dest1A/DevH2Card/BIG/B.MP4.mtpart
+
+# H2.1 (ExFAT, DevH2Dest1E) crash mid-copy, then the user replaces the leftover B.MP4.mtpart with their own file; next run
+## simulated crash at the first chunk of B.MP4
+total 110848
+                   9 -rwx------  1 varela  staff  56723410 Oct 24 17:11 A.MP4.mtpart
+18446744073709551612 -rwx------  1 varela  staff         0 Oct 24 17:11 B.MP4.mtpart
+
+## ledger at the crash
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/DevH2Dest1E/DevH2Card/BIG/A.MP4.mtpart",
+   "identity": {
+    "dev": "16777299",
+    "ino": "9",
+    "birthtimeNs": "1792887090360000000"
+   }
+  },
+  {
+   "path": "/Volumes/DevH2Dest1E/DevH2Card/BIG/B.MP4.mtpart",
+   "identity": {
+    "dev": "16777299",
+    "ino": "-3",
+    "birthtimeNs": "1792887090430000000"
+   }
+  }
+ ]
+}
+## user's file:
+1741 -rwx------  1 varela  staff  25 Oct 24 17:11 /Volumes/DevH2Dest1E/DevH2Card/BIG/B.MP4.mtpart
+0f05b942d62098a3803ac1f6722b8f56a90269cb213ee72d66e655814c8b9d4c  /Volumes/DevH2Dest1E/DevH2Card/BIG/B.MP4.mtpart
+# next run
+## plan [["A.MP4","B.MP4"]]
+## report [
+ {
+  "reached": true,
+  "cancelled": false,
+  "tempsLeft": 0,
+  "filesCopied": 1,
+  "filesVerified": 1,
+  "filesSkipped": 0,
+  "filesFailed": 1,
+  "failed": [
+   {
+    "relPath": "B.MP4",
+    "destName": "B.MP4",
+    "reason": "temp name taken by an unknown file"
+   }
+  ]
+ }
+]
+## destination after
+total 110912
+1742 -rwx------  1 varela  staff  56723410 Oct 24 16:58 A.MP4
+1741 -rwx------  1 varela  staff        25 Oct 24 17:11 B.MP4.mtpart
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+## user's file after:
+1741 -rwx------  1 varela  staff  25 Oct 24 17:11 /Volumes/DevH2Dest1E/DevH2Card/BIG/B.MP4.mtpart
+0f05b942d62098a3803ac1f6722b8f56a90269cb213ee72d66e655814c8b9d4c  /Volumes/DevH2Dest1E/DevH2Card/BIG/B.MP4.mtpart
+

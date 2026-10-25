@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "app": "3.0.0",
+  "cancelled": true,
+  "startedAt": "2026-10-25T00:19:32.792Z",
+  "finishedAt": "2026-10-25T00:19:34.582Z",
+  "origin": "/Volumes/DevACard/CLIP",
+  "destination": "/Volumes/DevADest5/DevACard/CLIP",
+  "flatten": false,
+  "files": [
+    {
+      "source": "/Volumes/DevACard/CLIP/C0001.MP4",
+      "dest": "/Volumes/DevADest5/DevACard/CLIP/C0001.MP4",
+      "size": 56723410,
+      "mtime": "2026-10-24T23:53:35.520Z",
+      "sha256": "86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd",
+      "status": "copied-verified"
+    },
+    {
+      "source": "/Volumes/DevACard/CLIP/C0002.MP4",
+      "dest": "/Volumes/DevADest5/DevACard/CLIP/C0002.MP4",
+      "size": 56723410,
+      "mtime": "2026-10-24T23:53:41.990Z",
+      "sha256": "86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd",
+      "status": "copied-verified"
+    },
+    {
+      "source": "/Volumes/DevACard/CLIP/C0003.MP4",
+      "dest": "/Volumes/DevADest5/DevACard/CLIP/C0003.MP4",
+      "size": 56723410,
+      "mtime": "2026-10-24T23:53:48.570Z",
+      "sha256": "86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd",
+      "status": "copied-verified"
+    }
+  ]
+}

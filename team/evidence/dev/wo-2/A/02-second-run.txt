@@ -1,0 +1,27 @@
+# A (2) final code - second run, same card, TestDest5
+plan: toCopy 0 toSkip 203
+  skip /Volumes/TestCard/DCIM/100MSDCF/DSC00001.JPG = DSC00001.JPG
+  skip /Volumes/TestCard/DCIM/101MSDCF/DSC00001.JPG = DSC00001-9f054d15.JPG
+{
+ "ms": 2,
+ "report": [
+  {
+   "label": "DCIM",
+   "ok": true,
+   "filesCopied": 0,
+   "filesVerified": 0,
+   "filesSkipped": 203,
+   "filesFailed": 0,
+   "failed": []
+  }
+ ]
+}
+
+## ls -liT of all 203 destination files, before vs after run 2 (inode, size, mtime to the second)
+IDENTICAL: 203 entries, same inodes, sizes, mtimes
+624 -rw-r--r--  1 varela  staff  4538944 Oct 24 15:44:10 2026 DSC00001-9f054d15.JPG
+ 20 -rw-r--r--  1 varela  staff  4537421 Oct 24 15:44:10 2026 DSC00001.JPG
+Reports (.media-transfer/, one new file per run by design):
+total 232
+-rw-r--r--  1 varela  staff  66031 Oct 24 16:25 transfer-20261024-162550.json
+-rw-r--r--  1 varela  staff  47355 Oct 24 16:25 transfer-20261024-162559.json

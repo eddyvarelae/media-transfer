@@ -191,3 +191,28 @@ The copy / skip / verify logic in `electron/transfer.ts` did not change.
 
 **Version 2.0.0**
 
+---
+
+## v3.0 — verified transfer (2026-10-24)
+
+Eddy's ask (Día 17 video): when a Sony card's counter restarts, `100MSDCF/DSC00001.JPG`
+and `101MSDCF/DSC00001.JPG` are different photos with the same name. With flatten on,
+v2.0 copied both to `DCIM/DSC00001.JPG` and the second one overwrote the first.
+
+1. **Both files land.** A file keeps its plain name unless the destination already holds a
+   different file there; then it is `DSC00001-<first 8 hex of its SHA-256>.JPG`. Same
+   content, same name, so re-runs skip it.
+2. **Every copy is proven.** Each file is hashed while it copies, read back from the
+   destination and hashed again; only a match gets its final name. A mismatch is retried
+   once, then reported as failed by name. The verification panel counts files copied,
+   verified, skipped and failed instead of comparing folder byte totals.
+3. **Writes go to `<name>.mtpart` first**, and the final name is never written over: every
+   destination write goes through one no-clobber helper (`electron/noclobber.ts`).
+4. **A report per transfer** in `<folder>/.media-transfer/transfer-<timestamp>.json` with
+   every file's source, destination, size, mtime, SHA-256 and status.
+
+The read-back of file i-1 runs while file i copies. On a 120 MB/s card rig, a 1.09 GB
+transfer took about 0.2 s longer than v2.0 (94.2 vs 95.9 MB/s); reading the same files back
+one after another takes 0.8 s on its own.
+
+**Version 3.0.0**

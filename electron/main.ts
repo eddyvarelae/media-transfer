@@ -5,9 +5,9 @@ import {
   listChildren,
   buildPlan,
   executePlan,
-  verifyPlan,
   TransferPlan,
   CopyProgress,
+  VerifyProgress,
 } from './transfer';
 import { loadProfiles, saveProfile, deleteProfile, Profile } from './profiles';
 import {
@@ -17,12 +17,12 @@ import {
   removeNewDrive,
 } from './notifications';
 import { getThumbnail } from './thumbnails';
+import { setLedgerFile } from './noclobber';
 
 let win: BrowserWindow | null = null;
 let activePlan: TransferPlan | null = null;
-// folderLabel + relPath -> absolute source path, for the active plan's files to copy.
+// Absolute source paths of the active plan's files to copy.
 let activeSources = new Set<string>();
-let sourceByKey = new Map<string, string>();
 let cancelFlag = false;
 // When this run first saw each volume; becomes a dismissed notification's firstSeenAt.
 const firstSeen = new Map<string, number>();
@@ -66,7 +66,23 @@ async function broadcastState() {
   win.webContents.send('state:update', await readState());
 }
 
+// One instance per userData: the ownership ledger (temps.json) has exactly one writer, the
+// single active transfer. A second launch on the same userData focuses the first and quits.
+const singleInstance = app.requestSingleInstanceLock();
+if (!singleInstance) {
+  console.log('Media Transfer is already running with this user data; this instance quits.');
+  app.quit();
+}
+app.on('second-instance', () => {
+  if (!win) return;
+  if (win.isMinimized()) win.restore();
+  win.focus();
+});
+
 app.whenReady().then(() => {
+  if (!singleInstance) return;
+  // Ownership ledger: the only temps and placeholders the app may ever replace or remove.
+  setLedgerFile(path.join(app.getPath('userData'), 'temps.json'));
   createWindow();
 
   broadcastState();
@@ -127,10 +143,7 @@ ipcMain.handle(
   ) => {
     const plan = await buildPlan(originVolume, destVolume, folderPaths, flattenFolders);
     activePlan = plan;
-    sourceByKey = new Map();
-    for (const f of plan.folders)
-      for (const file of f.toCopy) sourceByKey.set(`${f.label}\0${file.relPath}`, file.absPath);
-    activeSources = new Set(sourceByKey.values());
+    activeSources = new Set(plan.folders.flatMap((f) => f.toCopy.map((file) => file.absPath)));
     return {
       originVolume: plan.originVolume,
       destVolume: plan.destVolume,
@@ -151,22 +164,28 @@ ipcMain.handle(
 ipcMain.handle('transfer:start', async () => {
   if (!activePlan) throw new Error('No plan built');
   cancelFlag = false;
-  let lastKey = '';
-  await executePlan(
+  let lastSource = '';
+  let lastVerifySent = 0;
+  const report = await executePlan(
     activePlan,
-    (p: CopyProgress) => {
+    (p: CopyProgress, absPath: string) => {
       win?.webContents.send('transfer:progress', p);
       // First progress event of a file = "file started" (the progress payload stays unchanged).
-      const key = `${p.folderLabel}\0${p.currentFile}`;
-      if (key !== lastKey) {
-        lastKey = key;
-        const absPath = sourceByKey.get(key);
-        if (absPath) win?.webContents.send('transfer:file-start', { absPath, name: p.currentFile });
+      if (absPath !== lastSource) {
+        lastSource = absPath;
+        win?.webContents.send('transfer:file-start', { absPath, name: p.currentFile });
       }
     },
     () => cancelFlag,
+    (v: VerifyProgress) => {
+      // Read-back progress arrives per 1 MB chunk; ~10 updates/s are enough for the bar.
+      const now = Date.now();
+      if (now - lastVerifySent < 100 && v.bytesVerifiedOverall < v.totalBytesOverall) return;
+      lastVerifySent = now;
+      win?.webContents.send('transfer:verify', v);
+    },
+    app.getVersion(),
   );
-  const report = await verifyPlan(activePlan);
   win?.webContents.send('transfer:done', report);
   return report;
 });

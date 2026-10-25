@@ -1,0 +1,3 @@
+## second launch on the same userData (first instance still running):
+Media Transfer is already running with this user data; this instance quits.
+exit=0

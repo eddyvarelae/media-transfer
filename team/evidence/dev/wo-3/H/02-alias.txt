@@ -1,0 +1,35 @@
+# H.3 alias case: ALIAS/one/A.JPG + ALIAS/two/a.JPG (different content), flatten on, case-insensitive APFS DevHDest
+16d62dcf1ce46c2136dff4d128ccedce3782e5f18c2bed903289d3d1094ab20e  /Volumes/DevHCard/ALIAS/one/A.JPG
+12696f3ba9740e8ae26db2661981d10089802f8e15160d5d96dcbf3b34784abe  /Volumes/DevHCard/ALIAS/two/a.JPG
+## plan [{"toCopy":["A.JPG","a.JPG"],"toSkip":0}]
+## report [
+ {
+  "label": "ALIAS",
+  "ok": true,
+  "filesCopied": 2,
+  "filesVerified": 2,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 328
+drwxr-xr-x  5 varela  staff     160 Oct 24 16:46 .
+drwxr-xr-x  4 varela  staff     128 Oct 24 16:46 ..
+drwxr-xr-x  3 varela  staff      96 Oct 24 16:46 .media-transfer
+-rw-r--r--  1 varela  staff   43078 Oct 24 16:46 A.JPG
+-rw-r--r--  1 varela  staff  120735 Oct 24 16:46 a-12696f3b.JPG
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+16d62dcf1ce46c2136dff4d128ccedce3782e5f18c2bed903289d3d1094ab20e  /Volumes/DevHDest/DevHCard/ALIAS/A.JPG
+12696f3ba9740e8ae26db2661981d10089802f8e15160d5d96dcbf3b34784abe  /Volumes/DevHDest/DevHCard/ALIAS/a-12696f3b.JPG
+
+# second run
+## plan [{"toCopy":[],"toSkip":2}]
+## report [
+  "filesSkipped": 2,

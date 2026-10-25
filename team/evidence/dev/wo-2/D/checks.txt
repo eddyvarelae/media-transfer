@@ -1,0 +1,24 @@
+# WO-2 D checks, 2026-10-24T16:28:37-07:00, branch dev/v3.0, worktree ~/Projects/media-transfer-dev
+$ npx tsc --noEmit
+(no output, exit 0)
+
+$ npm run build:renderer
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.40 kB │ gzip:  0.27 kB
+dist/assets/index-63HH4qwM.css   11.22 kB │ gzip:  2.85 kB
+dist/assets/index-DSGRV3AX.js   161.18 kB │ gzip: 51.51 kB
+✓ built in 225ms
+
+$ npm run build:main
+
+
+  dist-electron/main.js     30.5kb
+  dist-electron/preload.js   2.2kb
+
+⚡ Done in 9ms
+
+$ grep version package.json package-lock.json (first hits)
+  "version": "3.0.0",
+  "version": "3.0.0",
+      "version": "3.0.0",

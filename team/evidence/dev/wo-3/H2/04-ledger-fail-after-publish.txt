@@ -1,0 +1,117 @@
+# H2.4 (APFS, DevH2Dest3A) MT_TEST_LEDGER_FAIL=1: ledger writes fail right after each publication
+## plan [["A.MP4","B.MP4"]]
+ledger entry not dropped on disk: EIO
+ledger entry not dropped on disk: EIO
+## report [
+ {
+  "reached": true,
+  "cancelled": false,
+  "tempsLeft": 0,
+  "filesCopied": 2,
+  "filesVerified": 2,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 154136
+24 -rw-r--r--  1 varela  staff  56723410 Oct 24 16:58 A.MP4
+25 -rw-r--r--  1 varela  staff  22188711 Oct 24 16:58 B.MP4
+
+## ledger after
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/DevH2Dest3A/DevH2Card/BIG/B.MP4.mtpart",
+   "destRoot": "/Volumes/DevH2Dest3A/DevH2Card/BIG",
+   "runId": "3512be38-7025-44e8-ad99-54bb8b7e6f45",
+   "createdAt": "2026-10-25T00:11:27.234Z",
+   "identity": {
+    "dev": "16777293",
+    "ino": "25",
+    "birthtimeNs": "1792886285950000047"
+   }
+  }
+ ]
+}
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/DevH2Dest3A/DevH2Card/BIG/A.MP4
+b422a2e91b7e01b3655c97d9bd9ccdd171a0af2400846ae76dc3a3a37373c7c4  /Volumes/DevH2Dest3A/DevH2Card/BIG/B.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/DevH2Card/BIG/A.MP4
+b422a2e91b7e01b3655c97d9bd9ccdd171a0af2400846ae76dc3a3a37373c7c4  /Volumes/DevH2Card/BIG/B.MP4
+# next run (normal): cleanup of what the failed bookkeeping left
+## destination after
+total 154136
+24 -rw-r--r--  1 varela  staff  56723410 Oct 24 16:58 A.MP4
+25 -rw-r--r--  1 varela  staff  22188711 Oct 24 16:58 B.MP4
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+
+# H2.4 (ExFAT, DevH2Dest3E) MT_TEST_LEDGER_FAIL=1: ledger writes fail right after each publication
+## plan [["A.MP4","B.MP4"]]
+ledger entry not dropped on disk: EIO
+ledger entry not dropped on disk: EIO
+ledger entry not dropped on disk: EIO
+ledger entry not dropped on disk: EIO
+## report [
+ {
+  "reached": true,
+  "cancelled": false,
+  "tempsLeft": 0,
+  "filesCopied": 2,
+  "filesVerified": 2,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 154240
+1743 -rwx------  1 varela  staff  56723410 Oct 24 16:58 A.MP4
+3475 -rwx------  1 varela  staff  22188711 Oct 24 16:58 B.MP4
+
+## ledger after
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/DevH2Dest3E/DevH2Card/BIG/B.MP4.mtpart",
+   "destRoot": "/Volumes/DevH2Dest3E/DevH2Card/BIG",
+   "runId": "9a27cd74-775f-4c50-a4d0-bca6bc8e3455",
+   "createdAt": "2026-10-25T00:11:33.632Z",
+   "identity": {
+    "dev": "16777303",
+    "ino": "3475",
+    "birthtimeNs": "1792887093630000000"
+   }
+  },
+  {
+   "path": "/Volumes/DevH2Dest3E/DevH2Card/BIG/B.MP4",
+   "destRoot": "/Volumes/DevH2Dest3E/DevH2Card/BIG",
+   "runId": "9a27cd74-775f-4c50-a4d0-bca6bc8e3455",
+   "createdAt": "2026-10-25T00:11:33.685Z",
+   "identity": null
+  }
+ ]
+}
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/DevH2Dest3E/DevH2Card/BIG/A.MP4
+b422a2e91b7e01b3655c97d9bd9ccdd171a0af2400846ae76dc3a3a37373c7c4  /Volumes/DevH2Dest3E/DevH2Card/BIG/B.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  /Volumes/DevH2Card/BIG/A.MP4
+b422a2e91b7e01b3655c97d9bd9ccdd171a0af2400846ae76dc3a3a37373c7c4  /Volumes/DevH2Card/BIG/B.MP4
+# next run (normal): cleanup of what the failed bookkeeping left
+## destination after
+total 154240
+1743 -rwx------  1 varela  staff  56723410 Oct 24 16:58 A.MP4
+3475 -rwx------  1 varela  staff  22188711 Oct 24 16:58 B.MP4
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+

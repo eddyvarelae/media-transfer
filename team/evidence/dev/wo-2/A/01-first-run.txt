@@ -1,0 +1,27 @@
+# A (1) final code - card DCIM (203 files incl. 100MSDCF/DSC00001.JPG and 101MSDCF/DSC00001.JPG, different content), flatten on, empty TestDest5
+3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035  /Volumes/TestCard/DCIM/100MSDCF/DSC00001.JPG
+9f054d157f1e5be2f2075b0924656c8b1ff05d2581747f142fbe4d4dfc7a583d  /Volumes/TestCard/DCIM/101MSDCF/DSC00001.JPG
+
+plan: toCopy 203 toSkip 0
+  copy /Volumes/TestCard/DCIM/100MSDCF/DSC00001.JPG
+  copy /Volumes/TestCard/DCIM/101MSDCF/DSC00001.JPG
+{
+ "ms": 9476,
+ "report": [
+  {
+   "label": "DCIM",
+   "ok": true,
+   "filesCopied": 203,
+   "filesVerified": 203,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  }
+ ]
+}
+
+## destination, DSC00001*
+624 -rw-r--r--  1 varela  staff  4538944 Oct 24 15:44:10 2026 DSC00001-9f054d15.JPG
+ 20 -rw-r--r--  1 varela  staff  4537421 Oct 24 15:44:10 2026 DSC00001.JPG
+9f054d157f1e5be2f2075b0924656c8b1ff05d2581747f142fbe4d4dfc7a583d  /Volumes/TestDest5/TestCard/DCIM/DSC00001-9f054d15.JPG
+3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035  /Volumes/TestDest5/TestCard/DCIM/DSC00001.JPG

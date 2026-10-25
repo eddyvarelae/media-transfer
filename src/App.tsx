@@ -1,11 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { AppState, PlanSummary, Profile, Progress, VerifyReport } from './types';
+import type {
+  AppState,
+  PlanSummary,
+  Profile,
+  Progress,
+  VerifyProgress,
+  VerifyReport,
+} from './types';
 import { bytes, duration } from './format';
 import ProfileEditor from './ProfileEditor';
 import TopBar from './TopBar';
 import ThumbConveyor from './ThumbConveyor';
 
-type Phase = 'idle' | 'planning' | 'ready' | 'copying' | 'done' | 'error';
+type Phase = 'idle' | 'planning' | 'ready' | 'copying' | 'verifying' | 'done' | 'error';
 
 function readFlag(key: string): string | null {
   try {
@@ -39,6 +46,7 @@ export default function App() {
 
   const [plan, setPlan] = useState<PlanSummary | null>(null);
   const [progress, setProgress] = useState<Progress | null>(null);
+  const [verify, setVerify] = useState<VerifyProgress | null>(null);
   const [report, setReport] = useState<VerifyReport[] | null>(null);
   const [phase, setPhase] = useState<Phase>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +55,7 @@ export default function App() {
     window.api.getState().then(setState);
     const offS = window.api.onState(setState);
     const offP = window.api.onProgress(setProgress);
+    const offV = window.api.onVerify(setVerify);
     const offD = window.api.onDone((r) => {
       setReport(r);
       setPhase('done');
@@ -54,6 +63,7 @@ export default function App() {
     return () => {
       offS();
       offP();
+      offV();
       offD();
     };
   }, []);
@@ -83,6 +93,12 @@ export default function App() {
     }
   }, [mountedOrigins, mountedDestinations, originVolume, destVolume]);
 
+  // Each file is read back right after its copy; once the last byte is copied, what remains is verifying.
+  useEffect(() => {
+    if (phase === 'copying' && progress && progress.bytesCopiedOverall >= progress.totalBytesOverall)
+      setPhase('verifying');
+  }, [phase, progress]);
+
   const originProfile = originVolume ? state.profiles[originVolume] : null;
   const canPlan =
     !!originProfile &&
@@ -95,6 +111,7 @@ export default function App() {
     setError(null);
     setReport(null);
     setProgress(null);
+    setVerify(null);
     setPhase('planning');
     try {
       const p = await window.api.buildPlan(
@@ -113,6 +130,7 @@ export default function App() {
 
   async function doStart() {
     setError(null);
+    setVerify(null);
     setPhase('copying');
     try {
       await window.api.startTransfer();
@@ -171,6 +189,15 @@ export default function App() {
     progress && progress.totalBytesOverall > 0
       ? Math.min(100, (progress.bytesCopiedOverall / progress.totalBytesOverall) * 100)
       : 0;
+
+  const verifiedPct =
+    verify && verify.totalBytesOverall > 0
+      ? Math.min(100, (verify.bytesVerifiedOverall / verify.totalBytesOverall) * 100)
+      : 0;
+  const running = phase === 'copying' || phase === 'verifying';
+  const wasCancelled = phase === 'done' && !!report?.some((r) => r.cancelled);
+  const hadFailures = phase === 'done' && !!report?.some((r) => r.filesFailed > 0);
+  const tempsLeft = report?.reduce((a, r) => a + r.tempsLeft, 0) ?? 0;
 
   const topBar = (
     <TopBar
@@ -277,14 +304,14 @@ export default function App() {
                 ? 'Scan origin again'
                 : 'Scan origin'}
           </button>
-          {plan && phase !== 'copying' && phase !== 'done' && (
+          {plan && phase !== 'copying' && phase !== 'verifying' && phase !== 'done' && (
             <button className="primary" onClick={doStart} disabled={totalFilesToCopy === 0}>
               {totalFilesToCopy === 0
                 ? 'Nothing to transfer'
                 : `Start transfer (${totalFilesToCopy} files, ${bytes(totalBytesToCopy)})`}
             </button>
           )}
-          {phase === 'copying' && (
+          {(phase === 'copying' || phase === 'verifying') && (
             <button className="danger" onClick={doCancel}>
               Cancel
             </button>
@@ -332,9 +359,21 @@ export default function App() {
           </section>
         )}
 
-        {(phase === 'copying' || phase === 'done') && progress && (
+        {(running || phase === 'done') && progress && (
           <section className="progress-section">
-            <h2>{phase === 'done' ? 'Transfer complete' : 'Transferring'}</h2>
+            <h2>
+              {wasCancelled ? (
+                <span className="warn-text">Transfer cancelled</span>
+              ) : hadFailures ? (
+                <span className="fail-text">Transfer finished with failures</span>
+              ) : phase === 'done' ? (
+                'Transfer complete'
+              ) : phase === 'verifying' ? (
+                'Verifying'
+              ) : (
+                'Transferring'
+              )}
+            </h2>
             {phase === 'copying' && thumbsEnabled && <ThumbConveyor />}
             <div className="progress-bar">
               <div className="progress-fill" style={{ width: `${overallPct}%` }} />
@@ -348,11 +387,27 @@ export default function App() {
               <span>Elapsed {duration(progress.elapsedMs / 1000)}</span>
               <span>ETA {phase === 'done' ? '—' : duration(etaSec)}</span>
             </div>
+            <div className="progress-bar verify-bar">
+              <div className="progress-fill" style={{ width: `${verifiedPct}%` }} />
+            </div>
+            <div className="progress-stats">
+              <span>Read back {verifiedPct.toFixed(1)}%</span>
+              <span>
+                {bytes(verify?.bytesVerifiedOverall ?? 0)} / {bytes(progress.totalBytesOverall)} read
+                back
+              </span>
+            </div>
             <div className="current-file muted">
               {phase === 'copying' && (
                 <>
                   <span className="tag">{progress.folderLabel}</span>
                   {progress.currentFile} · {progress.filesCopied + 1}/{progress.totalFiles}
+                </>
+              )}
+              {phase === 'verifying' && verify && (
+                <>
+                  <span className="tag">{verify.folderLabel}</span>
+                  verifying {verify.currentFile}
                 </>
               )}
             </div>
@@ -366,8 +421,9 @@ export default function App() {
               <thead>
                 <tr>
                   <th>Folder</th>
-                  <th>Source</th>
-                  <th>Destination</th>
+                  <th>Copied</th>
+                  <th>Verified</th>
+                  <th>Skipped</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -375,15 +431,32 @@ export default function App() {
                 {report.map((r) => (
                   <tr key={r.label}>
                     <td>{r.label}</td>
-                    <td>{bytes(r.sourceBytes)}</td>
-                    <td>{bytes(r.destBytes)}</td>
-                    <td className={r.ok ? 'ok' : 'fail'}>
-                      {r.ok ? '✓ destination ≥ source' : '✗ destination smaller than source'}
-                    </td>
+                    <td>{r.filesCopied}</td>
+                    <td>{r.filesVerified}</td>
+                    <td>{r.filesSkipped}</td>
+                    <td className={folderStatus(r).cls}>{folderStatus(r).text}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            {tempsLeft > 0 && (
+              <div className="warn-text small cleanup-note">
+                Cleanup incomplete: {tempsLeft} temporary {tempsLeft === 1 ? 'file' : 'files'} left on
+                the destination. The next transfer to that folder removes them.
+              </div>
+            )}
+            {report.some((r) => r.failed.length > 0) && (
+              <ul className="failed-files">
+                {report.flatMap((r) =>
+                  r.failed.map((f) => (
+                    <li key={`${r.label}/${f.relPath}`} className="fail">
+                      <span className="tag">{r.label}</span>
+                      <code>{f.relPath}</code> · {f.reason}
+                    </li>
+                  )),
+                )}
+              </ul>
+            )}
           </section>
         )}
 
@@ -393,6 +466,21 @@ export default function App() {
       </div>
     </>
   );
+}
+
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+// What one folder's row says: failures first, then cancel, then what actually happened.
+function folderStatus(r: VerifyReport): { cls: string; text: string } {
+  if (!r.reached) return { cls: 'warn', text: 'Not reached (cancelled)' };
+  if (r.filesFailed > 0) {
+    return { cls: 'fail', text: `✗ ${plural(r.filesFailed, 'file', 'files')} failed verification` };
+  }
+  if (r.cancelled) return { cls: 'warn', text: `Cancelled · ${plural(r.filesVerified, 'file', 'files')} verified` };
+  if (r.filesVerified === 0 && r.filesSkipped > 0) {
+    return { cls: 'muted', text: `${plural(r.filesSkipped, 'file', 'files')} already there, nothing to copy` };
+  }
+  return { cls: 'ok', text: `✓ ${plural(r.filesVerified, 'file', 'files')} verified` };
 }
 
 function DrivePicker({
