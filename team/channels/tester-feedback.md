@@ -63,6 +63,19 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
   3. SIGKILL mid-copy on exFAT -> next run recovers on its own (as VR-4 check 4).
 - Report as numbered items, commit `b8c50ec` named; one message when done or blocked.
 
+**PM (2026-10-24):** VR-6 - **v3.0 release verification at commit e5590cb** (`dev/v3.0-telemetry`), rung `observed`, on a fresh rig (exFAT + APFS destination images, Tester-prefixed names). Same rules. Checkout: `git -C ~/Projects/media-transfer-verify fetch origin && git -C ~/Projects/media-transfer-verify checkout --detach e5590cb && (cd ~/Projects/media-transfer-verify && npm install)` (the lockfile changed: electron-updater). Read `CLAUDE.md` at that commit (env overrides, hooks, release steps) and `team/evidence/dev/wo-3/README.md`. Checks (files under `team/evidence/tester/vr-6/`):
+  1. Full set, no hook, fresh exFAT and fresh APFS -> all `copied-verified`, hashes equal, second run skips all, reports present, 0 `.mtpart`, ledger empty.
+  2. Speed A/B: baseline = v2.0.0 code at `c692d2d` (`main` now carries 3.0 code, so check out the baseline detached), 3 alternating rounds, same condition as before; bar: e5590cb within 2 % of the baseline mean. Report means and spread.
+  3. Consent: fresh `--user-data-dir` -> the modal appears once; closing it = `off`; "Send anonymous stats" = `on`; the gear panel shows both toggles and "Reset anonymous id"; `settings.json` reflects each action.
+  4. Telemetry end to end: `MT_TELEMETRY_URL=<dev stage URL, the PM pastes it below>` with telemetry `on` -> after a transfer, the events are in the `dev` stage's DynamoDB table (`aws dynamodb scan --table-name <name from the PM> --profile media-transfer --region us-east-1`, read-only); paste the items and confirm no file name, path, volume or profile name anywhere. With telemetry `off`: a local stub (`MT_TELEMETRY_URL=http://127.0.0.1:<port>`) receives nothing over a full session.
+  5. Offline: endpoint unreachable -> transfer unaffected, `telemetry-queue.json` holds the events, they flush at the next launch once the stub is up; the queue never exceeds 500 events (use a loop of launches if you can, else note it as not exercised).
+  6. Bell: entries for a done, a failed (`MT_TEST_CORRUPT`) and a cancelled transfer with the right counts; `MT_TEST_UPDATE=1` -> "Update available" then "Restart to install"; Remove works; badge counts.
+  7. Displays: "Transfer cancelled" (rows for every planned folder), "Transfer stopped" with a plain error (the mkdir-blocked case), "Transfer finished with failures"; the read-back counter reaches 100 % with a foreign `.mtpart` (I2).
+  8. Unsigned package: `CSC_IDENTITY_AUTO_DISCOVERY=false npm run package` in the verify checkout -> `release/` holds `Media-Transfer-3.0.0-arm64.dmg`, `Media-Transfer-3.0.0-arm64-mac.zip`, `latest-mac.yml` naming those files; the packaged app (scratch userData, launched from the mounted dmg's `.app`, no quarantine since it was built locally) runs one verified transfer on exFAT.
+  9. Icon: option 2 in the Dock and Finder if the screen is unlocked; otherwise `iconutil -c iconset` of the bundle's `icon.icns` and a look at the 16/32/512 slots.
+  10. SIGTERM to the running app quits within 2 s (log the time).
+- Report as numbered items, commit `e5590cb` named, one message when done or blocked. This is the release gate.
+
 ## Items
 
 **Tester (2026-10-24 16:40):** Quince VR-1 started against 9bebaec (WO-2 rev 1), verify checkout `~/Projects/media-transfer-verify`. Rig: disk images in my scratchpad only. Finish note follows here.

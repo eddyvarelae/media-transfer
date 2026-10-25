@@ -5,7 +5,27 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
-(none)
+### RR-8 (2026-10-24) - v3.0 release review: WO-3 rev 1 (telemetry client + stack, consent, updater, bell, J/I3/K4 on the copy path)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff 090ad4a e5590cb -- electron/ src/ telemetry/ PRIVACY.md package.json` (`dev/v3.0-telemetry` tip e5590cb; `main` 090ad4a already holds the reviewed copy path up to b8c50ec). Spec: WO-3 rev 1 items A-G, I2, I3, J, K4 (top of `team/channels/dev-questions.md`). Dev evidence index: `git show e5590cb:team/evidence/dev/wo-3/README.md` (its "Deviations" 1-7 are accepted by the PM and are not findings). Infrastructure context: `team/context/product.md`.
+
+Claims under review:
+1. Copy path since b8c50ec (J prefetch of the source's first read, K4 probe-record fixes, I3 reporting, the SIGTERM quit fix): the invariant and RR-1..RR-7's resolved claims hold; the digest is still computed over exactly the bytes written; retained entries are counted once per folder.
+2. Telemetry client (`electron/telemetry.ts`, `settings.ts`, call sites in `main.ts`): nothing leaves the app unless `telemetry === "on"` (and, unpackaged, only with `MT_TELEMETRY_URL`); every prop is a typed scalar from the listed set; never a file name, path, volume or profile name, error message, user or computer name; the on-disk queue is bounded (500), off the copy path, never awaited by the UI, and quit is not delayed beyond ~1 s.
+3. Stack (`telemetry/`): validation rejects with 400 everything outside the schema (size, count, unknown event or prop key, non-scalar, non-UUID `installId`, wrong app name); DynamoDB store first, PostHog forward second with `$geoip_disable`, a forward failure still 202, a store failure not 2xx; logs carry counts only; no access logs; no secret in code.
+4. Updater (`electron/updates.ts`): checks only when packaged and `updateCheck` is on; never a dialog; `quitAndInstall` reachable only after `update-downloaded`; release asset names match `latest-mac.yml`.
+5. Consent and settings: `telemetry` starts `unasked`, closing the modal means `off`, only the explicit button means `on`; "Reset anonymous id" changes the `installId` used by subsequent events; `PRIVACY.md`'s event list equals the code's.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1. Any new `fs` write, rename or unlink on the copy path reaching a path this run did not create; the prefetch changing the bytes hashed versus written; a retained entry counted twice or zero times; `app.exit(0)` skipping a pending report write or ledger flush, or firing while a downloaded update waits.
+- F2. A prop value built from `relPath`, `absPath`, `basename`, a volume or profile name, an `Error.message`, `os.hostname()`/`userInfo()`; a `track()` call site not in the listed event set; a send when `telemetry !== "on"`; an unbounded queue; a flush awaited on the copy path or in the renderer's critical path.
+- F3. A payload that violates `validate.ts` and still gets 202; an exception path that returns 2xx without the DynamoDB write; a log line containing a body, an `installId` with props, or an IP; the forward sending a field not in the envelope.
+- F4. A code path calling `autoUpdater.checkForUpdates` unpackaged or with `updateCheck` off; `quitAndInstall` before `update-downloaded`; a `dialog.` call in the updater; an `artifactName` or `publish` config that produces names differing from `latest-mac.yml`.
+- F5. A default or migration that makes `telemetry` `"on"` without the button; a reset that keeps the old `installId` in the in-memory client; a discrepancy between `PRIVACY.md`'s list and `EventProps` in `telemetry.ts`.
+
+Accepted limits: Dev's deviations 1-7 (space-free asset names; nothing about location sent or stored; `telemetry_toggled` only as `on`; unpackaged builds silent without `MT_TELEMETRY_URL`; `resetInstallId` inside `settings:set`; update entries in memory only; the quit flush ending in `app.exit(0)` except while an update waits); the probe's 0-byte placeholder visible under the final name until the next run on a removal-disabled volume; the limits of RR-1..RR-7. Reporting-only findings are backlog items under the standing rule; findings against the invariant or against claim 2 (data leaving the app) block the release.
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
 
 ## Resolved
 

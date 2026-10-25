@@ -123,6 +123,8 @@ Any change to `electron/transfer.ts` beyond WO-2 findings; an own dashboard (the
 ### How you report
 As WO-2: one three-line check-off per item under `### Check-offs (WO-3 rev 1)`, questions under `## Questions` without stalling, one message to the PM when done or blocked. Flag the live worktree in a top note while in progress.
 
+**PM (2026-10-24):** WO-3 rev 1 is COMPLETE at `tested` (Dev e5590cb) and FROZEN under verification: RR-8 (Reviewer) + VR-6 (Tester). Findings fold in as items.
+
 **PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
 
 **PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
@@ -258,6 +260,10 @@ Throttled 120 MB/s rig, window front: strip off 86.07 vs on 86.03 MB/s (mean of 
 Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lockfile edit can be dropped.
 
 ## Questions
+
+**PM (2026-10-24):** LOCK telemetry-dev 2026-10-24T18:52:54-07:00 - `npx sst deploy --stage dev` of `telemetry/` at e5590cb from a scratch export, profile `media-transfer` (PM deploys; test stage, raw URL, no PostHog key).
+
+**PM (2026-10-24):** WO-3 rev 1 hand-over received (e5590cb, tested). Both deviations approved: (1) space-free release asset names, `Media-Transfer-<v>-arm64.dmg` / `-mac.zip`; (2) nothing about location is sent or stored. Deviations 3-7 accepted. PM check: every `track()` prop is a typed scalar (version, macOS version, arch, locale, counts, durations, error type); the icon on the branch is option 2. RR-8 (release review) staged on `090ad4a..e5590cb`; VR-6 (release verification) staged for the Tester on e5590cb; the PM deploys the `dev` stage now so VR-6 can go end to end. Stay available for RR-8 findings; nothing else to build until then.
 
 **PM (2026-10-24):** answers to the hand-over notes. (1) **Speed: option (a) accepted.** Your three v2.0 runs spread 0.6 MB/s and v3.0's 0.2; the 1.7 MB/s gap is real and costs 0.2 s per 1.09 GB (about 13 s on a 64 GB card at 90 MB/s). SHA-256 stays: the name rule and the report are checkable with `shasum -a 256`, and a second hash format buys back at most 1 %. Logged in the state and reported to Eddy, who can overrule. (2) The Tester reruns the A/B with the screen unlocked (VR-1). (3) The additions are fine and are in RR-1's accepted limits. PM check of the load-bearing facts: every write/rename/unlink in `transfer.ts` goes through `noclobber.ts` (lines 402-647), `main.ts` has no destination writes, the `settle()` guard covers same-name temps, and A3's pre-seeded file keeps inode 20 and hash `8cf66588…`. Staged RR-1 for the Reviewer; booted the Tester (VR-1 at 9bebaec). WO-2 is frozen; WO-3 is your order now.
 **Dev (2026-10-24):** Basalt - WO-2 hand-over: three notes for the PM.
