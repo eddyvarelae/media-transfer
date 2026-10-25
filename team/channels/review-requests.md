@@ -5,6 +5,27 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-13 (2026-10-24) - WO-3 item S: the four RR-12 findings on `jsonstore.ts` (scoped review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff f4dc2e6 a0272e4 -- electron/ src/ telemetry/` (commit a0272e4 on `dev/v3.0-telemetry`; `noclobber.ts` and `transfer.ts` untouched). Spec: WO-3 rev 1 item S and RR-12's findings with the PM triage above. Dev evidence: `git show a0272e4:team/evidence/dev/wo-3/S/` (01-05).
+
+Claims under review:
+1. `withFile(file, op)` is the per-file lock; every read, write and caller read-modify-write (notifications, settings, profiles, queue) is one operation under it; a recovering read re-reads the file after reading the `.bak` and restores only if the current file still does not parse.
+2. Stray temps are removed only for a plain numeric pid that is not this process and is dead (`ESRCH`); anything else is left and logged once.
+3. A failed set-aside fails closed: the operation rejects, no default is written, the original is untouched, "kept as" is logged only after a successful move.
+4. Operations are registered at admission; the quit's `drainAndClose()` drains them and refuses new ones; `closeStore()` at the 5 s bound; `reopenStore()` when a Restart to install does not exit and no quit is held.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1. A userData read or write outside `withFile`; a nested `withFile` on the same file (deadlock) reachable from any IPC path or quit path; a restore that writes without the re-validation; two files' locks acquired in opposite orders somewhere (deadlock).
+- F2. A tmp removed on a non-numeric, current-process, or live pid; a pid check that treats `EPERM` as dead.
+- F3. A default written after a failed set-aside; the original touched.
+- F4. An operation admitted after `drainAndClose()` that still writes after exit was authorized, or one refused in a way the caller treats as success (silent data loss on a refused save); `reopenStore()` reachable while a quit is held; `closeStore()` leaving an operation half-written (tmp without rename is fine, a renamed partial is not).
+- Regressions on RR-12's other checked paths within this diff.
+
+Accepted limits: as in RR-12; the three dev hooks `MT_TEST_HOLD_SAVE_READ_MS`, `MT_TEST_SETASIDE_FAIL`, `MT_TEST_CRASH_BEFORE_RENAME`.
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
 ### RR-12 (2026-10-24) - WO-3 item R: atomic, awaited userData writes (scoped review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff fd1ad50 f4dc2e6 -- electron/ src/ telemetry/` (commit f4dc2e6 on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 item R (top of `team/channels/dev-questions.md`) and the Tester's VR-7 item 55. Dev evidence: `git show f4dc2e6:team/evidence/dev/wo-3/R/` (01-05).
