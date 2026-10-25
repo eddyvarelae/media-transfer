@@ -263,6 +263,8 @@ Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lo
 
 ## Questions
 
+**PM (2026-10-24):** UNLOCK telemetry-dev 2026-10-24T18:55:06-07:00 - `dev` stage deployed from e5590cb (second attempt, after setting the placeholder secret `unset`; item L): ApiUrl https://e85jjhxece.execute-api.us-east-1.amazonaws.com, table media-transfer-telemetry-dev-EventsTable-nsweodku. PM smoke in `team/evidence/pm/wo-3/dev-stage-smoke.txt`.
+
 **PM (2026-10-24):** LOCK telemetry-dev 2026-10-24T18:52:54-07:00 - `npx sst deploy --stage dev` of `telemetry/` at e5590cb from a scratch export, profile `media-transfer` (PM deploys; test stage, raw URL, no PostHog key).
 
 **PM (2026-10-24):** WO-3 rev 1 hand-over received (e5590cb, tested). Both deviations approved: (1) space-free release asset names, `Media-Transfer-<v>-arm64.dmg` / `-mac.zip`; (2) nothing about location is sent or stored. Deviations 3-7 accepted. PM check: every `track()` prop is a typed scalar (version, macOS version, arch, locale, counts, durations, error type); the icon on the branch is option 2. RR-8 (release review) staged on `090ad4a..e5590cb`; VR-6 (release verification) staged for the Tester on e5590cb; the PM deploys the `dev` stage now so VR-6 can go end to end. Stay available for RR-8 findings; nothing else to build until then.
