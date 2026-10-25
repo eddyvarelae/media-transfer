@@ -63,6 +63,28 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
   3. SIGKILL mid-copy on exFAT -> next run recovers on its own (as VR-4 check 4).
 - Report as numbered items, commit `b8c50ec` named; one message when done or blocked.
 
+**PM (2026-10-24):** VR-6 - **v3.0 release verification at commit e5590cb** (`dev/v3.0-telemetry`), rung `observed`, on a fresh rig (exFAT + APFS destination images, Tester-prefixed names). Same rules. Checkout: `git -C ~/Projects/media-transfer-verify fetch origin && git -C ~/Projects/media-transfer-verify checkout --detach e5590cb && (cd ~/Projects/media-transfer-verify && npm install)` (the lockfile changed: electron-updater). Read `CLAUDE.md` at that commit (env overrides, hooks, release steps) and `team/evidence/dev/wo-3/README.md`. Checks (files under `team/evidence/tester/vr-6/`):
+  1. Full set, no hook, fresh exFAT and fresh APFS -> all `copied-verified`, hashes equal, second run skips all, reports present, 0 `.mtpart`, ledger empty.
+  2. Speed A/B: baseline = v2.0.0 code at `c692d2d` (`main` now carries 3.0 code, so check out the baseline detached), 3 alternating rounds, same condition as before; bar: e5590cb within 2 % of the baseline mean. Report means and spread.
+  3. Consent: fresh `--user-data-dir` -> the modal appears once; closing it = `off`; "Send anonymous stats" = `on`; the gear panel shows both toggles and "Reset anonymous id"; `settings.json` reflects each action.
+  4. Telemetry end to end: `MT_TELEMETRY_URL=https://e85jjhxece.execute-api.us-east-1.amazonaws.com` with telemetry `on` -> after a transfer, the events are in the `dev` stage's DynamoDB table (`aws dynamodb scan --table-name media-transfer-telemetry-dev-EventsTable-nsweodku --profile media-transfer --region us-east-1`, read-only); paste the items and confirm no file name, path, volume or profile name anywhere. With telemetry `off`: a local stub (`MT_TELEMETRY_URL=http://127.0.0.1:<port>`) receives nothing over a full session.
+  5. Offline: endpoint unreachable -> transfer unaffected, `telemetry-queue.json` holds the events, they flush at the next launch once the stub is up; the queue never exceeds 500 events (use a loop of launches if you can, else note it as not exercised).
+  6. Bell: entries for a done, a failed (`MT_TEST_CORRUPT`) and a cancelled transfer with the right counts; `MT_TEST_UPDATE=1` -> "Update available" then "Restart to install"; Remove works; badge counts.
+  7. Displays: "Transfer cancelled" (rows for every planned folder), "Transfer stopped" with a plain error (the mkdir-blocked case), "Transfer finished with failures"; the read-back counter reaches 100 % with a foreign `.mtpart` (I2).
+  8. Unsigned package: `CSC_IDENTITY_AUTO_DISCOVERY=false npm run package` in the verify checkout -> `release/` holds `Media-Transfer-3.0.0-arm64.dmg`, `Media-Transfer-3.0.0-arm64-mac.zip`, `latest-mac.yml` naming those files; the packaged app (scratch userData, launched from the mounted dmg's `.app`, no quarantine since it was built locally) runs one verified transfer on exFAT.
+  9. Icon: option 2 in the Dock and Finder if the screen is unlocked; otherwise `iconutil -c iconset` of the bundle's `icon.icns` and a look at the 16/32/512 slots.
+  10. SIGTERM to the running app quits within 2 s (log the time).
+- Report as numbered items, commit `e5590cb` named, one message when done or blocked. This is the release gate.
+
+**PM (2026-10-24):** heads-up, no change to VR-6: RR-8 found five defects in e5590cb (quit during a transfer, anonymous-id reset during a flush, event-name allowlist, update readiness vs the bell row, install IPC guard); Dev fixes them as item M. Finish VR-6 on e5590cb as written; VR-7 (short) will re-run checks 3, 6 and 10 plus a quit-during-transfer case on the M commit, which becomes the release candidate.
+
+**PM (2026-10-24):** VR-7 - **after VR-6: verify items M, L and N at the N commit** (`dev/v3.0-telemetry`; the PM names it here when it lands - 12f54a7 is superseded for the quit path), rung `observed`; that commit is the release candidate. Checkout: the named commit, detached (no dependency change). Extra for check 1: send SIGTERM twice, 200 ms apart, during the transfer; still one clean exit with the report present. Checks (files under `team/evidence/tester/vr-7/`):
+  1. Quit during a transfer: SIGTERM to the app 1-2 s into an exFAT transfer -> it exits within ~1 s, the reached folder's report exists (copied-verified / cancelled / not-started entries), the ledger is consistent, the next run completes and verifies. Same with Cmd-Q if the screen is unlocked.
+  2. Anonymous id: in the gear, "Reset anonymous id" -> `settings.json` shows a new `installId`; a transfer afterwards lands in the dev table under the new id only (`MT_TELEMETRY_URL` + scan as in VR-6 check 4).
+  3. Update entries: `MT_TEST_UPDATE=1` -> "Update available", then "Restart to install"; Remove the row; quit -> the main-process log shows the update-ready quit path, not the forced exit.
+  4. VR-6 checks 3 and 6 once more on this commit (consent modal, gear toggles; the three transfer-result bell entries).
+- Report as numbered items, commit `12f54a7` named; one message when done or blocked. The release gate = VR-6 + VR-7 + RR-9.
+
 ## Items
 
 **Tester (2026-10-24 16:40):** Quince VR-1 started against 9bebaec (WO-2 rev 1), verify checkout `~/Projects/media-transfer-verify`. Rig: disk images in my scratchpad only. Finish note follows here.

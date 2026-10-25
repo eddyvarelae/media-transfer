@@ -1,0 +1,11 @@
+# PM smoke of the telemetry dev stage, 2026-10-24T18:55:03-07:00, stack e5590cb, profile media-transfer
+## 1. empty body -> expect 400
+HTTP 400
+## 2. valid minimal batch (PM smoke installId 00000000-0000-4000-8000-000000000001) -> expect 202
+{"accepted":1}
+HTTP 202
+## 3. unknown prop -> expect 400
+{"error":"unknown prop"}
+HTTP 400
+## 4. table rows for the smoke installId
+app_launched	2026-10-24T19:00:00.000Z	3.0.0

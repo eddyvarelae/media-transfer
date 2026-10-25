@@ -80,6 +80,22 @@ Protocol: the PM's current WORK ORDER lives at the top (newest supersedes; work 
 
 **I2 - Read-back counter with a "temp name taken" failure (VR-2 item 21).** The verifying progress total still counts the bytes of a file that failed before its read-back; exclude failed files from the read-back total (or add their bytes as done) so the counter reaches 100 % whenever every placed file verified. Evidence (`team/evidence/dev/wo-3/I2/`): the foreign-temp run reaching 100 %.
 
+**N - RR-9 findings: one small commit on `dev/v3.0-telemetry`; then RR-10 scoped to it.** Verdict in `team/channels/review-requests.md`. #1 and #3 fixed; #2 resolved by a PM requirement revision.
+1. (RR-9 #1, P1) Quit stays prevented while finalization is pending: every `before-quit` (second Quit, Restart to install, a signal) calls `preventDefault()` until the first finalization completes; the final quit is authorized only then, once. Evidence: two Quits 200 ms apart during a slow report write (hook or a throttled destination) -> one finalization, both reports present, one exit.
+2. (RR-9 #2) Requirement revised by the PM: the wait for the transfer's finalization is bounded at 5 s, which covers any realistic report or ledger write; at the bound the quit proceeds with a logged "finalization timed out" and the next run's cleanup (ledger, K2/K3) recovers the state; a report for the interrupted folder may then be missing. Write that sentence in README ("Updates and quitting") and in `noclobber.ts`/`main.ts` comments. No code change beyond the comment.
+3. (RR-9 #3) Placeholder policy: forward only when the key matches a real PostHog project key shape (`/^phc_[A-Za-z0-9]{32,}$/`); anything else (empty, `unset`, `phc_unset`) skips with `forwarded: "skipped"`. Handler test covers empty, `unset`, `phc_unset` and a 43-char `phc_` key. `telemetry/README.md` says placeholders must never look like real keys.
+- Evidence (`team/evidence/dev/wo-3/N/`): the double-quit log; the handler test output. Check off plus one message; RR-10 scoped to this diff; VR-7 retargets to this commit.
+
+**M - RR-8 findings (release review): one commit on `dev/v3.0-telemetry` together with item L; then RR-9 scoped to it.** Verdict in `team/channels/review-requests.md`; all five accepted.
+1. (RR-8 #1, P1) Quit during a transfer: `before-quit` cancels the active transfer and awaits `executePlan`'s finalization (reports and ledger writes; cancel is prompt, bound the wait at a few seconds and log if exceeded), then the telemetry flush (<= 1 s), then exit. `app.exit(0)` never cuts off a report or ledger write. The same order on SIGTERM.
+2. (RR-8 #2, P1) "Reset anonymous id" takes effect immediately: `sendAll` re-reads consent and `installId` before every batch and stops when either changed; events queued after the reset carry the new id; the reset and the in-flight flush are serialized.
+3. (RR-8 #3) `validate.ts`: own-property membership for event names and prop keys (`Object.hasOwn` or a `Map`/null-prototype table), so `toString`, `constructor`, `__proto__` and friends get 400, never a TypeError.
+4. (RR-8 #4) Update readiness is state in `updates.ts`, independent of the bell rows: removing the row does not change `updateWaiting()`; readiness is re-checked right before the deferred exit.
+5. (RR-8 #5) `installUpdate` IPC: the main process verifies packaged + `update-downloaded` before `quitAndInstall`; otherwise it returns an error and does nothing.
+- Evidence (`team/evidence/dev/wo-3/M/`): quit (menu and SIGTERM) 1 s into a transfer on exFAT -> the reached folder's report exists, ledger consistent, the leftover recovered at the next run; reset during a flush of 200 events against a stub that delays the first response -> the second batch carries the new id; `curl` with `"name":"toString"` -> 400 on the handler test; remove the update row then quit (`MT_TEST_UPDATE=1`) -> the quit path is the normal one (log); `window.api.installUpdate()` before download -> rejected. Check off plus one message; RR-9 scoped to this diff; the PM redeploys the dev stage from the commit and VR-7 (short) follows.
+
+**L - Stack: the `dev` stage must deploy without the PostHog key (found by the PM's first dev-stage deploy, 2026-10-24).** `sst deploy --stage dev` fails with `SecretMissingError: Set a value for PosthogKey` although `telemetry/README.md` says the Lambda stores and skips the forward without it. Give the secret a default for non-production stages (an empty value or a sentinel the Lambda treats as "skip", e.g. `new sst.Secret("PosthogKey", "")` or a stage-conditional default) so a fresh `dev` deploy works with no secret set, and keep production requiring a real value. The PM set the placeholder `unset` on the dev stage meanwhile, which makes the forward fail (logged, still 202) instead of skipping. Evidence (`team/evidence/dev/wo-3/L/`): `sst deploy --stage dev` output on a fresh stage name with no secret; the handler test for the skip. Folds into the RR-8 fix batch.
+
 **A - Bell kinds + scroll (BL-6, BL-12).**
 - Notification kinds `transfer-done`, `transfer-failed`, `transfer-cancelled` persisted in `notifications.json` like `new-drive` entries (`{ id, kind, at, origin, destination, summary: { copied, verified, skipped, failed, failedNames (max 10), durationMs } }`, keep the newest 50 of these kinds). Row: title, origin -> destination, the counts, relative time, failed names when any; a Remove action; no Label. Badge counts them like today.
 - On Start, scroll the progress section into view (one line; Dev's 2026-10-02 proposal).
@@ -122,6 +138,8 @@ Any change to `electron/transfer.ts` beyond WO-2 findings; an own dashboard (the
 
 ### How you report
 As WO-2: one three-line check-off per item under `### Check-offs (WO-3 rev 1)`, questions under `## Questions` without stalling, one message to the PM when done or blocked. Flag the live worktree in a top note while in progress.
+
+**PM (2026-10-24):** WO-3 rev 1 is COMPLETE at `tested` (Dev e5590cb) and FROZEN under verification: RR-8 (Reviewer) + VR-6 (Tester). Findings fold in as items.
 
 **PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
 
@@ -258,6 +276,16 @@ Throttled 120 MB/s rig, window front: strip off 86.07 vs on 86.03 MB/s (mean of 
 Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lockfile edit can be dropped.
 
 ## Questions
+
+**PM (2026-10-24):** UNLOCK telemetry-dev 2026-10-24T19:10:37-07:00 - item L proven by the PM: fresh stage `pmtest` deployed with no secret (202 on a valid batch, 400 on `toString`), then removed; `dev` redeployed from 12f54a7, same URL and table. Evidence `team/evidence/pm/wo-3/fresh-stage-L.txt`.
+
+**PM (2026-10-24):** LOCK telemetry-dev 2026-10-24T19:08:37-07:00 - redeploy of the `dev` stage from 12f54a7 (items M + L) plus a fresh stage `pmtest` deployed with no secret as item L's evidence, then removed.
+
+**PM (2026-10-24):** UNLOCK telemetry-dev 2026-10-24T18:55:06-07:00 - `dev` stage deployed from e5590cb (second attempt, after setting the placeholder secret `unset`; item L): ApiUrl https://e85jjhxece.execute-api.us-east-1.amazonaws.com, table media-transfer-telemetry-dev-EventsTable-nsweodku. PM smoke in `team/evidence/pm/wo-3/dev-stage-smoke.txt`.
+
+**PM (2026-10-24):** LOCK telemetry-dev 2026-10-24T18:52:54-07:00 - `npx sst deploy --stage dev` of `telemetry/` at e5590cb from a scratch export, profile `media-transfer` (PM deploys; test stage, raw URL, no PostHog key).
+
+**PM (2026-10-24):** WO-3 rev 1 hand-over received (e5590cb, tested). Both deviations approved: (1) space-free release asset names, `Media-Transfer-<v>-arm64.dmg` / `-mac.zip`; (2) nothing about location is sent or stored. Deviations 3-7 accepted. PM check: every `track()` prop is a typed scalar (version, macOS version, arch, locale, counts, durations, error type); the icon on the branch is option 2. RR-8 (release review) staged on `090ad4a..e5590cb`; VR-6 (release verification) staged for the Tester on e5590cb; the PM deploys the `dev` stage now so VR-6 can go end to end. Stay available for RR-8 findings; nothing else to build until then.
 
 **PM (2026-10-24):** answers to the hand-over notes. (1) **Speed: option (a) accepted.** Your three v2.0 runs spread 0.6 MB/s and v3.0's 0.2; the 1.7 MB/s gap is real and costs 0.2 s per 1.09 GB (about 13 s on a 64 GB card at 90 MB/s). SHA-256 stays: the name rule and the report are checkable with `shasum -a 256`, and a second hash format buys back at most 1 %. Logged in the state and reported to Eddy, who can overrule. (2) The Tester reruns the A/B with the screen unlocked (VR-1). (3) The additions are fine and are in RR-1's accepted limits. PM check of the load-bearing facts: every write/rename/unlink in `transfer.ts` goes through `noclobber.ts` (lines 402-647), `main.ts` has no destination writes, the `settle()` guard covers same-name temps, and A3's pre-seeded file keeps inode 20 and hash `8cf66588…`. Staged RR-1 for the Reviewer; booted the Tester (VR-1 at 9bebaec). WO-2 is frozen; WO-3 is your order now.
 **Dev (2026-10-24):** Basalt - WO-2 hand-over: three notes for the PM.
