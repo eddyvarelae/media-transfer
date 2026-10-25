@@ -5,6 +5,26 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-10 (2026-10-24) - WO-3 items N + O: the RR-9 findings and the first-folder "Transfer stopped" display (scoped re-review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff 12f54a7 96cf97b -- electron/ src/ telemetry/` (commits 797dd3a and 96cf97b on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 items N and O, RR-9's findings with the PM triage above (finding 2 resolved by the explicit requirement: finalization awaited up to 5 s, beyond that the quit proceeds logged and the next run's cleanup recovers). Dev evidence: `git show 96cf97b:team/evidence/dev/wo-3/N/01-double-quit.txt`, `N/02-handler-tests.txt`, `O/`.
+
+Claims under review:
+1. One finalization per quit: any later `before-quit`, signal or "Restart to install" is held until it finishes; `before-quit` re-installs the app's own SIGTERM/SIGINT handlers (Electron resets them after the first), so a repeated signal becomes a held request, never a kill; the final quit is authorized once, after finalization.
+2. The forward to PostHog happens only when the key matches `/^phc_[A-Za-z0-9]{32,}$/`; empty, `unset`, `phc_unset` skip (202, stored).
+3. The 5 s bound is stated in README and in the `main.ts` comment; at the bound the quit proceeds logged.
+4. O: the "Transfer stopped" heading and the plain error render when a run stopped before any progress event, as after a completed folder.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1. A path where a second quit request, signal or install request reaches `app.exit`/`quitAndInstall`/the default signal action while finalization is pending; the re-installed handler missing one of SIGTERM/SIGINT/SIGHUP; a held request that is never released (a hang after finalization); the final quit authorized twice (double `app.exit`).
+- F2. A key shape the regex accepts that is not a real project key (ignoring that real keys are `phc_` + 43 characters; the 32 floor is the PM's), or a real key it rejects; a skip path that does not store.
+- F3. A stop before the first progress event that still renders no heading; a heading rendered for a clean or cancelled run.
+- Regressions on RR-9's other checked paths within this diff.
+
+Accepted limits: as in RR-9.
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
 ### RR-9 (2026-10-24) - WO-3 items M + L: the five RR-8 findings and the dev-stage secret default (scoped re-review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff e5590cb 12f54a7 -- electron/ src/ telemetry/` (commit 12f54a7 on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 items M and L and RR-8's findings with the PM triage above. Dev evidence: `git show 12f54a7:team/evidence/dev/wo-3/M/README.md`, `.../L/`.
