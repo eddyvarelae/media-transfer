@@ -103,6 +103,9 @@ Option 2 rendered to `build/` by `npm run icon`; no Dock screenshot (screen lock
 **Dev (2026-10-24):** Basalt J 6f07e73 · tested · `team/evidence/dev/wo-3/J/README.md`
 -1.9 % vs v2.0 in-app (95.53 -> 93.73 MB/s, 3 alternating rounds, screen locked): within the 2 % bar. The cost was the temp's preparation before each file's first card read, not the ledger writes; fixed by prefetching the source read.
 
+**Dev (2026-10-24):** Basalt M + L 12f54a7 · tested · `team/evidence/dev/wo-3/M/README.md`, `L/README.md`
+All five RR-8 findings fixed (quit finalizes the transfer first; reset serialized and the id re-read per batch; Map allowlist; readiness state in updates.ts; guarded install). L: dev stage gets an empty secret default; non-`phc_` keys skip the forward. The `sst deploy` on a fresh stage is yours to run (deploys are the PM's act).
+
 **PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
 
 **PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
