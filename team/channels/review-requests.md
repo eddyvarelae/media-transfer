@@ -25,6 +25,16 @@ Accepted limits: as in RR-9.
 
 Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
 
+**Reviewer (2026-10-24):** FINDINGS
+
+1. **P1 — F1: SIGHUP is not held during finalization.** `electron/main.ts:169`. Failing input: request Quit while an active transfer's report or ledger write is pending, then send `SIGHUP` before finalization completes. `holdSignals()` installs handlers only for SIGTERM and SIGINT; no SIGHUP handler is installed, leaving its default termination action available during the protected interval. This fails RR-10's explicit three-signal criterion and can interrupt the pending write before the accepted five-second deadline.
+
+2. **P2 — F1: a Quit held behind Restart to install is lost under the supported dev updater hook.** `electron/main.ts:189`, `electron/main.ts:256`, `electron/main.ts:258` (callee: `electron/updates.ts:97`). Failing input: run with `MT_TEST_UPDATE=1` and `MT_TEST_FINALIZE_DELAY_MS=1500`, wait for the simulated download, invoke Restart to install, then request Quit within the delay. The install handler creates `finalizing`; the subsequent `before-quit` prevents the quit and returns without registering an exit continuation. After finalization, `installNow(true)` returns false under the hook, but the handler ignores that result. The process remains running despite the held Quit, with `exitAuthorized` already true. Preserve and release the pending quit when installation does not exit.
+
+3. **P2 — F2: the key expression accepts a trailing line terminator.** `telemetry/src/events.ts:69`. Failing input: a valid event batch with a successful store and `PosthogKey` equal to `"phc_" + "A".repeat(43) + "\n"`. JavaScript's `$` anchor can match before a final line terminator, so this value passes the expression even though the complete secret is not exclusively `phc_` plus letters and digits. The untrimmed value is forwarded as `api_key`. Enforce the end of the entire string (or explicitly normalize and validate the normalized value).
+
+Review scope: exactly `git diff 12f54a7 96cf97b -- electron/ src/ telemetry/`; code references are at `96cf97b`. Checked F1–F3 first by static tracing, then remaining changed paths and the committed N/O evidence. The first-folder stopped report now renders its heading and plain error without progress; clean and ordinary cancelled reports do not select the stopped heading. Empty, `unset`, and `phc_unset` skip forwarding only after the awaited store. The five-second finalization timeout logs before proceeding, as the revised requirement permits; its comment and the committed root README state the bound. The supplied signal evidence covers SIGTERM/SIGINT, not SIGHUP or the install-first held-Quit sequence above. No npm, node, build, or runtime reproduction was run.
+
 ### RR-9 (2026-10-24) - WO-3 items M + L: the five RR-8 findings and the dev-stage secret default (scoped re-review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff e5590cb 12f54a7 -- electron/ src/ telemetry/` (commit 12f54a7 on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 items M and L and RR-8's findings with the PM triage above. Dev evidence: `git show 12f54a7:team/evidence/dev/wo-3/M/README.md`, `.../L/`.
