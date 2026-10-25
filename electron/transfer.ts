@@ -302,6 +302,9 @@ export async function executePlan(
   const totalBytesOverall = plan.folders.reduce((a, f) => a + f.totalBytesToCopy, 0);
   let bytesCopiedOverall = 0;
   let bytesVerifiedOverall = 0;
+  // Bytes that will be read back: a file that fails before its read-back leaves the total, so the
+  // read-back bar reaches 100 % whenever every placed file was verified.
+  let readBackTotal = totalBytesOverall;
   const startedAt = Date.now();
   const reports: VerifyReport[] = [];
   const runId = randomUUID();
@@ -398,6 +401,13 @@ export async function executePlan(
         }
         if (typeof copied !== 'string') {
           records.push(copied);
+          readBackTotal -= file.size;
+          onVerify({
+            folderLabel: folder.label,
+            currentFile: file.relPath,
+            bytesVerifiedOverall,
+            totalBytesOverall: readBackTotal,
+          });
           continue;
         }
 
@@ -407,7 +417,7 @@ export async function executePlan(
             folderLabel: folder.label,
             currentFile: file.relPath,
             bytesVerifiedOverall,
-            totalBytesOverall,
+            totalBytesOverall: readBackTotal,
           });
         };
         const verifying = verifyAndPlace(file, plainDest, temp, copied, onReadBack, run);

@@ -422,7 +422,8 @@ export default function App() {
             <div className="progress-stats">
               <span>Read back {verifiedPct.toFixed(1)}%</span>
               <span>
-                {bytes(verify?.bytesVerifiedOverall ?? 0)} / {bytes(progress.totalBytesOverall)} read
+                {bytes(verify?.bytesVerifiedOverall ?? 0)} /{' '}
+                {bytes(verify?.totalBytesOverall ?? progress.totalBytesOverall)} read
                 back
               </span>
             </div>
