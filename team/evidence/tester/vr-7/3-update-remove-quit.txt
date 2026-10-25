@@ -1,0 +1,6 @@
+# VR-7 check 3 - commit 96cf97b. MT_TEST_UPDATE=1.
+state sampled from launch (check 4 session): update-available 3.0.1 at 1347 ms -> update-downloaded 3.0.1 at 3308 ms
+bell row: UPDATE READY | Media Transfer 3.0.1 | Installs when you restart · just now | Restart to install | Remove; Remove -> badge 5 -> 4, row gone
+SIGTERM after the Remove: exit 0.16 s; main log:
+update waiting and no transfer: the normal quit path installs it
+-> the update-ready quit path, not the forced exit

@@ -1,0 +1,17 @@
+# VR-7 check 5 - commit 96cf97b (item O). Plain file at /Volumes/TsDestX5/TsCard/DCIM; TsCard's first planned folder is DCIM.
+{
+ "rows": [
+  "DCIM\t0\t0\t0\t\u2717 Stopped",
+  "CLIP\t0\t0\t0\tNot reached",
+  "THMBNL\t0\t0\t0\tNot reached"
+ ],
+ "h2seen": [
+  {
+   "t": 4,
+   "h2": "Transfer stopped",
+   "conveyor": false
+  }
+ ],
+ "endText": "TRANSFER STOPPED\nDCIM: EEXIST: file already exists, mkdir '/Volumes/TsDestX5/TsCard/DCIM'"
+}
+page headings: NEW DRIVE DETECTED, ALL PROFILES, PLAN, TRANSFER STOPPED, VERIFICATION; blocking file unchanged (ino 26121, 31 B). 5-stopped-first-folder.png

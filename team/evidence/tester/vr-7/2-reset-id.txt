@@ -1,0 +1,34 @@
+# VR-7 check 2 - commit 96cf97b (item M). Telemetry on, MT_TELEMETRY_URL = dev stage. Gear 'Reset anonymous id' at 2026-10-25T02:26:32Z -> 'New id created';
+settings.json installId 6ca5803b-a7a2-4f25-a51e-df344ba70f52 -> 82ecb474-f0cb-4a6d-90f3-d7ac311ecc31 ; then transfer TsCard2 -> TsDest9 (5/5 verified), SIGTERM; queue empty.
+Read-only scan of media-transfer-telemetry-dev-EventsTable-nsweodku (all items, sorted by receivedAt):
+  PM-smoke 00000000 app_launched       at 2026-10-24T19:00:00.000Z received 2026-10-25T01:55:04.893Z 
+  OLD      6ca5803b telemetry_toggled  at 2026-10-25T01:58:13.710Z received 2026-10-25T01:58:14.157Z 
+  OLD      6ca5803b transfer_started   at 2026-10-25T01:58:16.455Z received 2026-10-25T01:58:17.834Z 
+  OLD      6ca5803b transfer_finished  at 2026-10-25T01:58:17.617Z received 2026-10-25T01:58:17.834Z 
+  OLD      6ca5803b app_launched       at 2026-10-25T01:58:45.375Z received 2026-10-25T01:58:45.707Z 
+  PM-smoke 00000000 app_launched       at 2026-10-24T19:40:00.000Z received 2026-10-25T02:20:07.634Z 
+  PM-smoke 00000000 app_launched       at 2026-10-24T19:50:00.000Z received 2026-10-25T02:26:02.930Z 
+  OLD      6ca5803b app_launched       at 2026-10-25T02:22:08.375Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b transfer_started   at 2026-10-25T02:22:42.466Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b app_launched       at 2026-10-25T02:23:03.607Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b transfer_started   at 2026-10-25T02:23:14.268Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b transfer_finished  at 2026-10-25T02:23:23.165Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b app_launched       at 2026-10-25T02:23:45.410Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b transfer_started   at 2026-10-25T02:23:56.374Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b app_launched       at 2026-10-25T02:24:07.973Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b transfer_started   at 2026-10-25T02:24:18.956Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b transfer_finished  at 2026-10-25T02:24:27.864Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b app_launched       at 2026-10-25T02:24:53.116Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b transfer_started   at 2026-10-25T02:25:03.951Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b transfer_cancelled at 2026-10-25T02:25:05.584Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b app_launched       at 2026-10-25T02:25:34.446Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b transfer_started   at 2026-10-25T02:25:45.278Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b transfer_finished  at 2026-10-25T02:25:53.934Z received 2026-10-25T02:26:21.988Z 
+  OLD      6ca5803b app_launched       at 2026-10-25T02:26:21.616Z received 2026-10-25T02:26:21.988Z 
+  NEW      82ecb474 transfer_started   at 2026-10-25T02:26:35.718Z received 2026-10-25T02:26:44.763Z <- after reset
+  NEW      82ecb474 transfer_finished  at 2026-10-25T02:26:44.483Z received 2026-10-25T02:26:44.763Z <- after reset
+after the reset: 2 items, ids ['82ecb474'] -> new id only; no old-id event received after the reset
+The old-id rows received 02:26:21 are events queued by check 1's sessions (no endpoint set there), flushed at this session's launch, before the reset.
+
+NOTE (minor, telemetry): check 1's quits mid-transfer: runs (a) 02:22:42 and (b) 02:23:56 have transfer_started but NO transfer_cancelled;
+only (c), with MT_TEST_FINALIZE_DELAY_MS=1500, recorded transfer_cancelled (02:25:05). A plain SIGTERM during a transfer loses that event.

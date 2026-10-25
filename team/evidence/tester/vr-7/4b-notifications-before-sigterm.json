@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "af3caeab-387d-4bff-adec-0ae770eed165",
+      "kind": "transfer-done",
+      "at": 1792895067864,
+      "origin": "TsCard2",
+      "destination": "TsDestX6",
+      "summary": {
+        "copied": 5,
+        "verified": 5,
+        "skipped": 0,
+        "failed": 0,
+        "failedNames": [],
+        "durationMs": 8909
+      }
+    },
+    {
+      "id": "93417be0-5ad0-4d0c-b9b4-ddd800e0d40b",
+      "kind": "transfer-cancelled",
+      "at": 1792895105584,
+      "origin": "TsCard2",
+      "destination": "TsDestX7",
+      "summary": {
+        "copied": 0,
+        "verified": 0,
+        "skipped": 0,
+        "failed": 0,
+        "failedNames": [],
+        "durationMs": 1634
+      }
+    },
+    {
+      "id": "d10e74b0-498a-4f6c-8620-3c816561ddc2",
+      "kind": "transfer-done",
+      "at": 1792895153934,
+      "origin": "TsCard2",
+      "destination": "TsDestX7",
+      "summary": {
+        "copied": 5,
+        "verified": 5,
+        "skipped": 0,
+        "failed": 0,
+        "failedNames": [],
+        "durationMs": 8657
+      }
+    },
+    {
+      "id": "ae962bad-84a8-40d9-b20e-d85879ba389f",
+      "kind": "transfer-done",
+      "at": 1792895204483,
+      "origin": "TsCard2",
+      "destination": "TsDest9",
+      "summary": {
+        "copied": 5,
+        "verified": 5,
+        "skipped": 0,
+        "failed": 0,
+        "failedNames": [],
+        "durationMs": 8765
+      }
+    },
+    {
+      "id": "fbc3250f-700d-490e-bf1a-f06dc9dd91ef",
+      "kind": "transfer-failed",
+      "at": 1792895285322,
+      "origin": "TsCard2",
+      "destination": "TsDest",
+      "summary": {
+        "copied": 4,
+        "verified": 4,
+        "skipped": 0,
+        "failed": 1,
+        "failedNames": [
+          "100MSDCF/A.JPG"
+        ],
+        "durationMs": 1130
+      }
+    },
+    {
+      "id": "2d55e778-857e-4cb3-8162-398c9acc4664",
+      "kind": "transfer-cancelled",
+      "at": 1792895309249,
+      "origin": "TsCard2",
+      "destination": "TsDest7",
+      "summary": {
+        "copied": 0,
+        "verified": 0,
+        "skipped": 0,
+        "failed": 0,
+        "failedNames": [],
+        "durationMs": 559
+      }
+    }
+  ]
+}
