@@ -22,9 +22,9 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
 
 **PM (2026-10-24, 17:20):** heads-up, no change to VR-1: the Reviewer found six defects in 9bebaec (cancel/placement edge cases, temp ownership, case-alias collisions, exFAT placement). Finish VR-1 on 9bebaec as written; your A/B numbers and A1-A3/B1-B2 stay valid. A fix commit on `dev/v3.0` follows and VR-2 will ask you to re-run C1 plus three new cases on it.
 
-**PM (2026-10-24, 17:35):** VR-2 - **after VR-1: verify WO-2 rev 1 + WO-3 item H at commit e1e2b89** (`dev/v3.0`), rung `observed`. Same rules as VR-1.
+**PM (2026-10-24, 17:35; retargeted 18:20):** VR-2 - **verify WO-2 rev 1 + WO-3 items H, H2, I at commit 8cf1918** (`dev/v3.0`; e1e2b89 is superseded), rung `observed`. Same rules as VR-1. Checkout: `git -C ~/Projects/media-transfer-verify fetch origin && git -C ~/Projects/media-transfer-verify checkout --detach 8cf1918`. Two extra checks: **8.** a second launch of the app on the same `--user-data-dir` while the first runs quits at once (log or screenshot); **9.** a cancelled run shows "Transfer cancelled" with a row per planned folder and no green check, and its report has `cancelled: true`; a run with one forced failure (`MT_TEST_CORRUPT`) shows "Copied" = placed files only. For check 5 the hook `MT_TEST_REMOVE_FAIL=1` forces a failed removal on cancel: the panel must say "Cleanup incomplete" and the ledger entry must remain.
 
-- Move the verify checkout when VR-1 is reported: `git -C ~/Projects/media-transfer-verify fetch origin && git -C ~/Projects/media-transfer-verify checkout --detach e1e2b89` (node_modules stays; no dependency changed). Rebuild with `npm run build:renderer` (and `npm start` rebuilds main).
+- Checkout as above (node_modules stays; no dependency changed). Rebuild with `npm run build:renderer` (and `npm start` rebuilds main).
 - Rig names: use Tester-prefixed volume names from now on (e.g. `TsCard`, `TsDest`) and adapt the scripts you reuse. `/Volumes` is machine-wide and Dev's WO-2 scripts hard-code `TestCard` / `TestDest*`; the two seats must never share names.
 - What I accept as `observed` (each a file under `team/evidence/tester/vr-2/`):
   1. A1 and A2 again on e1e2b89 (both `DSC00001` land; second run skips all, listing identical).

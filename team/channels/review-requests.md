@@ -5,6 +5,32 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-3 (2026-10-24) - WO-3 items H2 + I: fixes for RR-2 findings 1, 3-7 and the Tester's VR-1 items 9-11 (scoped re-review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff e1e2b89 8cf1918 -- electron/ src/` (commit 8cf1918 on `dev/v3.0`). Spec: WO-3 rev 1 items H2 and I (top of `team/channels/dev-questions.md`), RR-2's findings and the PM triage above. Dev evidence: `git show 8cf1918:team/evidence/dev/wo-3/H2/README.md` (also lists three further defects Dev found and fixed in the same commit: times set through the handle so `utimes` cannot move a temp's birthtime; exFAT's synthetic inode for an empty file, so identities are exact strings re-recorded at the first 1 MB and at seal; a `FileHandle.close()` hang on its stream).
+
+Claims under review:
+1. Ownership is identity: a ledger entry authorizes a removal only when `lstat(path)` matches the recorded dev + ino + birthtime (exact strings); an entry without identity never does; the claim is persisted before anything is created and a failed claim write means no claim and no action on disk.
+2. `app.requestSingleInstanceLock()`: a second instance on the same userData quits before touching the ledger.
+3. Cancellation is re-checked after every await that precedes publication, down to the `link` / `rename` call inside `noClobberRename`.
+4. Once `link` or `rename` onto the final name succeeds, the file is reported `copied-verified` whatever later bookkeeping does.
+5. A failed removal keeps its ledger entry and is reported (`tempsLeft`, "Cleanup incomplete").
+6. Item I: a cancelled run reports `cancelled: true` with interrupted files `status: "cancelled"`; `copied` counts placed files only; `VerifyReport` (`reached`, `cancelled`, `tempsLeft`) is consistent across `main.ts`, `preload.ts`, `src/types.ts`; `transfer:progress` unchanged.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1''. A removal path (startup cleanup, cancel drop, failed-record drop, placeholder release) that acts without a fresh identity match, or a match computed from stale/cached stat data; an identity comparison that can match a different file (string formatting, missing dev, birthtime resolution).
+- F2''. The identity re-recording on exFAT (first 1 MB, seal): a window where the ledger holds a stale identity while the file is already placed or already replaced, leading to a wrong removal (a wrong "leave it" is accepted).
+- F3''. A claim written after the create, or an in-memory claim that survives a failed persist and later authorizes a removal.
+- F4''. A publication path still reachable after cancel without a check between the last await and the `link` / `rename`.
+- F5''. A placed file reported `failed` or `skipped` because of a bookkeeping error after `link` / `rename` succeeded; a ledger entry dropped while its file remains on disk.
+- F6''. `requestSingleInstanceLock` acquired after the ledger file could already have been read or written, or the losing instance continuing past the check.
+- F7''. Item I: the interrupted file marked `cancelled` while its temp was actually placed, or a placed file counted as not copied; report `cancelled` flag missing on a reached folder of a cancelled run.
+- Regressions on RR-1's F2 (digest gate), F3 (sibling index) and F6 (IPC shapes) within this diff.
+
+Accepted limits (not findings): another process writing the same destination path during a transfer (single-writer assumption, documented); a crash before the first 1 MB on exFAT leaves a temp the next run cannot recognize - it is left alone and that file fails until the temp is deleted by hand; the dev-only hooks `MT_TEST_CORRUPT`, `MT_TEST_LEDGER_FAIL`, `MT_TEST_REMOVE_FAIL`; the file-cache limit of the read-back; size + mtime skip decisions; the -1.8 % / -0.2 % throughput numbers.
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
 ### RR-2 (2026-10-24) - WO-3 item H: the fixes for RR-1 findings 1-6 (scoped re-review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff 9bebaec e1e2b89 -- electron/ src/types.ts` (fix commit e1e2b89 on `dev/v3.0`, parent 9bebaec). Spec: WO-3 rev 1 item H (top of `team/channels/dev-questions.md`) and RR-1's six findings above. Dev evidence: `git show e1e2b89:team/evidence/dev/wo-3/H/README.md`.
