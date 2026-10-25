@@ -1,0 +1,41 @@
+# VR-5 check 3 - commit b8c50ec. SIGKILL mid-copy of C0004.MP4 on exFAT TsDestX7 (fresh), throttled TsCard2, then relaunch + run.
+kill -9 53396 at 18:37:49 with /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart at 103809024 bytes
+## temps on /Volumes/TsDestX7/TsCard2
+58 103809024 /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart
+## ledger
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart",
+   "destRoot": "/Volumes/TsDestX7/TsCard2/CLIP",
+   "runId": "66aaa4c9-3b58-41e9-a974-57512793790a",
+   "createdAt": "2026-10-25T01:37:47.987Z",
+   "identity": null,
+   "provisional": {
+    "dev": "16777415",
+    "birthtimeNs": "1792892267980000000"
+   }
+  }
+ ]
+}recovery run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified'] [] ['Transferring', 'Verifying', 'Transfer complete']
+main log:
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+.mtpart after: 0; ledger after: {"version":1,"temps":[]}
+ledger changes:
+  18:38:09.154763000 ['C0004.MP4.mtpart']
+  18:38:11.819774000 ['C0004.MP4.mtpart']
+  18:38:16.054864000 ['C0004.MP4.mtpart', 'C0005.MP4.mtpart']
+  18:38:16.407238000 ['C0005.MP4.mtpart']
+  18:38:20.289601000 ['C0005.MP4.mtpart']
+  18:38:20.579983000 ['A.JPG.mtpart']
+  18:38:20.641981000 ['a.JPG.mtpart']
+  18:38:20.707713000 []
+hashes:
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsDestX7/TsCard2/CLIP/C0005.MP4
+probe files: 0

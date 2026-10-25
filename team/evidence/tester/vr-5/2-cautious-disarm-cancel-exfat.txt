@@ -1,0 +1,129 @@
+# VR-5 check 2 - commit b8c50ec (K3). exFAT TsDestX6 (fresh), TsCard2 local read-only (profile order CLIP, DCIM; DCIM flatten on). Tester sentinel files placed in CLIP/ and DCIM/ first.
+## before
+7 32768 2026-10-24T18:36:18 .
+9 32768 2026-10-24T18:36:18 ./CLIP
+11 48 2026-10-24T18:36:18 ./CLIP/tester-sentinel.txt
+8 32768 2026-10-24T18:36:18 ./DCIM
+10 48 2026-10-24T18:36:18 ./DCIM/tester-sentinel.txt
+## run with MT_TEST_PROBE_FAIL=write MT_TEST_CANCEL_AT_DISARM=1
+{
+ "rows": [
+  "CLIP\t0\t0\t0\tCancelled \u00b7 0 files verified",
+  "DCIM\t0\t0\t0\tNot reached (cancelled)"
+ ],
+ "failedList": [],
+ "h2seen": [
+  {
+   "t": 12,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 833,
+   "h2": "Transfer cancelled",
+   "conveyor": false
+  }
+ ],
+ "endText": "TRANSFER CANCELLED\n98.8%\n800 MB / 810 MB\n1.07 GB/s\nElapsed 1s\nETA \u2014\nRead back 49.2%\n398 MB / 810 MB read back"
+}
+panel: Cleanup incomplete: 3 temporary files left on the destination. The next transfer to that folder removes them. (2-panel-cautious-disarm-cancel.png)
+main log:
+volume probe CLIP: {"handleStable":false,"useBirth":false,"removalEnabled":false}
+## destination after the cancel vs before (inode size mtime path)
+2c2,7
+< 9 32768 2026-10-24T18:36:18 ./CLIP
+---
+> 9 32768 2026-10-24T18:36:30 ./CLIP
+> 12 32768 2026-10-24T18:36:30 ./CLIP/.media-transfer
+> 25101 768 2026-10-24T18:36:30 ./CLIP/.media-transfer/transfer-20261024-183629.json
+> 18446744073709551609 0 2026-10-24T18:36:30 ./CLIP/C0004.MP4
+> 13 419430400 2026-10-24T16:56:38 ./CLIP/C0004.MP4.mtpart
+> 12717 419430400 2026-10-24T18:36:30 ./CLIP/C0005.MP4.mtpart
+-> the 0-byte C0004.MP4 is the exFAT placeholder (synthetic inode while handle-unstable), kept because removal is disabled on a CAUTIOUS volume
+## ledger after the cancel
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/TsDestX6/TsCard2/CLIP/C0004.MP4.mtpart",
+   "destRoot": "/Volumes/TsDestX6/TsCard2/CLIP",
+   "runId": "fc7a6f6d-a5c1-4e4d-b046-e8e41d255976",
+   "createdAt": "2026-10-25T01:36:29.899Z",
+   "identity": {
+    "dev": "16777413",
+    "ino": "13"
+   }
+  },
+  {
+   "path": "/Volumes/TsDestX6/TsCard2/CLIP/C0005.MP4.mtpart",
+   "destRoot": "/Volumes/TsDestX6/TsCard2/CLIP",
+   "runId": "fc7a6f6d-a5c1-4e4d-b046-e8e41d255976",
+   "createdAt": "2026-10-25T01:36:30.193Z",
+   "identity": {
+    "dev": "16777413",
+    "ino": "12717"
+   }
+  },
+  {
+   "path": "/Volumes/TsDestX6/TsCard2/CLIP/C0004.MP4",
+   "destRoot": "/Volumes/TsDestX6/TsCard2/CLIP",
+   "runId": "fc7a6f6d-a5c1-4e4d-b046-e8e41d255976",
+   "createdAt": "2026-10-25T01:36:30.713Z",
+   "identity": {
+    "dev": "16777413",
+    "ino": "-7"
+   }
+  }
+ ]
+}
+## next normal run (no hooks)
+{
+ "rows": [
+  "CLIP\t2\t2\t0\t\u2713 2 files verified",
+  "DCIM\t3\t3\t0\t\u2713 3 files verified"
+ ],
+ "failedList": [],
+ "h2seen": [
+  {
+   "t": 25,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 1161,
+   "h2": "Verifying",
+   "conveyor": false
+  },
+  {
+   "t": 1175,
+   "h2": "Transfer complete",
+   "conveyor": false
+  }
+ ]
+}
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+## destination after
+7 32768 2026-10-24T18:36:18 .
+9 32768 2026-10-24T18:36:59 ./CLIP
+12 32768 2026-10-24T18:36:59 ./CLIP/.media-transfer
+25101 768 2026-10-24T18:36:30 ./CLIP/.media-transfer/transfer-20261024-183629.json
+51621 909 2026-10-24T18:36:59 ./CLIP/.media-transfer/transfer-20261024-183658.json
+25662 419430400 2026-10-24T16:56:38 ./CLIP/C0004.MP4
+38302 419430400 2026-10-24T16:56:39 ./CLIP/C0005.MP4
+11 48 2026-10-24T18:36:18 ./CLIP/tester-sentinel.txt
+8 32768 2026-10-24T18:36:59 ./DCIM
+51262 32768 2026-10-24T18:36:59 ./DCIM/.media-transfer
+51622 1177 2026-10-24T18:36:59 ./DCIM/.media-transfer/transfer-20261024-183658.json
+51311 4540146 2026-10-24T16:56:38 ./DCIM/A.JPG
+51589 1025967 2026-10-24T16:56:38 ./DCIM/X.JPG
+51450 4538077 2026-10-24T16:56:38 ./DCIM/a-2603a90b.JPG
+10 48 2026-10-24T18:36:18 ./DCIM/tester-sentinel.txt
+ledger [] ; .mtpart 0 ; zero-byte 0
+## hashes (card clips, destination clips, sentinels before = after: d7b124ed3fd9…, inodes 10 and 11 unchanged)
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsDestX6/TsCard2/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsDestX6/TsCard2/CLIP/C0005.MP4
+d7b124ed3fd9bd3ef31c5a14721b2831866a18e750339c76df03e1a8153570a3  /Volumes/TsDestX6/TsCard2/CLIP/tester-sentinel.txt
+d7b124ed3fd9bd3ef31c5a14721b2831866a18e750339c76df03e1a8153570a3  /Volumes/TsDestX6/TsCard2/DCIM/tester-sentinel.txt

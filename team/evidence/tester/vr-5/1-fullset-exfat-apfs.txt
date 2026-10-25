@@ -1,0 +1,41 @@
+# TsDestX5 (exfat) - 2026-10-24T18:34:52-07:00
+run 1: ['DCIM\t203\t203\t0\t✓ 203 files verified', 'CLIP\t6\t6\t0\t✓ 6 files verified', 'THMBNL\t3\t3\t0\t✓ 3 files verified'] failed 0 [] None
+hash compare card vs destination: 212 files, 0 mismatches
+.mtpart: 0; ledger: {"version":1,"temps":[]}
+report statuses: {'copied-verified': 212}
+run 2: nothingToCopy
+['Destination: /Volumes/TsDestX5/TsCard · 212 file(s) already present will be skipped.', '0 to copy · 203 skip · 0 B', '0 to copy · 6 skip · 0 B', '0 to copy · 3 skip · 0 B']
+stat diff before/after run 2 (222 entries):
+identical
+## .media-transfer folders on TsDestX5 (every entry):
+65011 /Volumes/TsDestX5/TsCard/DCIM/.media-transfer/transfer-20261024-183453.json
+2181 /Volumes/TsDestX5/TsCard/CLIP/.media-transfer/transfer-20261024-183453.json
+1252 /Volumes/TsDestX5/TsCard/THMBNL/.media-transfer/transfer-20261024-183453.json
+probe files anywhere: 0
+main log:
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe THMBNL: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+
+# TsDest9 (apfs) - 2026-10-24T18:35:26-07:00
+run 1: ['DCIM\t203\t203\t0\t✓ 203 files verified', 'CLIP\t6\t6\t0\t✓ 6 files verified', 'THMBNL\t3\t3\t0\t✓ 3 files verified'] failed 0 [] None
+hash compare card vs destination: 212 files, 0 mismatches
+.mtpart: 0; ledger: {"version":1,"temps":[]}
+report statuses: {'copied-verified': 212}
+run 2: nothingToCopy
+['Destination: /Volumes/TsDest9/TsCard · 212 file(s) already present will be skipped.', '0 to copy · 203 skip · 0 B', '0 to copy · 6 skip · 0 B', '0 to copy · 3 skip · 0 B']
+stat diff before/after run 2 (222 entries):
+identical
+## .media-transfer folders on TsDest9 (every entry):
+2174 /Volumes/TsDest9/TsCard/CLIP/.media-transfer/transfer-20261024-183528.json
+64807 /Volumes/TsDest9/TsCard/DCIM/.media-transfer/transfer-20261024-183528.json
+1248 /Volumes/TsDest9/TsCard/THMBNL/.media-transfer/transfer-20261024-183528.json
+probe files anywhere: 0
+main log:
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe CLIP: {"handleStable":true,"useBirth":false,"removalEnabled":true}
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe DCIM: {"handleStable":true,"useBirth":false,"removalEnabled":true}
+volume probe THMBNL: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe THMBNL: {"handleStable":true,"useBirth":false,"removalEnabled":true}
+
