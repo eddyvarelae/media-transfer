@@ -5,6 +5,25 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-11 (2026-10-24) - WO-3 item P: the RR-10 findings (scoped re-review; expected last before the merge)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff 96cf97b 592f74b -- electron/ src/ telemetry/` (commit 592f74b on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 item P and RR-10's findings with the PM triage above. Dev evidence: `git show 592f74b:team/evidence/dev/wo-3/P/01-sighup-held.txt`, `02-restart-then-quit.txt`, `03-handler-tests.txt`.
+
+Claims under review:
+1. SIGHUP is held like SIGTERM and SIGINT during finalization; the `before-quit` re-arm covers all three; one finalization per quit, the final exit authorized once.
+2. When the install does not exit (`installNow` returns false), a Quit held behind "Restart to install" gets the normal exit continuation; with no Quit held, the app stays open and a later quit finalizes again.
+3. The PostHog key is trimmed before the shape check; a key with a trailing newline forwards with the trimmed value.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1. A signal among the three reaching its default action during finalization; a hold never released; a double exit.
+- F2. A held Quit lost when `installNow` returns false; `installNow` returning true (process exiting) while a held Quit's continuation still runs something after `quitAndInstall`.
+- F3. The untrimmed value used anywhere after the trim (logging, the forward); a trim that turns an invalid key into a valid one.
+- Regressions on RR-10's other checked paths within this diff.
+
+Accepted limits: as in RR-10; Dev's test used SIGTERM in place of a menu Quit because the screen was locked and an Apple event could reach the Tester's instance.
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
 ### RR-10 (2026-10-24) - WO-3 items N + O: the RR-9 findings and the first-folder "Transfer stopped" display (scoped re-review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff 12f54a7 96cf97b -- electron/ src/ telemetry/` (commits 797dd3a and 96cf97b on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 items N and O, RR-9's findings with the PM triage above (finding 2 resolved by the explicit requirement: finalization awaited up to 5 s, beyond that the quit proceeds logged and the next run's cleanup recovers). Dev evidence: `git show 96cf97b:team/evidence/dev/wo-3/N/01-double-quit.txt`, `N/02-handler-tests.txt`, `O/`.
