@@ -1,0 +1,10 @@
+# B offline check: endpoint unreachable (stub stopped), session 2
+## transfer:
+ "heading": "Transfer complete",
+  "CLIP\t0\t0\t3\t3 files already there, nothing to copy",
+  "DCIM\t1\t1\t2\t✓ 1 file verified"
+   "label": "CLIP",
+   "label": "DCIM",
+## telemetry-queue.json after the transfer (persisted, unsent):
+4 events: ['app_launched', 'update_available', 'transfer_started', 'transfer_finished']
+## requests received by the (stopped) endpoint:        3 (unchanged from session 1)

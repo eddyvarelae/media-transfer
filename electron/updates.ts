@@ -18,6 +18,11 @@ let items: UpdateItem[] = [];
 let onChange: () => void = () => {};
 let onAvailable: (version: string) => void = () => {};
 
+/** True once an update is downloaded and will install when the app quits. */
+export function updateWaiting(): boolean {
+  return !TEST && items.some((n) => n.kind === 'update-downloaded');
+}
+
 export function updateItems(): UpdateItem[] {
   return items;
 }

@@ -23,7 +23,7 @@ import { getThumbnail } from './thumbnails';
 import { setLedgerFile } from './noclobber';
 import { loadSettings, updateSettings, SettingsPatch } from './settings';
 import { track, flush, dropQueue, noteLaunchVersion, flushBeforeQuit } from './telemetry';
-import { startUpdates, updateItems, removeUpdateItem, installNow } from './updates';
+import { startUpdates, updateItems, removeUpdateItem, installNow, updateWaiting } from './updates';
 
 let win: BrowserWindow | null = null;
 let activePlan: TransferPlan | null = null;
@@ -74,7 +74,7 @@ async function readState() {
 }
 
 async function broadcastState() {
-  if (!win) return;
+  if (!win || win.isDestroyed()) return;
   win.webContents.send('state:update', await readState());
 }
 
@@ -123,13 +123,17 @@ async function launchTelemetry() {
   await flush();
 }
 
-// Best-effort telemetry flush on quit, never more than ~1 s.
+// Best-effort telemetry flush on quit, never more than ~1 s. A quit deferred with
+// preventDefault() and resumed with app.quit() can stall after the windows close (seen on
+// SIGTERM), so the deferred quit ends with app.exit(). While a downloaded update waits to
+// install on quit, the quit is left alone: electron-updater installs it from the normal quit
+// path, and the queue is on disk for the next launch anyway.
 let quitFlushed = false;
 app.on('before-quit', (e) => {
-  if (quitFlushed) return;
+  if (quitFlushed || updateWaiting()) return;
   quitFlushed = true;
   e.preventDefault();
-  flushBeforeQuit().finally(() => app.quit());
+  flushBeforeQuit().finally(() => app.exit(0));
 });
 
 app.on('window-all-closed', () => {
