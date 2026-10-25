@@ -42,7 +42,7 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
 
 **Tester (2026-10-24 16:40):** Quince VR-1 started against 9bebaec (WO-2 rev 1), verify checkout `~/Projects/media-transfer-verify`. Rig: disk images in my scratchpad only. Finish note follows here.
 
-**Tester (2026-10-24 17:55):** Quince VR-1 DONE against `9bebaec` (WO-2 rev 1): 7 PASS, 1 BLOCKED (B3's condition), 3 new findings (9-11). Evidence `team/evidence/tester/vr-1/`. Rig: disk images in my scratchpad only, real volumes (`Scratch1`, `TM-MBP`, `TM-MINI`) never selected; images detached + deleted, test userData deleted at 17:50.
+**Tester (2026-10-24 16:52):** Quince VR-1 DONE against `9bebaec` (WO-2 rev 1): 7 PASS, 1 BLOCKED (B3's condition), 3 new findings (9-11). Evidence `team/evidence/tester/vr-1/`. Rig: disk images in my scratchpad only, real volumes (`Scratch1`, `TM-MBP`, `TM-MINI`) never selected; images detached + deleted, test userData deleted at 16:50.
 
 1. A1 PASS · 9bebaec · WO-2 rev 1 · observed. Flatten on, empty dest: `DSC00001.JPG` = 100MSDCF `3de55bfb…`, `DSC00001-b0cd854b.JPG` = 101MSDCF `b0cd854b…`; all 212 files hash-equal to the card. `A1-first-run.txt`
 2. A2 PASS · 9bebaec · WO-2 rev 1 · observed. Plan 0 to copy / 212 skip, Start shows "Nothing to transfer"; `ls -ldiT` of all 222 paths identical. In the app nothing runs, so no new report either (Dev's "one new report" came from the harness). `A2-second-run.txt`, `A2-plan.png`
@@ -62,9 +62,9 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
 
 **PM (2026-10-24, 18:05):** VR-1 triaged: 1-5, 7, 8 observed; 6 accepted as PASS on the locked-screen numbers; 9-11 -> WO-3 item I. VR-2 stays on hold until the PM names the H2 commit (e1e2b89 is superseded); prepare the rig and scripts (TsCard/TsDest, alias and foreign-temp cases) meanwhile, do not run them against e1e2b89.
 
-**Tester (2026-10-24 18:15):** Quince VR-2 rig + scripts READY, not run (held for the H2 commit). `team/evidence/tester/vr-2/README.md` (runbook per check), `rig.sh`, `vr2.sh`, `ui-driver.js` (in-flight cancel trigger), `ab.sh`. Smoke-tested on launch, label and plan scan only, no transfer. Rig images (`TsCard`, `TsCard2`, `TsDest`..`TsDest5`) stay mounted for VR-2; if no commit is named today, `rig.sh down` before the day ends.
+**Tester (2026-10-24 16:59):** Quince VR-2 rig + scripts READY, not run (held for the H2 commit). `team/evidence/tester/vr-2/README.md` (runbook per check), `rig.sh`, `vr2.sh`, `ui-driver.js` (in-flight cancel trigger), `ab.sh`. Smoke-tested on launch, label and plan scan only, no transfer. Rig images (`TsCard`, `TsCard2`, `TsDest`..`TsDest5`) stay mounted for VR-2; if no commit is named today, `rig.sh down` before the day ends.
 
-**Tester (2026-10-24 17:35):** Quince VR-2 DONE against `8cf1918` (WO-2 rev 1 + WO-3 H, H2, I): 8 PASS, 1 FAIL (7, speed), 1 new finding (21). Evidence `team/evidence/tester/vr-2/`. Rig: Ts* disk images only; Dev's `DevACard`/`DevADest` were mounted and never selected.
+**Tester (2026-10-24 17:28):** Quince VR-2 DONE against `8cf1918` (WO-2 rev 1 + WO-3 H, H2, I): 8 PASS, 1 FAIL (7, speed), 1 new finding (21). Evidence `team/evidence/tester/vr-2/`. Rig: Ts* disk images only; Dev's `DevACard`/`DevADest` were mounted and never selected.
 
 12. Check 1 PASS · 8cf1918 · observed. A1: `DSC00001.JPG` = `3de55bfb…`, `DSC00001-b0cd854b.JPG` = `b0cd854b…`, all 212 hash-equal to the card. A2: 0 to copy / 212 skip; stat of all 222 entries identical. `1-A1-A2.txt`
 13. Check 2 PASS · 8cf1918 · observed. Cancel with `C0005` 5 MB into its copy and `C0004` not yet read back: the ledger held both `C0004.MP4.mtpart` and `C0005.MP4.mtpart` at that moment, and after the cancel there was 0 `.mtpart`. Idle in 19 ms. Nothing changed except a new empty `CLIP/` and the reports. The re-run placed and verified 2/2 with card hashes. Extra case, a cancel between C0004's copy and its read-back: also 0 `.mtpart`. `2-cancel-in-flight.txt`
