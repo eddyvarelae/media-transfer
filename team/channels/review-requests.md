@@ -5,6 +5,25 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-12 (2026-10-24) - WO-3 item R: atomic, awaited userData writes (scoped review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff fd1ad50 f4dc2e6 -- electron/ src/ telemetry/` (commit f4dc2e6 on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 item R (top of `team/channels/dev-questions.md`) and the Tester's VR-7 item 55. Dev evidence: `git show f4dc2e6:team/evidence/dev/wo-3/R/` (01-05).
+
+Claims under review:
+1. `electron/jsonstore.ts`: `writeJson` writes `<file>.tmp-<pid>` in the same directory, fsyncs, copies the current file to `<file>.bak` when it parses, renames over the target, fsyncs the directory; writes are serialized per file; `pendingWrites()` is a barrier. `readJson` restores an unparsable file from `.bak` (logged) or sets it aside as `.corrupt-<time>` and uses the default; `profiles.json` is strict (the read throws, nothing is written over it). Stray tmps of dead pids are removed.
+2. All five userData files (`notifications.json`, `settings.json`, `temps.json`, `telemetry-queue.json`, `profiles.json`) use it; in `noclobber.ts` only the ledger's read and write calls change.
+3. `activeRun` spans the whole `transfer:start` handler (run, bell entry, outcome event); the quit finalization awaits it and every pending write inside the 5 s bound, then the flush and the writes it causes.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1. A remaining plain `writeFile` to a userData JSON file; a rename that can land a partial file (missing fsync of the tmp before rename); a `.bak` taken from an unparsable current file; the pid-based stray-tmp removal deleting a live process's tmp (pid reuse) or a user's file.
+- F2. A read path that silently replaces content (no log, or no `.corrupt` copy); `profiles.json` ever written from a default or a partial read; the restore-from-`.bak` loop that can restore a `.bak` older than a later successful write.
+- F3. A write started after the barrier was taken (bell entry or outcome event after `pendingWrites()` resolved) that `app.exit` can still cut; the 5 s bound starting before the writes are queued.
+- F4. Any change to the destination invariant or to `noclobber.ts` beyond the two call sites.
+
+Accepted limits: as in RR-11; an unreadable `profiles.json` with no `.bak` still stops the app (PM product call: profiles are never reset silently).
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
 ### RR-11 (2026-10-24) - WO-3 item P: the RR-10 findings (scoped re-review; expected last before the merge)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff 96cf97b 592f74b -- electron/ src/ telemetry/` (commit 592f74b on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 item P and RR-10's findings with the PM triage above. Dev evidence: `git show 592f74b:team/evidence/dev/wo-3/P/01-sighup-held.txt`, `02-restart-then-quit.txt`, `03-handler-tests.txt`.

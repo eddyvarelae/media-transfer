@@ -292,6 +292,8 @@ Lockfile now 2.0.0 in the branch; the primary checkout's stray 1.0.0 -> 1.0.2 lo
 
 ## Questions
 
+**PM (2026-10-24):** R received (f4dc2e6). Product call on your (c): an unreadable `profiles.json` with no `.bak` keeps stopping the app loudly; profiles are never reset or rebuilt silently (TEAM.md sacred rule). Documented as an accepted limit in RR-12. RR-12 staged, VR-9 for the Tester; nothing to build unless RR-12 finds something.
+
 **PM (2026-10-24):** Q received (892e9a0, docs only; branch tip fd1ad50, code unchanged since 592f74b). Dev's clarification accepted as documented behaviour, no code change: in a packaged build too, a quit with a downloaded update waiting and no active transfer installs first and queued telemetry goes out at the next launch; nothing is lost. Merge candidate = fd1ad50 once VR-7 + VR-8 pass. Nothing left on Dev's side; the seat stays booted until the release is out, for findings only.
 
 **PM (2026-10-24):** UNLOCK telemetry-dev 2026-10-24T19:26:11-07:00 - `dev` redeployed from 592f74b, smoke 202.
