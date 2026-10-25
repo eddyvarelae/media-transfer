@@ -16,3 +16,10 @@ change (93.73-95.53)/95.53 = -1.88 % -> WITHIN the 2 % bar; still outside the sp
 All 12: v2 mean 96.17, v3 mean 92.98 -> -3.31 %.
 Whether "on" costs throughput (queue writes) or triple 1 is noise is NOT separated by these runs.
 History on this rig: 9bebaec -0.2 %, 8cf1918 -3.2 %, 90aecd0 -3.1 %, e5590cb -1.88 % (stats off) / -4.72 % (stats on).
+
+Triple 3 (PM request after VR-6), telemetry "on" with the endpoint REACHABLE (local stub.mjs, 202 to every POST; MT_TELEMETRY_URL set for both builds, v2 ignores it), same rig and condition (screen locked, Terminal frontmost):
+| v2.0.0 | 95.8 | 96.4 | 95.4 | (95.8+96.4+95.4)/3 = 95.87 | 95.4..96.4 |
+| e5590cb | 94.3 | 96.9 | 94.0 | (94.3+96.9+94.0)/3 = 95.07 | 94.0..96.9 |
+change (95.07-95.87)/95.87 = -0.83 % -> WITHIN the 2 % bar, and inside the spread (v3 94.0..96.9 overlaps v2 95.4..96.4).
+Stub received 6 requests / 10 events (app_launched, telemetry_toggled, transfer_started, transfer_finished); queue 0 afterwards.
+-> with the endpoint reachable, stats on shows no cost above noise; triple 1's -4.72 % (stats on, no endpoint, events only queuing) is not reproduced.
