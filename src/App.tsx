@@ -195,6 +195,9 @@ export default function App() {
       ? Math.min(100, (verify.bytesVerifiedOverall / verify.totalBytesOverall) * 100)
       : 0;
   const running = phase === 'copying' || phase === 'verifying';
+  const wasCancelled = phase === 'done' && !!report?.some((r) => r.cancelled);
+  const hadFailures = phase === 'done' && !!report?.some((r) => r.filesFailed > 0);
+  const tempsLeft = report?.reduce((a, r) => a + r.tempsLeft, 0) ?? 0;
 
   const topBar = (
     <TopBar
@@ -359,7 +362,17 @@ export default function App() {
         {(running || phase === 'done') && progress && (
           <section className="progress-section">
             <h2>
-              {phase === 'done' ? 'Transfer complete' : phase === 'verifying' ? 'Verifying' : 'Transferring'}
+              {wasCancelled ? (
+                <span className="warn-text">Transfer cancelled</span>
+              ) : hadFailures ? (
+                <span className="fail-text">Transfer finished with failures</span>
+              ) : phase === 'done' ? (
+                'Transfer complete'
+              ) : phase === 'verifying' ? (
+                'Verifying'
+              ) : (
+                'Transferring'
+              )}
             </h2>
             {phase === 'copying' && thumbsEnabled && <ThumbConveyor />}
             <div className="progress-bar">
@@ -421,15 +434,17 @@ export default function App() {
                     <td>{r.filesCopied}</td>
                     <td>{r.filesVerified}</td>
                     <td>{r.filesSkipped}</td>
-                    <td className={r.ok ? 'ok' : 'fail'}>
-                      {r.ok
-                        ? `✓ ${r.filesVerified} ${r.filesVerified === 1 ? 'file' : 'files'} verified`
-                        : `✗ ${r.filesFailed} ${r.filesFailed === 1 ? 'file' : 'files'} failed verification`}
-                    </td>
+                    <td className={folderStatus(r).cls}>{folderStatus(r).text}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            {tempsLeft > 0 && (
+              <div className="warn-text small cleanup-note">
+                Cleanup incomplete: {tempsLeft} temporary {tempsLeft === 1 ? 'file' : 'files'} left on
+                the destination. The next transfer to that folder removes them.
+              </div>
+            )}
             {report.some((r) => r.failed.length > 0) && (
               <ul className="failed-files">
                 {report.flatMap((r) =>
@@ -451,6 +466,21 @@ export default function App() {
       </div>
     </>
   );
+}
+
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
+// What one folder's row says: failures first, then cancel, then what actually happened.
+function folderStatus(r: VerifyReport): { cls: string; text: string } {
+  if (!r.reached) return { cls: 'warn', text: 'Not reached (cancelled)' };
+  if (r.filesFailed > 0) {
+    return { cls: 'fail', text: `✗ ${plural(r.filesFailed, 'file', 'files')} failed verification` };
+  }
+  if (r.cancelled) return { cls: 'warn', text: `Cancelled · ${plural(r.filesVerified, 'file', 'files')} verified` };
+  if (r.filesVerified === 0 && r.filesSkipped > 0) {
+    return { cls: 'muted', text: `${plural(r.filesSkipped, 'file', 'files')} already there, nothing to copy` };
+  }
+  return { cls: 'ok', text: `✓ ${plural(r.filesVerified, 'file', 'files')} verified` };
 }
 
 function DrivePicker({

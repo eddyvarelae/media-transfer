@@ -179,9 +179,17 @@ removed from or overwritten on the destination.
   to its final name only after the read-back matches. Cancel removes the
   temporary files of that transfer. A crash or an unplugged drive can leave
   one behind; it is never counted as copied, and the next transfer to that
-  folder removes it. The app only ever removes temporary files it recorded
-  as its own (`temps.json` next to the profiles): a `.mtpart` file it did not
-  create is left alone, and that one file is reported as failed.
+  folder removes it. The app only ever removes a temporary file it recorded
+  as its own (`temps.json` next to the profiles), and only while the file at
+  that name is still the very file it created: a `.mtpart` file it did not
+  create is left alone, and that one file is reported as failed. If a
+  temporary file can't be removed, the panel says "Cleanup incomplete" and
+  the next transfer tries again.
+- **Cancelled and failed runs** read "Transfer cancelled" or "Transfer
+  finished with failures". Every planned folder gets a row; folders the
+  cancel never reached say so. "Copied" counts files placed and verified
+  only. A cancelled run's report file says `"cancelled": true` and marks
+  the interrupted file `"status": "cancelled"`.
 - **Mismatch.** A read-back that doesn't match is copied once more; a
   second mismatch removes the temporary file and marks the file failed.
 - **Report file.** After every transfer each folder gets
@@ -190,6 +198,9 @@ removed from or overwritten on the destination.
   files: [{ source, dest, size, mtime, sha256, status }] }`, `status` one of
   `copied-verified`, `skipped`, `failed` (failed entries add a `reason`).
   Skipped files have no hash because they weren't read.
+- **Known limit: one writer at a time.** The app assumes nothing else
+  writes into the destination folder while a transfer runs. It runs as one
+  instance per user (a second launch just brings the first to the front).
 - **Known limit: the read-back may come from the macOS file cache.** The
   file was just written, so macOS may serve the read-back from memory
   instead of the drive. Verification proves what macOS reports it wrote,

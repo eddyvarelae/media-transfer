@@ -1,0 +1,43 @@
+{
+ "heading": "Transfer finished with failures",
+ "rows": [
+  "CLIP\t0\t0\t3\t3 files already there, nothing to copy",
+  "DCIM\t0\t0\t2\t✗ 1 file failed verification"
+ ],
+ "failed": [
+  "DCIM100MSDCF/DSC00002.JPG · checksum mismatch after retry"
+ ],
+ "note": null,
+ "report": [
+  {
+   "label": "CLIP",
+   "ok": true,
+   "reached": true,
+   "cancelled": false,
+   "tempsLeft": 0,
+   "filesCopied": 0,
+   "filesVerified": 0,
+   "filesSkipped": 3,
+   "filesFailed": 0,
+   "failed": []
+  },
+  {
+   "label": "DCIM",
+   "ok": false,
+   "reached": true,
+   "cancelled": false,
+   "tempsLeft": 0,
+   "filesCopied": 0,
+   "filesVerified": 0,
+   "filesSkipped": 2,
+   "filesFailed": 1,
+   "failed": [
+    {
+     "relPath": "100MSDCF/DSC00002.JPG",
+     "destName": "DSC00002.JPG",
+     "reason": "checksum mismatch after retry"
+    }
+   ]
+  }
+ ]
+}

@@ -6,6 +6,7 @@ import {
   ClobberError,
   TEMP_SUFFIX,
   TempBusyError,
+  TempWriter,
   aliasKey,
   isOwnTemp,
   noClobberCleanup,
@@ -13,6 +14,7 @@ import {
   noClobberDropTemp,
   noClobberPatchTemp,
   noClobberRename,
+  noClobberSetTimes,
   noClobberTempStream,
   noClobberWriteFile,
 } from './noclobber';
@@ -256,7 +258,7 @@ export type VerifyProgress = {
   totalBytesOverall: number;
 };
 
-export type FileStatus = 'copied-verified' | 'skipped' | 'failed';
+export type FileStatus = 'copied-verified' | 'skipped' | 'failed' | 'cancelled';
 
 export type FileRecord = {
   source: string;
@@ -271,6 +273,11 @@ export type FileRecord = {
 export type VerifyReport = {
   label: string;
   ok: boolean;
+  // false when a cancel stopped the transfer before this folder was reached
+  reached: boolean;
+  cancelled: boolean;
+  // owned temporary files that could not be removed (kept in the ledger for the next run)
+  tempsLeft: number;
   filesCopied: number;
   filesVerified: number;
   filesSkipped: number;
@@ -302,7 +309,7 @@ export async function executePlan(
 
   for (const folder of plan.folders) {
     await fsp.mkdir(folder.destRoot, { recursive: true });
-    await noClobberCleanup(folder.destRoot, runId);
+    let tempsLeft = await noClobberCleanup(folder.destRoot, runId);
     const run: Run = { runId, destRoot: folder.destRoot, shouldCancel };
     let bytesCopiedFolder = 0;
     let filesCopied = 0;
@@ -315,15 +322,18 @@ export async function executePlan(
     // One-deep pipeline: file i is copied off the card while file i-1 is read back from the
     // destination. Two files whose destinations may be the same entry (same name, or a case or
     // Unicode alias on APFS / exFAT) are never in flight together.
-    type Pending = { key: string; done: Promise<FileRecord | 'cancelled'> };
+    type Pending = { key: string; file: FileEntry; dest: string; done: Promise<FileRecord | 'cancelled'> };
     let pending = null as Pending | null;
     let verifiedDone = bytesVerifiedOverall;
     const settle = async () => {
       if (!pending) return;
-      const outcome = await pending.done;
+      const { file, dest, done } = pending;
+      const outcome = await done;
       pending = null;
-      if (outcome === 'cancelled') cancelled = true;
-      else records.push(outcome);
+      if (outcome === 'cancelled') {
+        cancelled = true;
+        records.push(cancelledRecord(file, dest));
+      } else records.push(outcome);
     };
 
     for (const file of folder.toCopy) {
@@ -373,6 +383,9 @@ export async function executePlan(
       filesCopied += 1;
       if (copied === 'cancelled' || cancelled) {
         cancelled = true;
+        // The file being copied was interrupted (its temp goes with the cancel cleanup).
+        if (typeof copied === 'string') records.push(cancelledRecord(file, plainDest));
+        else records.push(copied);
         break;
       }
       if (typeof copied !== 'string') {
@@ -395,18 +408,26 @@ export async function executePlan(
         bytesVerifiedOverall = verifiedDone;
         return outcome;
       });
-      pending = { key: aliasKey(plainDest), done };
+      pending = { key: aliasKey(plainDest), file, dest: plainDest, done };
     }
     await settle();
     // Nothing of this run stays in flight: on cancel that removes the temps that were being
     // copied or read back; otherwise only temps whose unlink failed after placement.
-    await noClobberDropRun(runId);
+    tempsLeft += await noClobberDropRun(runId);
 
-    reports.push(summarize(folder, records));
-    await writeTransferReport(folder, appVersion, startedAt, records);
+    reports.push(summarize(folder, records, { reached: true, cancelled, tempsLeft }));
+    await writeTransferReport(folder, appVersion, startedAt, records, cancelled, tempsLeft);
     if (cancelled) break;
   }
+  // Every planned folder gets a row; the ones a cancel never reached say so (no report file).
+  for (const folder of plan.folders.slice(reports.length)) {
+    reports.push(summarize(folder, [], { reached: false, cancelled: true, tempsLeft: 0 }));
+  }
   return reports;
+}
+
+function cancelledRecord(file: FileEntry, plainDest: string): FileRecord {
+  return { ...fileFacts(file, plainDest), status: 'cancelled' };
 }
 
 function fileFacts(f: FileEntry, dest: string) {
@@ -414,7 +435,8 @@ function fileFacts(f: FileEntry, dest: string) {
 }
 
 async function failedRecord(file: FileEntry, plainDest: string, temp: string, e: any) {
-  await noClobberDropTemp(temp).catch(() => {});
+  // Removes only a temp this run created (identity match); a leftover is counted at the run's end.
+  await noClobberDropTemp(temp).catch(() => false);
   const reason = String(e?.message ?? e);
   return { ...fileFacts(file, plainDest), status: 'failed' as const, reason };
 }
@@ -430,15 +452,21 @@ async function copyToTemp(
   onCopyChunk: (bytes: number) => void,
   waitInFlight: () => Promise<void> = async () => {},
 ): Promise<string | 'cancelled'> {
-  let ws: fs.WriteStream;
+  let writer: TempWriter;
   try {
-    ws = await noClobberTempStream(temp, run.destRoot, run.runId);
+    writer = await noClobberTempStream(temp, run.destRoot, run.runId);
   } catch (e) {
     if (!(e instanceof TempBusyError)) throw e;
     await waitInFlight();
-    ws = await noClobberTempStream(temp, run.destRoot, run.runId);
+    writer = await noClobberTempStream(temp, run.destRoot, run.runId);
   }
-  const sha256 = await copyHashing(file.absPath, ws, onCopyChunk, run.shouldCancel);
+  let sha256: string | null;
+  try {
+    sha256 = await copyHashing(file.absPath, writer.ws, onCopyChunk, run.shouldCancel);
+  } finally {
+    // Every ending (done, cancel, error) records the written file's identity and closes it.
+    await writer.seal();
+  }
   return sha256 === null ? 'cancelled' : sha256;
 }
 
@@ -472,7 +500,7 @@ async function verifyAndPlace(
       if (back === null || run.shouldCancel()) return 'cancelled';
       if (back === sha256) {
         try {
-          await fsp.utimes(temp, new Date(file.mtimeMs), new Date(file.mtimeMs));
+          await noClobberSetTimes(temp, file.mtimeMs);
         } catch {
           /* non-fatal */
         }
@@ -507,9 +535,11 @@ async function placeVerified(
   for (const dest of [plainDest, hashedDest]) {
     if (run.shouldCancel()) return 'cancelled';
     const existing = await statOrNull(dest);
+    if (run.shouldCancel()) return 'cancelled';
     if (!existing) {
       try {
-        await noClobberRename(temp, dest, run.destRoot, run.runId);
+        const placed = await noClobberRename(temp, dest, run.destRoot, run.runId, run.shouldCancel);
+        if (placed === 'cancelled') return 'cancelled';
         return { dest, sha256, status: 'copied-verified' };
       } catch (e) {
         if (!(e instanceof ClobberError)) throw e;
@@ -591,9 +621,9 @@ function copyHashing(
     };
     rs.on('data', (chunk) => {
       if (shouldCancel()) {
+        // Stop reading; the caller's seal() records the temp's identity, then closes the stream.
         rs.unpipe(ws);
         rs.destroy();
-        ws.destroy();
         settle(() => resolve(null));
         return;
       }
@@ -608,8 +638,8 @@ function copyHashing(
       rs.destroy();
       settle(() => reject(e));
     });
-    // 'close' after 'finish': the data is flushed and the descriptor is closed before the read-back.
-    ws.on('close', () => setImmediate(() => settle(() => resolve(hash.digest('hex')))));
+    // 'finish': every write reached the descriptor; the caller seals (and closes) the temp.
+    ws.on('finish', () => setImmediate(() => settle(() => resolve(hash.digest('hex')))));
     rs.pipe(ws);
   });
 }
@@ -623,13 +653,19 @@ function hashFile(
   return hashFileOffThread(p, onChunk, shouldCancel);
 }
 
-function summarize(folder: FolderPlan, records: FileRecord[]): VerifyReport {
+function summarize(
+  folder: FolderPlan,
+  records: FileRecord[],
+  run: { reached: boolean; cancelled: boolean; tempsLeft: number },
+): VerifyReport {
   const failed = records.filter((r) => r.status === 'failed');
   const verified = records.filter((r) => r.status === 'copied-verified').length;
   return {
     label: folder.label,
     ok: failed.length === 0,
-    filesCopied: verified + failed.length,
+    ...run,
+    // Placed files only: a failed file counts under filesFailed and nowhere else.
+    filesCopied: verified,
     filesVerified: verified,
     filesSkipped: records.filter((r) => r.status === 'skipped').length,
     filesFailed: failed.length,
@@ -653,12 +689,16 @@ async function writeTransferReport(
   appVersion: string,
   startedAt: number,
   records: FileRecord[],
+  cancelled: boolean,
+  tempsLeft: number,
 ): Promise<void> {
   const dir = path.join(folder.destRoot, '.media-transfer');
   const body = JSON.stringify(
     {
       version: 1,
       app: appVersion,
+      ...(cancelled ? { cancelled: true } : {}),
+      ...(tempsLeft > 0 ? { tempsLeft } : {}),
       startedAt: new Date(startedAt).toISOString(),
       finishedAt: new Date().toISOString(),
       origin: folder.sourceRoot,
