@@ -19,6 +19,8 @@ Maintained by the PM - ordering and scope are theirs alone. Fixed sections below
 - [ ] **BL-6 (approved by Eddy 2026-10-02)** - more notification kinds in the bell: transfer complete / failed / cancelled, with the verification summary. WO-3 rev 1 item A.
 - [ ] **BL-11 New app identity** - Eddy picked option 2 "Card to drive" (`team/evidence/pm/logo/option-2.svg`, 2026-10-24) from the PM's three drafts; WO-3 rev 1 item G renders `build/icon.*` from it. `temp/Media Transfer Logo.svg` rejected.
 
+- [ ] **BL-13 Copy nits from WO-3 (Dev, 2026-10-24)** - the "exiting anyway" log line also appears on the Restart-to-install finalization; failed rows say "failed verification" even when a file failed before copying (ledger unavailable, temp name taken). After v3.0.
+
 ## Deferred (decided, don't build now)
 
 - Tester seat for v2.0 - decided 2026-10-02: light visual pass by the PM from a detached checkout (`observed`), Eddy witnesses the DMG; no functional testing.

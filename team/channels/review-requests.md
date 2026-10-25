@@ -5,6 +5,27 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-14 (2026-10-24) - WO-3 item T: the three RR-13 findings (scoped review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff a0272e4 c1d8de7 -- electron/ src/ telemetry/` (commit c1d8de7 on `dev/v3.0-telemetry`; `noclobber.ts` changed in the ledger's `entries()` only). Spec: WO-3 rev 1 item T and RR-13's findings with the PM triage above. Dev evidence: `git show c1d8de7:team/evidence/dev/wo-3/T/` (01-05, including the in-app full set on exFAT and APFS).
+
+Claims under review:
+1. A fail-closed read is honoured by its callers: the telemetry queue stays in memory only; the ledger's `entries()` keeps a `LedgerUnavailableError`, claims and lookups throw it, every file to copy fails with that reason, the run-start cleanup removes nothing, and the originals stay byte-identical. A relaunch without the failure sets the files aside and completes.
+2. A generation counter makes a drain begun before `reopenStore()` unable to close the reopened store.
+3. The queue's first load is single-flight under its lock; `track()`, `dropQueue()` and `noteLaunchVersion()` are each one locked operation.
+4. The "finished with failures" heading renders when every file fails before any progress event.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1. With the ledger unavailable, any path that still creates a temp or placeholder, removes anything, or persists a ledger; a file reported `copied-verified` without a ledger claim; the destination invariant touched in any way (the only files ever replaced or removed remain the ones the ledger says this app created).
+- F2. An old drain closing a reopened store, or a reopen while a quit is held.
+- F3. Two early `track()` calls where one event is lost; a `dropQueue()` racing a flush and resurrecting dropped events.
+- F4. A heading for a clean run; a missing heading for a run where every file failed.
+- Regressions on RR-13's other checked paths within this diff.
+
+Accepted limits: as in RR-13; the two cosmetic observations Dev listed (log wording "exiting anyway" on the install path; "failed verification" copy for pre-copy failures) are backlog items.
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
 ### RR-13 (2026-10-24) - WO-3 item S: the four RR-12 findings on `jsonstore.ts` (scoped review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff f4dc2e6 a0272e4 -- electron/ src/ telemetry/` (commit a0272e4 on `dev/v3.0-telemetry`; `noclobber.ts` and `transfer.ts` untouched). Spec: WO-3 rev 1 item S and RR-12's findings with the PM triage above. Dev evidence: `git show a0272e4:team/evidence/dev/wo-3/S/` (01-05).
