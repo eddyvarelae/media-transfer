@@ -1,0 +1,72 @@
+# VR-4 checks 2 + 3 - commit 90aecd0. exFAT TsDestX2 (fresh), TsCard2 (profile order CLIP, DCIM; DCIM flatten on), local read-only attach.
+## check 2: MT_TEST_CANCEL_AT_DISARM=1
+{
+ "rows": [
+  "CLIP\t0\t0\t0\tCancelled \u00b7 0 files verified",
+  "DCIM\t0\t0\t0\tNot reached (cancelled)"
+ ],
+ "failedList": [],
+ "h2seen": [
+  {
+   "t": 18,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 919,
+   "h2": "Transfer cancelled",
+   "conveyor": false
+  }
+ ],
+ "endText": "TRANSFER CANCELLED\n92.0%\n745 MB / 810 MB\n924 MB/s\nElapsed 1s\nETA \u2014\nRead back 35.4%\n287 MB / 810 MB read back"
+}
+panel: no 'Cleanup incomplete' note (nothing left to clean); 2-panel-disarm-cancel-exfat.png
+main log:
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+ledger changes (path, identity recorded):
+  18:23:56.921528000 []
+  18:23:59.583966000 [('C0004.MP4.mtpart', False)]
+  18:23:59.856217000 [('C0004.MP4.mtpart', True), ('C0005.MP4.mtpart', False)]
+  18:24:00.478074000 []
+files on TsDestX2/TsCard2 after the cancel: only CLIP/.media-transfer/transfer-20261024-182359.json (750 B); zero-byte files 0; .mtpart 0; ledger []
+
+## check 3: relaunch without the hook, same destination
+{
+ "rows": [
+  "CLIP\t2\t2\t0\t\u2713 2 files verified",
+  "DCIM\t3\t3\t0\t\u2713 3 files verified"
+ ],
+ "failedList": [],
+ "h2seen": [
+  {
+   "t": 16,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 1147,
+   "h2": "Verifying",
+   "conveyor": false
+  },
+  {
+   "t": 1164,
+   "h2": "Transfer complete",
+   "conveyor": false
+  }
+ ]
+}
+DCIM transfer-20261024-182434.json has cancelled key: False [('A.JPG', 'copied-verified'), ('a-2603a90b.JPG', 'copied-verified'), ('X.JPG', 'copied-verified')]
+CLIP transfer-20261024-182434.json has cancelled key: False [('C0004.MP4', 'copied-verified'), ('C0005.MP4', 'copied-verified')]
+CLIP transfer-20261024-182359.json has cancelled key: True [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'cancelled')]
+.mtpart 0; zero-byte 0; ledger []
+## hashes card vs destination
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+2a0abe6a97f26b583eac25f0863314f5fac39daa41818e3bb4ce201442cd17ee  /Volumes/TsCard2/DCIM/100MSDCF/A.JPG
+2603a90b4e8fc9605f6346fc8a07c48011c2542b610ace138b18bb5fe92da998  /Volumes/TsCard2/DCIM/101MSDCF/a.JPG
+8e4eae159d1dd6fc26f20186c1f6512abfebb194c9b1725ecb61c016bc5ff855  /Volumes/TsCard2/DCIM/102MSDCF/X.JPG
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsDestX2/TsCard2/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsDestX2/TsCard2/CLIP/C0005.MP4
+2a0abe6a97f26b583eac25f0863314f5fac39daa41818e3bb4ce201442cd17ee  /Volumes/TsDestX2/TsCard2/DCIM/A.JPG
+8e4eae159d1dd6fc26f20186c1f6512abfebb194c9b1725ecb61c016bc5ff855  /Volumes/TsDestX2/TsCard2/DCIM/X.JPG
+2603a90b4e8fc9605f6346fc8a07c48011c2542b610ace138b18bb5fe92da998  /Volumes/TsDestX2/TsCard2/DCIM/a-2603a90b.JPG

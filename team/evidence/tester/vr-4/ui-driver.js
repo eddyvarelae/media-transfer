@@ -5,7 +5,7 @@
 (async () => {
   const ORIGIN = window.__ORIGIN, WANT = window.__DEST, CANCEL = window.__CANCEL || null;
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  if (!/^TsCard2?$/.test(ORIGIN) || !/^TsDest(\d*|X)$/.test(WANT)) return { abort: 'not Tester rig volumes' };
+  if (!/^TsCard2?$/.test(ORIGIN) || !/^TsDest(\d*|X\d*)$/.test(WANT)) return { abort: 'not Tester rig volumes' };
   const setSel = async (el, v) => { if (el.value !== v) { Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value').set.call(el, v); el.dispatchEvent(new Event('change', { bubbles: true })); await sleep(400); } };
   for (let i = 0; i < 50 && document.querySelectorAll('.drive select').length < 2; i++) await sleep(100);
   await setSel(document.querySelectorAll('.drive select')[0], ORIGIN);
@@ -19,7 +19,7 @@
   for (let i = 0; i < 100 && !fresh(); i++) await sleep(100);
   if (!fresh()) return { abort: 'plan did not refresh for ' + want };
   const planText = [...document.querySelectorAll('h2')].find((h) => h.textContent.toUpperCase() === 'PLAN')?.closest('section')?.innerText;
-  if (!/^\/Volumes\/TsDest(\d*|X)\//.test(document.querySelector('.plan code')?.textContent || '')) return { abort: 'plan destination not a rig image', planText };
+  if (!/^\/Volumes\/TsDest(\d*|X\d*)\//.test(document.querySelector('.plan code')?.textContent || '')) return { abort: 'plan destination not a rig image', planText };
   if (!btn('Start transfer')) return { nothingToCopy: true, planText };
   if (window.__PLANONLY) return { planOnly: true, planText };
   let lastP = null, lastV = null; const files = new Set(); const startAt = {}; let curStart = null;

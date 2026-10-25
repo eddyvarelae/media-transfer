@@ -1,0 +1,14 @@
+# VR-4 check 7 - commit 90aecd0 vs v2.0 (main 4957108; product code unchanged since c692d2d; v2 export reused)
+Same rig and condition as VR-1 B3 / VR-2 check 7: TsCard via slowserve 120 MB/s (:8766), read-only http attach, cold
+re-attach before each run, fresh app launch per run, destination TsDest5 (APFS) DCIM/CLIP/THMBNL removed before each run,
+3 rounds alternating. CGSSessionScreenIsLocked=Yes and frontmost Terminal in all 6 runs. Script ab.sh, raw 7-ab.json.
+
+| | run 1 | run 2 | run 3 | mean | spread |
+|---|---|---|---|---|---|
+| v2.0 MB/s | 94.2 | 94.8 | 95.0 | (94.2+94.8+95.0)/3 = 94.67 | 94.2..95.0 |
+| v3 90aecd0 MB/s | 91.6 | 92.0 | 91.5 | (91.6+92.0+91.5)/3 = 91.70 | 91.5..92.0 |
+Mean change: (91.70-94.67)/94.67 = -3.1 %. Wall mean 11,504 -> 11,879 ms (+375 ms per 1.09 GB).
+Within spread: NO - every v3 run is below v2's slowest (94.2).
+History on this rig (v3 mean / change vs v2 in the same session): 9bebaec 94.77 / -0.2 %; 8cf1918 92.93 / -3.2 %; 90aecd0 91.70 / -3.1 %.
+All v3 runs 212/212 verified; all v2 runs DCIM "destination smaller than source" (the flatten overwrite).
+Destination here is APFS (as before); exFAT throughput not measured.

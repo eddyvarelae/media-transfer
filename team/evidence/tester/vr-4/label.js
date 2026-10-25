@@ -1,7 +1,7 @@
 // VR-2: label one Ts* rig volume in the app. Called as (label)(VOL, ROLE, FOLDERS, FLATTEN).
 (async (VOL, ROLE, FOLDERS = [], FLATTEN = []) => {
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  if (!/^(TsCard2?|TsDest(\d*|X))$/.test(VOL)) return { abort: 'not a Tester rig volume' };
+  if (!/^(TsCard2?|TsDest(\d*|X\d*))$/.test(VOL)) return { abort: 'not a Tester rig volume' };
   for (let i = 0; i < 50 && !document.querySelector('.unknown-card'); i++) await sleep(100);
   const card = [...document.querySelectorAll('.unknown-card')].find((c) => c.querySelector('strong')?.textContent === VOL);
   if (!card) return { abort: 'no new-drive card', VOL };

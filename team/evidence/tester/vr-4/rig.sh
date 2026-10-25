@@ -5,14 +5,19 @@
 set -e
 S=$1; CMD=$2; G=$S/gen
 DESTS=(TsDest TsDest2 TsDest3 TsDest4 TsDest5)
+if [ "$CMD" = vr4 ]; then   # fresh images for VR-4: exFAT TsDestX1..X4, APFS TsDest7, TsDest8
+  for v in TsDestX1 TsDestX2 TsDestX3 TsDestX4; do hdiutil create -quiet -size 2000m -fs ExFAT -volname $v $S/${v:l}.dmg; hdiutil attach -quiet $S/${v:l}.dmg; done
+  for v in TsDest7 TsDest8; do hdiutil create -quiet -size 2000m -fs APFS -volname $v $S/${v:l}.dmg; hdiutil attach -quiet $S/${v:l}.dmg; done
+  mount | grep -E 'TsDestX[0-9]|TsDest[78]'; exit 0
+fi
 if [ "$CMD" = extra ]; then
   hdiutil create -quiet -size 3000m -fs APFS -volname TsDest6 $S/tsdest6.dmg; hdiutil attach -quiet $S/tsdest6.dmg
   hdiutil create -quiet -size 3000m -fs ExFAT -volname TsDestX $S/tsdestx.dmg; hdiutil attach -quiet $S/tsdestx.dmg
   mount | grep -E 'TsDest6|TsDestX'; exit 0
 fi
 if [ "$CMD" = down ]; then
-  for v in TsCard TsCard2 $DESTS TsDest6 TsDestX; do [ -d /Volumes/$v ] && hdiutil detach -quiet /Volumes/$v && echo "detached $v"; done
-  for v in tscard tscard2 tsdest tsdest2 tsdest3 tsdest4 tsdest5 tsdest6 tsdestx; do [ -f $S/$v.dmg ] && /bin/rm -- $S/$v.dmg; done
+  for v in TsCard TsCard2 $DESTS TsDest6 TsDestX TsDestX1 TsDestX2 TsDestX3 TsDestX4 TsDest7 TsDest8; do [ -d /Volumes/$v ] && hdiutil detach -quiet /Volumes/$v && echo "detached $v"; done
+  for v in tscard tscard2 tsdest tsdest2 tsdest3 tsdest4 tsdest5 tsdest6 tsdestx tsdestx1 tsdestx2 tsdestx3 tsdestx4 tsdest7 tsdest8; do [ -f $S/$v.dmg ] && /bin/rm -- $S/$v.dmg; done
   exit 0
 fi
 for v in TsCard TsCard2 $DESTS; do [ -e /Volumes/$v ] && { echo "/Volumes/$v already exists"; exit 1; }; done

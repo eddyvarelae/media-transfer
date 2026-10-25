@@ -1,0 +1,39 @@
+# VR-4 check 6 - commit 90aecd0 - exFAT TsDestX1 (fresh TsCard2 folder): hand-made DCIM/X.JPG.mtpart (foreign temp) + A.JPG/a.JPG alias pair, flatten on, one run. 2026-10-24T18:29:08-07:00
+before: ino 33425 size 56 birth 2026-10-24T18:29:14 mtime 2026-10-24T18:29:14
+6d003d757760b92ca66cacda69a2f2e569f5a6a346b385a357ca3c4002bd0f86  /Volumes/TsDestX1/TsCard2/DCIM/X.JPG.mtpart
+{
+ "rows": [
+  "CLIP\t2\t2\t0\t\u2713 2 files verified",
+  "DCIM\t2\t2\t0\t\u2717 1 file failed verification"
+ ],
+ "failedList": [
+  "DCIM102MSDCF/X.JPG \u00b7 temp name taken by an unknown file"
+ ],
+ "h2seen": [
+  {
+   "t": 16,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 1048,
+   "h2": "Transfer finished with failures",
+   "conveyor": false
+  }
+ ],
+ "endText": "TRANSFER FINISHED WITH FAILURES\n99.9%\n809 MB / 810 MB\n781 MB/s\nElapsed 1s\nETA \u2014\nRead back 87.9%\n712 MB / 810 MB read back"
+}
+after:  ino 33425 size 56 birth 2026-10-24T18:29:14 mtime 2026-10-24T18:29:14
+6d003d757760b92ca66cacda69a2f2e569f5a6a346b385a357ca3c4002bd0f86  /Volumes/TsDestX1/TsCard2/DCIM/X.JPG.mtpart
+## DCIM
+total 17856
+59125 -rwx------  1 varela  staff  4540146 Oct 24 16:56 A.JPG
+33425 -rwx------  1 varela  staff       56 Oct 24 18:29 X.JPG.mtpart
+59264 -rwx------  1 varela  staff  4538077 Oct 24 16:56 a-2603a90b.JPG
+## card vs destination
+2a0abe6a97f26b583eac25f0863314f5fac39daa41818e3bb4ce201442cd17ee  /Volumes/TsCard2/DCIM/100MSDCF/A.JPG
+2603a90b4e8fc9605f6346fc8a07c48011c2542b610ace138b18bb5fe92da998  /Volumes/TsCard2/DCIM/101MSDCF/a.JPG
+2a0abe6a97f26b583eac25f0863314f5fac39daa41818e3bb4ce201442cd17ee  /Volumes/TsDestX1/TsCard2/DCIM/A.JPG
+2603a90b4e8fc9605f6346fc8a07c48011c2542b610ace138b18bb5fe92da998  /Volumes/TsDestX1/TsCard2/DCIM/a-2603a90b.JPG
+transfer-20261024-182926.json [('A.JPG', 'copied-verified', None), ('a-2603a90b.JPG', 'copied-verified', None), ('X.JPG', 'failed', 'temp name taken by an unknown file')]
+ledger after: {"version":1,"temps":[]}; .mtpart on TsDestX1: 1 (the hand-made one)
