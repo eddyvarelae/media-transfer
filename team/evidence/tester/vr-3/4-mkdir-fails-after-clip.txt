@@ -1,0 +1,51 @@
+# VR-3 check 4 - commit bba1c7b (WO-3 H4). TsCard2 profile reordered to [PRIVATE/M4ROOT/CLIP, DCIM] (reorder.js; flatten off on DCIM, irrelevant here). Plain file created at /Volumes/TsDest5/TsCard2/DCIM before Start. 2026-10-24T17:42:35-07:00
+## blocking file before: 3241 69 /Volumes/TsDest5/TsCard2/DCIM (ls -li above in session)
+## app after Start: error element
+error: Error: Error invoking remote method 'transfer:start': Error: EEXIST: file already exists, mkdir '/Volumes/TsDest5/TsCard2/DCIM'
+(no Verification panel; Start offered again; screenshot 4-error-shown.png)
+## main log tail
+Error occurred in handler for 'transfer:start': [Error: EEXIST: file already exists, mkdir '/Volumes/TsDest5/TsCard2/DCIM'] {
+  errno: -17,
+  code: 'EEXIST',
+  syscall: 'mkdir',
+  path: '/Volumes/TsDest5/TsCard2/DCIM'
+}
+## destination after
+3241 69 /Volumes/TsDest5/TsCard2/DCIM
+3244 419430400 /Volumes/TsDest5/TsCard2/CLIP/C0005.MP4
+3243 419430400 /Volumes/TsDest5/TsCard2/CLIP/C0004.MP4
+3250 906 /Volumes/TsDest5/TsCard2/CLIP/.media-transfer/transfer-20261024-173713.json
+ledger: {"version":1,"temps":[]}; .mtpart: 0
+## CLIP report
+{
+  "version": 1,
+  "app": "3.0.0",
+  "startedAt": "2026-10-25T00:37:13.468Z",
+  "finishedAt": "2026-10-25T00:37:14.474Z",
+  "origin": "/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP",
+  "destination": "/Volumes/TsDest5/TsCard2/CLIP",
+  "flatten": false,
+  "files": [
+    {
+      "source": "/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4",
+      "dest": "/Volumes/TsDest5/TsCard2/CLIP/C0004.MP4",
+      "size": 419430400,
+      "mtime": "2026-10-24T23:56:38.870Z",
+      "sha256": "5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6",
+      "status": "copied-verified"
+    },
+    {
+      "source": "/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4",
+      "dest": "/Volumes/TsDest5/TsCard2/CLIP/C0005.MP4",
+      "size": 419430400,
+      "mtime": "2026-10-24T23:56:39.760Z",
+      "sha256": "fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281",
+      "status": "copied-verified"
+    }
+  ]
+}
+## CLIP hashes card vs dest
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsDest5/TsCard2/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsDest5/TsCard2/CLIP/C0005.MP4

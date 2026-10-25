@@ -1,0 +1,38 @@
+# VR-3 check 3 - commit bba1c7b. Clean run after check 1's cancel, TsCard2 -> TsDest6 (APFS), no hook. 2026-10-24T17:43:02-07:00
+{
+ "planText": "PLAN\n\nDestination: /Volumes/TsDest6/TsCard2 \u00b7 3 file(s) already present will be skipped.\n\nDCIM\n0 to copy \u00b7 3 skip \u00b7 0 B\nFROM\n/Volumes/TsCard2/DCIM\nTO\n/Volumes/TsDest6/TsCard2/DCIM\nCLIP\n2 to copy \u00b7 0 skip \u00b7 800 MB\nFROM\n/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP\nTO\n/Volumes/TsDest6/TsCard2/CLIP",
+ "rows": [
+  "DCIM\t0\t0\t3\t3 files already there, nothing to copy",
+  "CLIP\t2\t2\t0\t\u2713 2 files verified"
+ ],
+ "failedList": [],
+ "h2seen": [
+  {
+   "t": 6,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 841,
+   "h2": "Verifying",
+   "conveyor": false
+  },
+  {
+   "t": 1230,
+   "h2": "Transfer complete",
+   "conveyor": false
+  }
+ ]
+}
+## reports on TsDest6 (newest first): folder, file, has 'cancelled' key, value, entries
+CLIP transfer-20261024-173642.json False None [('C0004.MP4', 'copied-verified'), ('C0005.MP4', 'copied-verified')]
+DCIM transfer-20261024-173642.json False None [('A.JPG', 'skipped'), ('a-2603a90b.JPG', 'skipped'), ('X.JPG', 'skipped')]
+CLIP transfer-20261024-173025.json True True [('C0004.MP4', 'cancelled')]
+DCIM transfer-20261024-173025.json True True [('A.JPG', 'copied-verified'), ('a-2603a90b.JPG', 'copied-verified'), ('X.JPG', 'copied-verified')]
+.mtpart on TsDest6: 0
+## CLIP card vs destination
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+5ccdd2e194e5d5b6cd148f98f23d4501c0d15fc3075aeeea569077bfebd73ec6  /Volumes/TsDest6/TsCard2/CLIP/C0004.MP4
+fedb3338bfa9d40cf0b1a51b7ca26c7949b4af09b9517bd2e3ea8d47aa515281  /Volumes/TsDest6/TsCard2/CLIP/C0005.MP4
+Not covered: the clean run after the exFAT disarm cancel (check 2 blocked).

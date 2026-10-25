@@ -1,12 +1,18 @@
 #!/bin/zsh
 # VR-2 rig: Tester-only volume names (TsCard, TsCard2, TsDest..TsDest5), disk images in $1 (scratch dir), generated media in $1/gen.
+# extra (VR-3): rig.sh S extra -> TsDest6 (APFS) + TsDestX (exFAT)
 # up: create + attach + fill. down: detach every Ts* image and delete the .dmg files.
 set -e
 S=$1; CMD=$2; G=$S/gen
 DESTS=(TsDest TsDest2 TsDest3 TsDest4 TsDest5)
+if [ "$CMD" = extra ]; then
+  hdiutil create -quiet -size 3000m -fs APFS -volname TsDest6 $S/tsdest6.dmg; hdiutil attach -quiet $S/tsdest6.dmg
+  hdiutil create -quiet -size 3000m -fs ExFAT -volname TsDestX $S/tsdestx.dmg; hdiutil attach -quiet $S/tsdestx.dmg
+  mount | grep -E 'TsDest6|TsDestX'; exit 0
+fi
 if [ "$CMD" = down ]; then
-  for v in TsCard TsCard2 $DESTS; do [ -d /Volumes/$v ] && hdiutil detach -quiet /Volumes/$v && echo "detached $v"; done
-  for v in tscard tscard2 tsdest tsdest2 tsdest3 tsdest4 tsdest5; do [ -f $S/$v.dmg ] && /bin/rm -- $S/$v.dmg; done
+  for v in TsCard TsCard2 $DESTS TsDest6 TsDestX; do [ -d /Volumes/$v ] && hdiutil detach -quiet /Volumes/$v && echo "detached $v"; done
+  for v in tscard tscard2 tsdest tsdest2 tsdest3 tsdest4 tsdest5 tsdest6 tsdestx; do [ -f $S/$v.dmg ] && /bin/rm -- $S/$v.dmg; done
   exit 0
 fi
 for v in TsCard TsCard2 $DESTS; do [ -e /Volumes/$v ] && { echo "/Volumes/$v already exists"; exit 1; }; done

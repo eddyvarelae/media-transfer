@@ -1,0 +1,120 @@
+# VR-3 check 1 - commit bba1c7b (WO-3 H3 + H4). Two-folder plan (DCIM 3 files, then CLIP 2 x 400 MB), throttled TsCard2 (120 MB/s) -> fresh TsDest6 (APFS); Cancel 50 MB into C0004 (second folder). 2026-10-24T17:30:43-07:00
+{
+ "planText": "PLAN\n\nDestination: /Volumes/TsDest6/TsCard2 \u00b7 0 file(s) already present will be skipped.\n\nDCIM\n3 to copy \u00b7 0 skip \u00b7 9.64 MB\nFROM\n/Volumes/TsCard2/DCIM\nTO\n/Volumes/TsDest6/TsCard2/DCIM\nCLIP\n2 to copy \u00b7 0 skip \u00b7 800 MB\nFROM\n/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP\nTO\n/Volumes/TsDest6/TsCard2/CLIP",
+ "cancel": {
+  "t": 684,
+  "copying": {
+   "folderLabel": "CLIP",
+   "currentFile": "C0004.MP4",
+   "filesCopied": 0,
+   "totalFiles": 2,
+   "bytesCopiedFolder": 51380224,
+   "totalBytesFolder": 838860800,
+   "bytesCopiedOverall": 61484414,
+   "totalBytesOverall": 848964990,
+   "bytesPerSecond": 90418255.88235293,
+   "elapsedMs": 680
+  },
+  "verifying": {
+   "folderLabel": "DCIM",
+   "currentFile": "X.JPG",
+   "bytesVerifiedOverall": 9078223,
+   "totalBytesOverall": 848964990
+  },
+  "curStart": {
+   "name": "C0004.MP4",
+   "at": 11152766
+  },
+  "readBackShortBy": 2074543
+ },
+ "cancelToIdleMs": 27,
+ "rows": [
+  "DCIM\t3\t3\t0\tCancelled \u00b7 3 files verified",
+  "CLIP\t0\t0\t0\tCancelled \u00b7 0 files verified"
+ ],
+ "failedList": [],
+ "h2seen": [
+  {
+   "t": 17,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 705,
+   "h2": "Transfer cancelled",
+   "conveyor": false
+  }
+ ],
+ "endText": "TRANSFER CANCELLED\n7.2%\n58.6 MB / 810 MB\n86.2 MB/s\nElapsed 1s\nETA \u2014\nRead back 1.1%\n8.66 MB / 810 MB read back"
+}
+## files on TsDest6 after the cancel
+/Volumes/TsDest6/TsCard2/CLIP/.media-transfer/transfer-20261024-173025.json
+/Volumes/TsDest6/TsCard2/DCIM/.media-transfer/transfer-20261024-173025.json
+/Volumes/TsDest6/TsCard2/DCIM/A.JPG
+/Volumes/TsDest6/TsCard2/DCIM/X.JPG
+/Volumes/TsDest6/TsCard2/DCIM/a-2603a90b.JPG
+.mtpart: 0; ledger: {"version":1,"temps":[]}
+## reports
+--- /Volumes/TsDest6/TsCard2/CLIP/.media-transfer/transfer-20261024-173025.json
+{
+  "version": 1,
+  "app": "3.0.0",
+  "cancelled": true,
+  "startedAt": "2026-10-25T00:30:25.341Z",
+  "finishedAt": "2026-10-25T00:30:26.043Z",
+  "origin": "/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP",
+  "destination": "/Volumes/TsDest6/TsCard2/CLIP",
+  "flatten": false,
+  "files": [
+    {
+      "source": "/Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4",
+      "dest": "/Volumes/TsDest6/TsCard2/CLIP/C0004.MP4",
+      "size": 419430400,
+      "mtime": "2026-10-24T23:56:38.870Z",
+      "status": "cancelled"
+    }
+  ]
+}
+--- /Volumes/TsDest6/TsCard2/DCIM/.media-transfer/transfer-20261024-173025.json
+{
+  "version": 1,
+  "app": "3.0.0",
+  "cancelled": true,
+  "startedAt": "2026-10-25T00:30:25.341Z",
+  "finishedAt": "2026-10-25T00:30:26.043Z",
+  "origin": "/Volumes/TsCard2/DCIM",
+  "destination": "/Volumes/TsDest6/TsCard2/DCIM",
+  "flatten": true,
+  "files": [
+    {
+      "source": "/Volumes/TsCard2/DCIM/100MSDCF/A.JPG",
+      "dest": "/Volumes/TsDest6/TsCard2/DCIM/A.JPG",
+      "size": 4540146,
+      "mtime": "2026-10-24T23:56:38.030Z",
+      "sha256": "2a0abe6a97f26b583eac25f0863314f5fac39daa41818e3bb4ce201442cd17ee",
+      "status": "copied-verified"
+    },
+    {
+      "source": "/Volumes/TsCard2/DCIM/101MSDCF/a.JPG",
+      "dest": "/Volumes/TsDest6/TsCard2/DCIM/a-2603a90b.JPG",
+      "size": 4538077,
+      "mtime": "2026-10-24T23:56:38.030Z",
+      "sha256": "2603a90b4e8fc9605f6346fc8a07c48011c2542b610ace138b18bb5fe92da998",
+      "status": "copied-verified"
+    },
+    {
+      "source": "/Volumes/TsCard2/DCIM/102MSDCF/X.JPG",
+      "dest": "/Volumes/TsDest6/TsCard2/DCIM/X.JPG",
+      "size": 1025967,
+      "mtime": "2026-10-24T23:56:38.040Z",
+      "sha256": "8e4eae159d1dd6fc26f20186c1f6512abfebb194c9b1725ecb61c016bc5ff855",
+      "status": "copied-verified"
+    }
+  ]
+}
+## ledger changes
+  17:30:22.751222000 []
+  17:30:25.346094000 ['A.JPG.mtpart']
+  17:30:25.468665000 ['a.JPG.mtpart']
+  17:30:25.537498000 ['C0004.MP4.mtpart']
+  17:30:26.080944000 []
