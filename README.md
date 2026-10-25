@@ -244,7 +244,9 @@ its bookkeeping (the report files and its record of temporary files)
 before it exits or installs an update; quitting again in the meantime just
 waits for the same thing. That wait is bounded at 5 seconds: beyond that the
 quit proceeds (and says so in the log), and the next transfer's cleanup
-recovers whatever was left.
+recovers whatever was left. Quitting with a downloaded update and no
+transfer running goes straight to the install, so usage stats still waiting
+to be sent (if you turned them on) go out at the next launch.
 
 ---
 
