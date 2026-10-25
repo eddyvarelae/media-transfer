@@ -1,0 +1,47 @@
+{
+ "heading": "Transfer cancelled",
+ "rows": [
+  "CLIP\t0\t0\t0\tCancelled · 0 files verified",
+  "DCIM\t0\t0\t0\tNot reached (cancelled)"
+ ],
+ "failed": [],
+ "note": "Cleanup incomplete: 3 temporary files left on the destination. The next transfer to that folder removes them.",
+ "report": [
+  {
+   "label": "CLIP",
+   "ok": true,
+   "reached": true,
+   "cancelled": true,
+   "tempsLeft": 3,
+   "filesCopied": 0,
+   "filesVerified": 0,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  },
+  {
+   "label": "DCIM",
+   "ok": true,
+   "reached": false,
+   "cancelled": true,
+   "tempsLeft": 0,
+   "filesCopied": 0,
+   "filesVerified": 0,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  }
+ ]
+}
+
+## ledger after:
+   "path": "/Volumes/DevADestX/DevACard/CLIP/C0001.MP4.mtpart",
+   "path": "/Volumes/DevADestX/DevACard/CLIP/C0002.MP4.mtpart",
+   "path": "/Volumes/DevADestX/DevACard/CLIP/C0001.MP4",
+total 123328
+drwx------  1 varela  staff     32768 Oct 24 17:19 .
+drwx------  1 varela  staff     32768 Oct 24 17:19 ..
+drwx------  1 varela  staff     32768 Oct 24 17:19 .media-transfer
+-rwx------  1 varela  staff         0 Oct 24 17:19 C0001.MP4
+-rwx------  1 varela  staff  56723410 Oct 24 16:53 C0001.MP4.mtpart
+-rwx------  1 varela  staff   6291456 Oct 24 17:19 C0002.MP4.mtpart

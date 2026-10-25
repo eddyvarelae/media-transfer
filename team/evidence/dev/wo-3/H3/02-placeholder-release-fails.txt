@@ -1,0 +1,82 @@
+# H3.2 exFAT (DevH3Dest2): same, and every removal fails (MT_TEST_CANCEL_AT_DISARM=1 MT_TEST_REMOVE_FAIL=1)
+placeholder not removed, kept for the next run: EPERM
+owned temp not removed, kept for the next run: EPERM
+owned temp not removed, kept for the next run: EPERM
+owned temp not removed, kept for the next run: EPERM
+## plan [["A.MP4","B.MP4"]]
+## report [
+ {
+  "reached": true,
+  "cancelled": true,
+  "tempsLeft": 3,
+  "filesCopied": 0,
+  "filesVerified": 0,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 154240
+18446744073709551610 -rwx------  1 varela  staff         0 Oct 24 17:18 A.MP4
+                   9 -rwx------  1 varela  staff  56723410 Oct 24 17:17 A.MP4.mtpart
+                1741 -rwx------  1 varela  staff  22188711 Oct 24 17:18 B.MP4.mtpart
+
+## ledger after
+{
+ "version": 1,
+ "temps": [
+  {
+   "path": "/Volumes/DevH3Dest2/DevH3Card/BIG/A.MP4.mtpart",
+   "destRoot": "/Volumes/DevH3Dest2/DevH3Card/BIG",
+   "runId": "0e1675f8-06d6-48b4-ac79-95d97b99cf00",
+   "createdAt": "2026-10-25T00:18:05.642Z",
+   "identity": {
+    "dev": "16777289",
+    "ino": "9",
+    "birthtimeNs": "1792887485640000000"
+   }
+  },
+  {
+   "path": "/Volumes/DevH3Dest2/DevH3Card/BIG/B.MP4.mtpart",
+   "destRoot": "/Volumes/DevH3Dest2/DevH3Card/BIG",
+   "runId": "0e1675f8-06d6-48b4-ac79-95d97b99cf00",
+   "createdAt": "2026-10-25T00:18:05.696Z",
+   "identity": {
+    "dev": "16777289",
+    "ino": "1741",
+    "birthtimeNs": "1792887485690000000"
+   }
+  },
+  {
+   "path": "/Volumes/DevH3Dest2/DevH3Card/BIG/A.MP4",
+   "destRoot": "/Volumes/DevH3Dest2/DevH3Card/BIG",
+   "runId": "0e1675f8-06d6-48b4-ac79-95d97b99cf00",
+   "createdAt": "2026-10-25T00:18:05.736Z",
+   "identity": {
+    "dev": "16777289",
+    "ino": "-4",
+    "birthtimeNs": "1792887485730000000"
+   }
+  }
+ ]
+}
+## destination:
+total 154432
+drwx------  1 varela  staff     32768 Oct 24 17:18 .
+drwx------  1 varela  staff     32768 Oct 24 17:18 ..
+drwx------  1 varela  staff     32768 Oct 24 17:18 .media-transfer
+-rwx------  1 varela  staff         0 Oct 24 17:18 A.MP4
+-rwx------  1 varela  staff  56723410 Oct 24 17:17 A.MP4.mtpart
+-rwx------  1 varela  staff  22188711 Oct 24 17:18 B.MP4.mtpart
+# next run (no hooks): cleanup by identity, then the transfer
+  "tempsLeft": 0,
+  "filesVerified": 2,
+  "filesFailed": 0,
+ "temps": []
+total 154432
+drwx------  1 varela  staff     32768 Oct 24 17:18 .
+drwx------  1 varela  staff     32768 Oct 24 17:18 ..
+drwx------  1 varela  staff     32768 Oct 24 17:18 .media-transfer
+-rwx------  1 varela  staff  56723410 Oct 24 17:17 A.MP4
+-rwx------  1 varela  staff  22188711 Oct 24 17:17 B.MP4

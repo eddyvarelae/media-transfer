@@ -1,0 +1,40 @@
+{
+ "heading": "Transfer cancelled",
+ "rows": [
+  "CLIP\t3\t3\t0\tCancelled · 3 files verified",
+  "DCIM\t0\t0\t0\tCancelled · 0 files verified"
+ ],
+ "note": null,
+ "report": [
+  {
+   "label": "CLIP",
+   "ok": true,
+   "reached": true,
+   "cancelled": true,
+   "tempsLeft": 0,
+   "filesCopied": 3,
+   "filesVerified": 3,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  },
+  {
+   "label": "DCIM",
+   "ok": true,
+   "reached": true,
+   "cancelled": true,
+   "tempsLeft": 0,
+   "filesCopied": 0,
+   "filesVerified": 0,
+   "filesSkipped": 0,
+   "filesFailed": 0,
+   "failed": []
+  }
+ ]
+}
+== CLIP report:
+   3       "status": "copied-verified"
+   1   "cancelled": true,
+== DCIM report:
+   1       "status": "cancelled"
+   1   "cancelled": true,

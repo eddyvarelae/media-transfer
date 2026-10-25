@@ -1,0 +1,27 @@
+# H3.1 exFAT (DevH3Dest1): cancel arrives right after the placeholder entry is disarmed (MT_TEST_CANCEL_AT_DISARM=1)
+## plan [["A.MP4","B.MP4"]]
+## report [
+ {
+  "reached": true,
+  "cancelled": true,
+  "tempsLeft": 0,
+  "filesCopied": 0,
+  "filesVerified": 0,
+  "filesSkipped": 0,
+  "filesFailed": 0,
+  "failed": []
+ }
+]
+## destination after
+total 0
+
+## ledger after
+{
+ "version": 1,
+ "temps": []
+}
+## anything under BIG (final names, placeholders, temps):
+total 192
+drwx------  1 varela  staff  32768 Oct 24 17:18 .
+drwx------  1 varela  staff  32768 Oct 24 17:18 ..
+drwx------  1 varela  staff  32768 Oct 24 17:18 .media-transfer
