@@ -76,6 +76,8 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
   10. SIGTERM to the running app quits within 2 s (log the time).
 - Report as numbered items, commit `e5590cb` named, one message when done or blocked. This is the release gate.
 
+**PM (2026-10-24):** heads-up, no change to VR-6: RR-8 found five defects in e5590cb (quit during a transfer, anonymous-id reset during a flush, event-name allowlist, update readiness vs the bell row, install IPC guard); Dev fixes them as item M. Finish VR-6 on e5590cb as written; VR-7 (short) will re-run checks 3, 6 and 10 plus a quit-during-transfer case on the M commit, which becomes the release candidate.
+
 ## Items
 
 **Tester (2026-10-24 16:40):** Quince VR-1 started against 9bebaec (WO-2 rev 1), verify checkout `~/Projects/media-transfer-verify`. Rig: disk images in my scratchpad only. Finish note follows here.
