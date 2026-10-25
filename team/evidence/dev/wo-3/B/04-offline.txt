@@ -8,3 +8,7 @@
 ## telemetry-queue.json after the transfer (persisted, unsent):
 4 events: ['app_launched', 'update_available', 'transfer_started', 'transfer_finished']
 ## requests received by the (stopped) endpoint:        3 (unchanged from session 1)
+# B offline check, part 2: endpoint back up, app relaunched (session 3): the persisted queue is flushed at launch
+requests received before session 3: 3; after its launch: 4
+last request's events: app_launched, update_available, transfer_started, transfer_finished (all from offline session 2), app_launched (session 3)
+telemetry-queue.json after: events: []

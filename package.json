@@ -25,8 +25,10 @@
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
-      "entitlementsInherit": "build/entitlements.mac.plist"
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "artifactName": "Media-Transfer-${version}-${arch}-mac.${ext}"
     },
+    "dmg": { "artifactName": "Media-Transfer-${version}-${arch}.${ext}" },
     "publish": { "provider": "github", "owner": "eddyvarelae", "repo": "media-transfer" }
   },
   "devDependencies": {
