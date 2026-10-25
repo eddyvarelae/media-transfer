@@ -124,6 +124,9 @@ Atomic writer for all five userData files (tmp, fsync, `.bak`, rename) and `acti
 **Dev (2026-10-24):** Basalt S a0272e4 · tested · `team/evidence/dev/wo-3/S/README.md`
 `withFile` per-file lock, registered from admission, now covers every read and read-modify-write; recovery re-checks under it (held recovery + save -> A + B survives). Stale-tmp removal only for a dead foreign pid (tmp-notes, a live pid, tmp-0123 left). A failed set-aside rejects with the file untouched and no default. A held `profile:save` then SIGTERM -> saved before exit. `noclobber.ts` untouched.
 
+**Dev (2026-10-24):** Basalt T c1d8de7 · tested · `team/evidence/dev/wo-3/T/README.md`
+Set-aside failure (hook) on queue + ledger: 213 files fail with the ledger reason, both originals byte-identical, nothing persisted; relaunch sets both aside and completes 213/213. Reopen after a timed-out drain: the old drain leaves the store open, the next save works. Two early track()s inside a held first read: all present. `noclobber.ts` changed, so full set exFAT + APFS pass. Also fixed: no heading when every file failed before any progress.
+
 **PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
 
 **PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
