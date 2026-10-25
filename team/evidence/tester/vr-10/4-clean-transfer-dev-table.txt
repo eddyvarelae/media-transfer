@@ -1,0 +1,7 @@
+# VR-10 check 4 - commit c1d8de7. Telemetry on, MT_TELEMETRY_URL = dev stage; TsCard2 (local) -> exFAT TsDestX6 (CLIP/DCIM emptied). Transfer complete, CLIP 2/2 + DCIM 3/3 verified, hashes equal.
+bell top row: TRANSFER COMPLETE | TsCard2 | → | TsDestX6 | 5 verified · 0 skipped · 2s · just now | Remove
+queue: 162 events (from the hook/no-endpoint sessions) before launch -> 0 after the launch flush -> 0 after quit
+dev table, my installId 82ecb474 - events of this session's transfer:
+  app_launched 2026-10-25T03:23:02.187Z {'profiles': '21', 'arch': 'arm64', 'locale': 'en-US', 'version': '3.0.0', 'macos': '26.7.0'}
+  transfer_started 2026-10-25T03:23:16.083Z {'flatten': True, 'files': '5', 'folders': '2', 'bytes': '848964990'}
+  transfer_finished 2026-10-25T03:23:17.618Z {'copied': '5', 'bytes': '848964990', 'verified': '5', 'failed': '0', 'mbps': '552.7', 'durationMs': '1536', 'skipped': '0'}

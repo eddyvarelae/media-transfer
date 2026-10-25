@@ -1,0 +1,10 @@
+# VR-10 check 2 - commit c1d8de7. MT_TEST_CRASH_BEFORE_RENAME=notifications.json; transfer TsCard2 -> TsDestX6 (local card).
+before: 15047 B 4b3ad112c0fb85fd
+alive after the run: 0
+MT_TEST_CRASH_BEFORE_RENAME: killing the process before renaming notifications.json.tmp-79806
+/Users/varela/Projects/media-transfer-verify/node_modules/electron/dist/Electron.app/Contents/MacOS/Electron exited with signal SIGKILL
+after: 15047 B 4b3ad112c0fb85fd
+byte-identical to before
+tmp files: ['notifications.json.tmp-79806']
+  parses, items 44
+after relaunch: tmp files 0; byte-identical: yes
