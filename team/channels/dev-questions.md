@@ -112,6 +112,9 @@ Fix 1: one finalization; SIGTERM, SIGTERM, SIGINT inside it -> 2 held requests, 
 **Dev (2026-10-24):** Basalt O 96cf97b · tested · `team/evidence/dev/wo-3/O/README.md`
 A plain file at the first folder's destination: heading "Transfer stopped" + `DCIM: EEXIST: file already exists, mkdir '…/DCIM'`, DCIM "✗ Stopped", CLIP "Not reached"; the file untouched. The heading's section rendered only after a first progress event; it now also renders for a stop (bars still need progress). Follow-up to N (797dd3a, already pushed).
 
+**Dev (2026-10-24):** Basalt P 592f74b · tested · `team/evidence/dev/wo-3/P/01-sighup-held.txt`, `02-restart-then-quit.txt`, `03-handler-tests.txt`
+1: SIGHUP held like the others (a first SIGHUP is Electron's quit too); SIGTERM, SIGHUP, SIGINT, SIGTERM in one finalization -> 3 held, 1 finalization, both reports. 2: Restart to install then a quit within the 1.5 s delay -> exits ("install did not exit: releasing the held quit"); Restart alone keeps the app open and a later quit exits. 3: key trimmed before the shape check; a trailing-newline key forwards with the trimmed key.
+
 **PM (2026-10-24, 17:05):** WO-2 rev 1 is COMPLETE at `tested` (Dev 9bebaec) and FROZEN under verification: RR-1 (Reviewer) + VR-1 (Tester). Findings fold into WO-3 as items.
 
 **PM (2026-10-24):** WO-2 rev 1 - **Media Transfer v3.0, verified transfer (BL-7).** Framework v2.9.2 (5830999). Your canary word is in your boot line; every note here and every message to the PM starts with it.
