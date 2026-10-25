@@ -1,0 +1,34 @@
+# VR-2 checks 1 (A1/A2), 3 (alias), 5 (ledger) repeated on exFAT (DevKE1), in the app, no hook
+## run 1
+ "heading": "Transfer complete",
+  "DCIM\t5\t5\t0\t✓ 5 files verified",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+ "failed": [],
+ "note": null,
+   "label": "DCIM",
+   "failed": []
+   "label": "CLIP",
+   "failed": []
+ledger sampled during run 1: 2 entries, e.g. "path":"/Volumes/DevKE1/DevKCard/DCIM/A.JPG.mtpart",
+## after run 1: ledger: {"version":1,"temps":[]}
+## destination files and hashes (card hashes below):
+16d62dcf1ce46c2136dff4d128ccedce3782e5f18c2bed903289d3d1094ab20e  DCIM/A.JPG
+9f054d157f1e5be2f2075b0924656c8b1ff05d2581747f142fbe4d4dfc7a583d  DCIM/DSC00001-9f054d15.JPG
+3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035  DCIM/DSC00001.JPG
+712006eebfe78762ad5bbb672dd27b464aaa0844257747c674b6b72c6f65b947  DCIM/X.JPG
+12696f3ba9740e8ae26db2661981d10089802f8e15160d5d96dcbf3b34784abe  DCIM/a-12696f3b.JPG
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  CLIP/C0001.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  CLIP/C0002.MP4
+## card:
+16d62dcf1ce46c2136dff4d128ccedce3782e5f18c2bed903289d3d1094ab20e  DCIM/100MSDCF/A.JPG
+3de55bfbe22b557379a6bb635be6393736b071c744ae852f2ae4aace7a9b9035  DCIM/100MSDCF/DSC00001.JPG
+712006eebfe78762ad5bbb672dd27b464aaa0844257747c674b6b72c6f65b947  DCIM/100MSDCF/X.JPG
+9f054d157f1e5be2f2075b0924656c8b1ff05d2581747f142fbe4d4dfc7a583d  DCIM/101MSDCF/DSC00001.JPG
+12696f3ba9740e8ae26db2661981d10089802f8e15160d5d96dcbf3b34784abe  DCIM/101MSDCF/a.JPG
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  CLIP/C0001.MP4
+86f24fd377d10f8321a574382097c995de64f156ce32215620faa44cb08512dd  CLIP/C0002.MP4
+## run 2
+ "nothingToCopy": true,
+ "button": "Nothing to transfer"
+listing identical before/after run 2 (7 files; inode, size, mtime)
+## after run 2: ledger: {"version":1,"temps":[]}

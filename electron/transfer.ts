@@ -13,8 +13,10 @@ import {
   noClobberDropRun,
   noClobberDropTemp,
   noClobberPatchTemp,
+  noClobberProbe,
   noClobberRename,
   noClobberSetTimes,
+  noClobberSettled,
   noClobberTestCancel,
   noClobberTempStream,
   noClobberWriteFile,
@@ -317,6 +319,13 @@ export async function executePlan(
   try {
     for (const folder of plan.folders) {
       await fsp.mkdir(folder.destRoot, { recursive: true });
+      // What identity means on this destination volume (WO-3 K), before anything is removed there.
+      try {
+        const { profile } = await noClobberProbe(folder.destRoot, runId);
+        console.log(`volume probe ${folder.label}: ${JSON.stringify(profile)}`);
+      } catch (e: any) {
+        console.warn(`volume probe failed (${e?.code ?? e}); careful profile: by path, no removals`);
+      }
       let tempsLeft = await noClobberCleanup(folder.destRoot, runId);
       const run: Run = { runId, destRoot: folder.destRoot, shouldCancel: cancelRequested };
       let bytesCopiedFolder = 0;
@@ -522,6 +531,9 @@ async function verifyAndPlace(
       }
       if (TEST_CORRUPT && path.basename(file.absPath) === TEST_CORRUPT) await flipOneByte(temp);
 
+      // On exFAT the temp's identity is recorded once its inode settled after the close; read
+      // back after that, or the read handle would keep the inode synthetic.
+      await noClobberSettled(temp);
       onReadBack(0);
       let readBack = 0;
       const back = await hashFile(temp, (n) => onReadBack((readBack += n)), run.shouldCancel);

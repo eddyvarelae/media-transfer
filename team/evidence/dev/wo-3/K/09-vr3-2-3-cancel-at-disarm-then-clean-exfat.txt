@@ -1,0 +1,12 @@
+# VR-3 checks 2 and 3 on exFAT (DevKE6): MT_TEST_CANCEL_AT_DISARM=1, then a clean run
+ "heading": "Transfer cancelled",
+  "DCIM\t0\t0\t0\tCancelled · 0 files verified",
+  "CLIP\t0\t0\t0\tNot reached (cancelled)"
+ "note": null,
+## zero-byte files under final names: 0; .mtpart: 0; ledger: {"version":1,"temps":[]}
+## clean run
+ "heading": "Transfer complete",
+  "DCIM\t5\t5\t0\t✓ 5 files verified",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+## files: A.JPG DSC00001-9f054d15.JPG DSC00001.JPG X.JPG a-12696f3b.JPG 
+## latest reports carry a cancelled flag? 0 0 (0 0 = no)

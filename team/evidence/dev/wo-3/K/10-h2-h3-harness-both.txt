@@ -1,0 +1,63 @@
+# H2.1 (APFS) crash mid-copy, user replaces B.MP4.mtpart, next run
+  "filesVerified": 1,
+  "filesFailed": 1,
+    "reason": "temp name taken by an unknown file"
+  user's file: inode same, hash same
+# H2.3 (APFS) cancel in the stat window
+  "cancelled": true,
+  "filesCopied": 0,
+  MP4 or .mtpart: 0
+# H2.4 (APFS) MT_TEST_LEDGER_FAIL=1
+   1   "filesFailed": 0,
+   1   "filesVerified": 2,
+   2 ledger entry not dropped on disk: EIO
+# H2.1b (APFS) crash 10 MB into B.MP4, nobody touches the temp, next run
+  "filesVerified": 2,
+  "filesFailed": 0,
+  .mtpart left: 0
+# H2.1 (ExFAT) crash mid-copy, user replaces B.MP4.mtpart, next run
+  "filesVerified": 1,
+  "filesFailed": 1,
+    "reason": "temp name taken by an unknown file"
+  user's file: inode same, hash same
+# H2.3 (ExFAT) cancel in the stat window
+  "cancelled": true,
+  "filesCopied": 0,
+  MP4 or .mtpart: 0
+# H2.4 (ExFAT) MT_TEST_LEDGER_FAIL=1
+   1   "filesFailed": 0,
+   1   "filesVerified": 2,
+   4 ledger entry not dropped on disk: EIO
+# H2.1b (ExFAT) crash 10 MB into B.MP4, nobody touches the temp, next run
+  "filesVerified": 1,
+  "filesFailed": 1,
+    "reason": "temp name taken by an unknown file"
+  .mtpart left: 1
+# H3.1 (exFAT) MT_TEST_CANCEL_AT_DISARM=1
+  "cancelled": true,
+  "tempsLeft": 0,
+  files under BIG: 0
+# H3.2 (exFAT) + MT_TEST_REMOVE_FAIL=1, then a normal run
+placeholder not removed, kept for the next run: EPERM
+owned temp not removed, kept for the next run: EPERM
+owned temp not removed, kept for the next run: EPERM
+owned temp not removed, kept for the next run: EPERM
+  "tempsLeft": 3,
+  "tempsLeft": 0,
+  "filesVerified": 2,
+  files under BIG: A.MP4 B.MP4 
+# H2.2 (APFS) zero-byte E.JPG placed, crash right after its publication (link/rename), next run
+## simulated crash right after link(/Volumes/DevKH7A/DevKCard/EMPTY/E.JPG.mtpart -> /Volumes/DevKH7A/DevKCard/EMPTY/E.JPG)
+-rw-r--r--  2 varela  staff  0 Oct 24 18:02 E.JPG
+-rw-r--r--  2 varela  staff  0 Oct 24 18:02 E.JPG.mtpart
+  "filesVerified": 0,
+  "filesSkipped": 1,
+  "filesFailed": 0,
+  E.JPG after the next run: 1 0 (links, size)
+# H2.2 (ExFAT) zero-byte E.JPG placed, crash right after its publication (link/rename), next run
+## simulated crash right after rename(/Volumes/DevKH7E/DevKCard/EMPTY/E.JPG.mtpart -> /Volumes/DevKH7E/DevKCard/EMPTY/E.JPG)
+-rwx------  1 varela  staff  0 Oct 24 18:02 E.JPG
+  "filesVerified": 0,
+  "filesSkipped": 1,
+  "filesFailed": 0,
+  E.JPG after the next run: 1 0 (links, size)
