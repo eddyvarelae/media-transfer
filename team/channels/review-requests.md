@@ -5,7 +5,25 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
-(none)
+### RR-6 (2026-10-24) - WO-3 items K + K2: exFAT placement fix (per-volume identity probe) and crash-leftover recovery (scoped re-review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff bba1c7b 90aecd0 -- electron/` (commits cf4a0fc and 90aecd0 on `dev/v3.0`). Spec: WO-3 rev 1 items K and K2 (top of `team/channels/dev-questions.md`); the Tester's VR-3 item 22 (`team/channels/tester-feedback.md`). Dev evidence: `git show 90aecd0:team/evidence/dev/wo-3/K/README.md` and `.../K2/README.md`. Root cause found by Dev: exFAT reports a synthetic negative inode while any handle on a file is open and for ~5-10 ms after the last close; empty files never get a real one.
+
+Claims under review:
+1. A per-folder probe at run start (create, write, close, set times, rename under `.media-transfer/`, stats through the handle and by path, then removed) decides `handleStable`, `useBirth`, `removalEnabled` for that volume; identity on handle-unstable volumes is recorded by path once the inode settled, off the copy path, and every check or removal waits for it; handle re-checks run only where `handleStable`.
+2. On handle-unstable volumes a provisional `{ dev, birthtime }` persisted right after the exclusive create authorizes exactly one action: removing an earlier run's never-sealed `*.mtpart` whose lstat matches dev + birthtime and whose path still ends in `.mtpart`. The full identity replaces it.
+3. RR-1..RR-5's resolved claims (never overwrite, placement only after digest match, cancel up to publication, placement survives bookkeeping, failed removals retained and reported, single instance, reports on every exit) hold on both volume kinds.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1. A removal or a placement decision taken on a handle-unstable volume before the settled identity exists (or from the synthetic value), or a wait for settling that can hang the run (no timeout / no cancel check) or run on the copy path.
+- F2. The provisional identity authorizing anything beyond the crash-leftover removal, or matching a file that is not the leftover (path no longer `.mtpart`, sealed entry, different dev or birthtime, a user file with preserved times is accepted as out of model).
+- F3. The probe leaving its file behind, failing the run when `.media-transfer/` cannot be created (it should degrade to "removal disabled, handle untrusted"), or being skipped for a folder whose volume differs from another folder's.
+- F4. A regression on APFS: the previous identity path changed in behaviour where `handleStable` is true.
+- F5. Any new write, rename or unlink reaching a path not created by this app.
+
+Accepted limits: as in RR-5, plus: a user file placed at a crash leftover's exact path with its exact creation time (out of model); the probe costs one small file per folder per run.
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
 
 ## Resolved
 

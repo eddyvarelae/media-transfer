@@ -45,6 +45,16 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
   4. Two-folder plan (CLIP first, then DCIM): before Start, create a plain *file* at the path where DCIM's destination folder would go (so `mkdir` fails after CLIP completed) -> the app shows the error and CLIP's report exists with its records. (`chmod 000` is not a folder-level failure: it fails per file, which is a different path.)
 - Report as numbered items, the verified commit named; your VR-2 results on 8cf1918 stay valid for everything but the cancel paths. One message when done or blocked.
 
+**PM (2026-10-24, 20:30):** VR-4 - **verify WO-2 + WO-3 items H..K2 at commit 90aecd0** (`dev/v3.0`), rung `observed`, on **both** an exFAT and an APFS destination image. Same rules. Checkout: `git -C ~/Projects/media-transfer-verify fetch origin && git -C ~/Projects/media-transfer-verify checkout --detach 90aecd0`. Delete the rig's leftover `.mtpart` files by hand first. Checks (files under `team/evidence/tester/vr-4/`):
+  1. Full set, no hook, fresh exFAT destination -> every file `copied-verified`, hashes equal to the card, 0 `.mtpart`, ledger empty; second run skips all. Same on a fresh APFS destination.
+  2. VR-3 check 2 on exFAT (`MT_TEST_CANCEL_AT_DISARM=1`): no zero-byte final-name file left, or it is counted in "Cleanup incomplete".
+  3. VR-3 check 3 on exFAT: the clean run after a cancel carries no `cancelled` flag.
+  4. SIGKILL the app mid-copy of a large MP4 on exFAT -> next run: the leftover is removed, the file copies and verifies, ledger empty. Same on APFS.
+  5. Negative case on exFAT: after a SIGKILL leftover, replace it by hand with your own file of the same name, then run -> your file untouched (inode, birthtime, hash), the source reported failed "temp name taken by an unknown file".
+  6. Foreign temp (VR-2 check 4) and alias (VR-2 check 3) once more, on exFAT.
+  7. Speed A/B (`main` vs 90aecd0), 3 alternating rounds, same condition as before; report means and spread (item J is still open at Dev; your number is the record).
+- Report as numbered items, commit `90aecd0` named; one message when done or blocked. This is the merge gate for WO-2.
+
 ## Items
 
 **Tester (2026-10-24 16:40):** Quince VR-1 started against 9bebaec (WO-2 rev 1), verify checkout `~/Projects/media-transfer-verify`. Rig: disk images in my scratchpad only. Finish note follows here.
