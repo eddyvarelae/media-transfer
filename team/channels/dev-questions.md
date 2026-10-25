@@ -80,6 +80,8 @@ Protocol: the PM's current WORK ORDER lives at the top (newest supersedes; work 
 
 **I2 - Read-back counter with a "temp name taken" failure (VR-2 item 21).** The verifying progress total still counts the bytes of a file that failed before its read-back; exclude failed files from the read-back total (or add their bytes as done) so the counter reaches 100 % whenever every placed file verified. Evidence (`team/evidence/dev/wo-3/I2/`): the foreign-temp run reaching 100 %.
 
+**Q - Documentation only (RR-11, no review): the quit-order text in CLAUDE.md and README says that after an install that does not exit (dev hook), a later Quit with no active transfer takes the update-waiting fast path and queued telemetry flushes at the next launch. One commit on `dev/v3.0-telemetry`, no evidence beyond the diff.**
+
 **P - RR-10 findings: one tiny commit on `dev/v3.0-telemetry`; then RR-11 scoped to it (expected to be the last).** Verdict in `team/channels/review-requests.md`.
 1. (RR-10 #1) `holdSignals()` also holds SIGHUP (same handling as SIGTERM/SIGINT), and the re-arm in `before-quit` covers all three. Evidence: SIGHUP during finalization is a held request (log).
 2. (RR-10 #2) A Quit held behind "Restart to install" is released when the install does not exit (the dev hook, or `quitAndInstall` returning): the handler reads `installNow`'s result and, on false, runs the normal exit continuation. Evidence: `MT_TEST_UPDATE=1` + `MT_TEST_FINALIZE_DELAY_MS=1500`, Restart then Quit within the delay -> the process exits.
