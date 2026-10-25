@@ -1,0 +1,39 @@
+# Baseline before item R: quit-matrix.sh on 592f74b (VR-8 commit), SIGTERM at +1.5 s, exFAT TsDestX7. Shows item 55: notifications.json 0 B after the quit, not repaired at relaunch, history 3 -> 1 after the next run.
+=== SIGTERM at +1.5 s, destination TsDestX7
+userData before:
+  profiles.json 4934 B ok (20)
+  notifications.json 1091 B ok (3)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 3406 B ok (26)
+temps at SIGTERM: /Volumes/TsDestX7/TsCard2/CLIP/C0004.MP4.mtpart 152043520 
+exit after 0.11 s
+processes left: 0
+## main log
+
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+active transfer cancelled and finalized before exit
+## reports
+CLIP transfer-20261024-193547.json cancelled= True tempsLeft= None [('C0004.MP4', 'cancelled'), ('C0005.MP4', 'not-started')]
+## temps on disk
+## ledger
+userData after the quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 0 B BROKEN: Expecting value: line 1 column 1 (char 0)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 3678 B ok (28)
+userData after relaunch:
+  profiles.json 4934 B ok (20)
+  notifications.json 0 B BROKEN: Expecting value: line 1 column 1 (char 0)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 3825 B ok (29)
+next run: ['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t3\t3\t0\t✓ 3 files verified']
+.mtpart 0
+userData after the clean quit:
+  profiles.json 4934 B ok (20)
+  notifications.json 386 B ok (1)
+  settings.json 117 B ok (on/82ecb474)
+  temps.json 31 B ok (0)
+  telemetry-queue.json 4116 B ok (31)
