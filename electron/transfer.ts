@@ -514,7 +514,8 @@ async function copyToTemp(
     sha256 = await copyHashing(file.absPath, writer.ws, onCopyChunk, run.shouldCancel);
   } finally {
     // Every ending (done, cancel, error) records the written file's identity and closes it.
-    await writer.seal();
+    // Not awaited (WO-3 J): the gate's reads, checks and removals of this temp wait for it.
+    void writer.seal();
   }
   return sha256 === null ? 'cancelled' : sha256;
 }

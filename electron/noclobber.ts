@@ -438,14 +438,17 @@ export async function noClobberTempStream(
     await forget(temp);
     throw e?.code === 'EEXIST' ? new ForeignTempError() : e;
   }
-  await recordIdentity(temp, fh);
+  // No identity at create (WO-3 J): the first 1 MB (drain) and seal() record it, and nothing
+  // inspects or removes this temp before its seal finished. Keeps a stat off the copy path.
   const ws = fh.createWriteStream({ highWaterMark: 1024 * 1024, autoClose: false });
   // First 1 MB written: record the identity now (where the handle can be trusted), so a temp
   // left by a crash or an unplug mid-copy is still recognized as ours.
   ws.once('drain', () => void recordIdentity(temp, fh).catch(() => {}));
   let sealed: Promise<void> | null = null;
+  // Tracked like a background recording: reads, checks and removals of this temp wait for it
+  // (noClobberSettled), the copy loop does not.
   const seal = () =>
-    (sealed ??= (async () => {
+    (sealed ??= trackRecording(temp, (async () => {
       try {
         await recordIdentity(temp, fh);
       } catch (e: any) {
@@ -456,15 +459,11 @@ export async function noClobberTempStream(
         ws.destroy();
         await fh.close().catch(() => {});
       }
-      // exFAT: the real inode settles only after the close, so record it by path in the
-      // background (checks and removals of this temp wait for it, the copy loop does not).
+      // exFAT: the real inode settles only after the close; record it by path.
       if (!(await profileOf(temp)).handleStable) {
-        void trackRecording(
-          temp,
-          recordIdentityByPath(temp).catch((e: any) => console.warn('temp identity not recorded:', e?.code ?? e)),
-        );
+        await recordIdentityByPath(temp).catch((e: any) => console.warn('temp identity not recorded:', e?.code ?? e));
       }
-    })());
+    })()) as Promise<void>);
   return { ws, seal };
 }
 
