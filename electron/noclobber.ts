@@ -160,10 +160,34 @@ const lstatExact = (p: string) => fsp.lstat(p, { bigint: true });
 const SETTLE_STEP_MS = 5;
 const SETTLE_MAX_MS = 60_000; // a long read-back elsewhere keeps the file open; bounded anyway
 
-async function lstatSettled(p: string): Promise<fs.BigIntStats> {
+/** The inode never settled before the deadline: not an identity (WO-3 K3, fails closed). */
+export class UnsettledError extends Error {
+  code = 'UNSETTLED';
+  constructor(p: string) {
+    super(`identity did not settle: ${p}`);
+  }
+}
+
+/** Cancel came while waiting for an inode to settle. */
+export class SettleCancelledError extends Error {
+  code = 'CANCELLED';
+  constructor() {
+    super('cancelled');
+  }
+}
+
+/**
+ * lstat once the inode settled. At the deadline a non-empty file still showing a synthetic
+ * inode throws UnsettledError (never returned as an identity). Waits on the placement path pass
+ * shouldCancel and throw SettleCancelledError promptly; the identity recording and the cleanup
+ * waits do not (they are what lets a cancel remove its temps).
+ */
+async function lstatSettled(p: string, shouldCancel: () => boolean = () => false): Promise<fs.BigIntStats> {
   const t0 = Date.now();
   let st = await lstatExact(p);
-  while (st.ino < 0n && st.size > 0n && Date.now() - t0 < SETTLE_MAX_MS) {
+  while (st.ino < 0n && st.size > 0n) {
+    if (shouldCancel()) throw new SettleCancelledError();
+    if (Date.now() - t0 >= SETTLE_MAX_MS) throw new UnsettledError(p);
     await new Promise((r) => setTimeout(r, SETTLE_STEP_MS));
     st = await lstatExact(p);
   }
@@ -219,71 +243,132 @@ async function profileOf(p: string): Promise<VolumeProfile> {
   return e ? profileFor(e.destRoot) : CAUTIOUS;
 }
 
+// Dev-only hook MT_TEST_PROBE_FAIL=<step> (write | utimes | rename): the probe fails at that step.
+const TEST_PROBE_FAIL = process.env.MT_TEST_PROBE_FAIL || '';
+
+function probeStep(step: string) {
+  if (TEST_PROBE_FAIL === step) throw Object.assign(new Error(`ENOSPC (MT_TEST_PROBE_FAIL=${step})`), { code: 'ENOSPC' });
+}
+
 /**
  * Runs a probe file under `<destRoot>/.media-transfer/` through exactly what a temp goes through
- * (exclusive create, write, close, set times through a handle, rename), stat'ing it through the
- * handle and by path after each step, and records the volume's profile. The probe file is
- * removed afterwards (by its identity). Returns the profile and the observations.
+ * (claim, exclusive create, write, close, set times through a handle, publication through
+ * noClobberRename onto a second, exclusively reserved name), stat'ing it through the handle and
+ * by path after each step, and records the volume's profile. The destination's profile is
+ * CAUTIOUS from the start and stays so if anything fails (WO-3 K3). The probe file is a ledger
+ * entry for its whole life; on every exit it is removed by an exact dev + ino match, and what
+ * cannot be removed stays in the ledger and is counted in `left`.
  */
 export async function noClobberProbe(
   destRoot: string,
   runId: string,
-): Promise<{ profile: VolumeProfile; observations: string[] }> {
+): Promise<{ profile: VolumeProfile; observations: string[]; left: number }> {
+  profiles.set(destRoot, CAUTIOUS);
   const dir = path.join(destRoot, '.media-transfer');
-  await fsp.mkdir(dir, { recursive: true });
-  const probe = path.join(dir, `probe-${runId}.tmp`);
-  const renamed = path.join(dir, `probe-${runId}.renamed`);
+  const probe = path.join(dir, `probe-${runId}${TEMP_SUFFIX}`);
+  const published = path.join(dir, `probe-${runId}.probe`);
   const obs: string[] = [];
   const show = (step: string, st: fs.BigIntStats) => {
     obs.push(`${step.padEnd(28)} dev=${st.dev} ino=${st.ino} birthtimeNs=${st.birthtimeNs}`);
     return st;
   };
-  const fh = await fsp.open(probe, 'wx');
-  let h0: fs.BigIntStats, h1: fs.BigIntStats;
+  let profile = CAUTIOUS;
   try {
-    h0 = show('created (handle)', await fh.stat({ bigint: true }));
-    await fh.write(Buffer.alloc(1536 * 1024, 0x6d));
-    h1 = show('written 1.5 MB (handle)', await fh.stat({ bigint: true }));
-  } finally {
-    await fh.close();
-  }
-  const p1raw = show('closed, immediately (path)', await lstatExact(probe));
-  const p1 = show('closed, settled (path)', await lstatSettled(probe));
-  const older = new Date(Date.now() - 24 * 3600 * 1000); // like a card file's older mtime
-  const th = await fsp.open(probe, 'r');
-  let h2: fs.BigIntStats;
-  try {
-    await th.utimes(older, older);
-    h2 = show('times set (handle)', await th.stat({ bigint: true }));
-  } finally {
-    await th.close();
-  }
-  const p2 = show('times set, closed (path)', await lstatSettled(probe));
-  await fsp.rename(probe, renamed);
-  const p3 = show('renamed (path)', await lstatSettled(renamed));
+    await fsp.mkdir(dir, { recursive: true });
+    await claim(probe, destRoot, runId);
+    let fh: fsp.FileHandle;
+    try {
+      fh = await fsp.open(probe, 'wx');
+    } catch (e: any) {
+      await forget(probe); // not created by us: an existing file is never touched
+      throw e;
+    }
+    let h0: fs.BigIntStats, h1: fs.BigIntStats;
+    try {
+      h0 = show('created (handle)', await fh.stat({ bigint: true }));
+      // Identified at once (by path; an empty file needs no settle), so a failure from here on
+      // still lets the cleanup remove it.
+      const c = await lstatExact(probe);
+      await setIdentity(probe, { dev: String(c.dev), ino: String(c.ino) });
+      probeStep('write');
+      await fh.write(Buffer.alloc(1536 * 1024, 0x6d));
+      h1 = show('written 1.5 MB (handle)', await fh.stat({ bigint: true }));
+    } finally {
+      await fh.close();
+    }
+    const p1raw = show('closed, immediately (path)', await lstatExact(probe));
+    const p1 = show('closed, settled (path)', await lstatSettled(probe));
+    await setIdentity(probe, { dev: String(p1.dev), ino: String(p1.ino) });
+    const older = new Date(Date.now() - 24 * 3600 * 1000); // like a card file's older mtime
+    const th = await fsp.open(probe, 'r');
+    let h2: fs.BigIntStats;
+    try {
+      probeStep('utimes');
+      await th.utimes(older, older);
+      h2 = show('times set (handle)', await th.stat({ bigint: true }));
+    } finally {
+      await th.close();
+    }
+    const p2 = show('times set, closed (path)', await lstatSettled(probe));
+    await setIdentity(probe, { dev: String(p2.dev), ino: String(p2.ino) });
+    // Publication exactly like a placement: link, or the exclusive placeholder; never a rename
+    // over an existing name.
+    probeStep('rename');
+    if ((await noClobberRename(probe, published, destRoot, runId, () => false)) !== 'placed') {
+      throw new Error('probe publication cancelled');
+    }
+    const p3 = show('published (path)', await lstatSettled(published));
+    await claim(published, destRoot, runId);
+    await setIdentity(published, { dev: String(p3.dev), ino: String(p3.ino) });
 
-  const sameFile = (a: fs.BigIntStats, b: fs.BigIntStats) => a.dev === b.dev && a.ino === b.ino;
-  const removalEnabled = sameFile(p1, p2) && sameFile(p2, p3);
-  // A synthetic (negative) inode anywhere, even once, means handles and fresh paths cannot be
-  // trusted on this volume (exFAT: always for the just-created empty file).
-  const sawSynthetic = [h0, h1, h2, p1raw].some((st) => st.ino < 0n);
-  const handleStable = removalEnabled && !sawSynthetic && sameFile(h1, p1) && sameFile(h2, p2);
-  const useBirth =
-    removalEnabled &&
-    p1.birthtimeNs === p2.birthtimeNs &&
-    p2.birthtimeNs === p3.birthtimeNs &&
-    (!handleStable || (h1.birthtimeNs === p1.birthtimeNs && h2.birthtimeNs === p2.birthtimeNs));
-  const profile: VolumeProfile = { handleStable, useBirth, removalEnabled };
+    const sameFile = (a: fs.BigIntStats, b: fs.BigIntStats) => a.dev === b.dev && a.ino === b.ino;
+    const removalEnabled = sameFile(p1, p2) && sameFile(p2, p3);
+    // A synthetic (negative) inode anywhere, even once, means handles and fresh paths cannot be
+    // trusted on this volume (exFAT: always for the just-created empty file).
+    const sawSynthetic = [h0, h1, h2, p1raw].some((st) => st.ino < 0n);
+    const handleStable = removalEnabled && !sawSynthetic && sameFile(h1, p1) && sameFile(h2, p2);
+    const useBirth =
+      removalEnabled &&
+      p1.birthtimeNs === p2.birthtimeNs &&
+      p2.birthtimeNs === p3.birthtimeNs &&
+      (!handleStable || (h1.birthtimeNs === p1.birthtimeNs && h2.birthtimeNs === p2.birthtimeNs));
+    profile = { handleStable, useBirth, removalEnabled };
+  } catch (e: any) {
+    obs.push(`probe failed (${e?.code ?? e?.message ?? e}): profile stays CAUTIOUS`);
+    profile = CAUTIOUS;
+  }
   profiles.set(destRoot, profile);
   obs.push(`profile ${JSON.stringify(profile)}`);
+  let left = 0;
+  for (const p of [probe, published]) if (!(await dropProbeFile(p))) left += 1;
+  if (left) obs.push(`probe files left on record: ${left}`);
+  return { profile, observations: obs, left };
+}
 
-  // The probe is ours: remove it only while it is still the file the probe created.
+/** Removes a probe file of ours by its exact dev + ino; false when it is still there (kept). */
+async function dropProbeFile(p: string): Promise<boolean> {
+  const e = await ownerOf(p);
+  if (!e) return true; // never ours (or already released): nothing to do
+  let st: fs.BigIntStats;
   try {
-    if (sameFile(await lstatSettled(renamed), p3)) await fsp.unlink(renamed);
-  } catch (e: any) {
-    obs.push(`probe file not removed: ${e?.code ?? e}`);
+    st = await lstatSettled(p);
+  } catch (err: any) {
+    if (err?.code !== 'ENOENT') return false;
+    await forget(p);
+    return true;
   }
-  return { profile, observations: obs };
+  if (!e.identity || e.identity.dev !== String(st.dev) || e.identity.ino !== String(st.ino)) {
+    if (!e.identity) return false; // created but never identified: kept on record, reported
+    await forget(p); // a different file there now: left alone
+    return true;
+  }
+  try {
+    await fsp.unlink(p);
+  } catch {
+    return false;
+  }
+  await forget(p);
+  return true;
 }
 
 /**
@@ -299,6 +384,7 @@ async function recordIdentity(p: string, fh: fsp.FileHandle): Promise<Identity |
 /** Phase 2 by path (after the handle is closed), for volumes whose handles cannot be trusted. */
 async function recordIdentityByPath(p: string): Promise<Identity> {
   const profile = await profileOf(p);
+  // An unsettled inode throws: no identity is recorded (a provisional one stays where it exists).
   return setIdentity(p, identityOf(await lstatSettled(p), profile));
 }
 
@@ -345,11 +431,22 @@ async function removeOwned(p: string): Promise<Removal> {
   // A volume whose inode is not stable: nothing is removed there (left alone, kept, counted).
   if (!profileFor(e.destRoot).removalEnabled) return 'failed';
   await noClobberSettled(e.path);
+  // Created by us but never fully identified (K3: unsettled at the deadline): kept, counted.
+  if (!e.identity && e.provisional && isOwnTemp(e.path)) {
+    try {
+      await lstatExact(e.path);
+    } catch (err: any) {
+      if (err?.code !== 'ENOENT') return 'failed';
+      await forget(e.path);
+      return 'gone';
+    }
+    return 'failed';
+  }
   let st: fs.BigIntStats;
   try {
     st = await lstatSettled(e.path);
   } catch (err: any) {
-    if (err?.code !== 'ENOENT') return 'failed';
+    if (err?.code !== 'ENOENT') return 'failed'; // includes UNSETTLED: kept, counted
     await forget(e.path);
     return 'gone';
   }
@@ -478,11 +575,11 @@ export async function noClobberTempStream(
   return { ws, seal };
 }
 
-async function assertOwned(temp: string): Promise<void> {
+async function assertOwned(temp: string, shouldCancel: () => boolean = () => false): Promise<void> {
   await noClobberSettled(temp);
   const e = await ownerOf(temp);
   if (!isOwnTemp(temp) || !e?.identity) throw new Error(`Not an app temporary file: ${temp}`);
-  if (!sameIdentity(e.identity, await lstatSettled(temp))) throw new Error(`Temp replaced: ${temp}`);
+  if (!sameIdentity(e.identity, await lstatSettled(temp, shouldCancel))) throw new Error(`Temp replaced: ${temp}`);
 }
 
 /**
@@ -551,7 +648,12 @@ export async function noClobberRename(
   runId: string,
   shouldCancel: () => boolean,
 ): Promise<'placed' | 'cancelled'> {
-  await assertOwned(temp);
+  try {
+    await assertOwned(temp, shouldCancel);
+  } catch (e) {
+    if (e instanceof SettleCancelledError) return 'cancelled';
+    throw e;
+  }
   if (isOwnTemp(target)) throw new Error(`Not a final name: ${target}`);
   if (shouldCancel()) return 'cancelled';
   let linked = false;
@@ -615,7 +717,7 @@ async function placeViaPlaceholder(
     const entry = await ownerOf(target);
     if (entry) entry.identity = null;
     await persist();
-    if (TEST_CANCEL_AT_DISARM) testCancelRequested = true;
+    if (TEST_CANCEL_AT_DISARM && !target.includes(`${path.sep}.media-transfer${path.sep}`)) testCancelRequested = true;
     // Identity re-check through the open handle right before publishing (accepted limit above).
     // (Through the handle only on volumes whose handles report identity faithfully.)
     const [viaHandle, viaPath] = await Promise.all([fh.stat({ bigint: true }), lstatSettled(target)]);
@@ -624,7 +726,7 @@ async function placeViaPlaceholder(
       throw new ClobberError(target);
     }
     if (shouldCancel() || testCancelRequested) {
-      await dropDisarmedPlaceholder(target, placeholder);
+      await dropDisarmedPlaceholder(target, placeholder, destRoot);
       return 'cancelled';
     }
     await fsp.rename(temp, target);
@@ -643,8 +745,16 @@ async function placeViaPlaceholder(
  * name. Remove it when the path still has its identity (recorded through the open handle); if
  * the removal fails, re-arm the entry so the file stays on record (counted as a temp left).
  */
-async function dropDisarmedPlaceholder(target: string, placeholder: Identity): Promise<void> {
+async function dropDisarmedPlaceholder(target: string, placeholder: Identity, destRoot: string): Promise<void> {
   const entry = await ownerOf(target);
+  // A removal-disabled volume (K3): never removed; re-armed and counted at the run's end.
+  if (!profileFor(destRoot).removalEnabled) {
+    if (entry) {
+      entry.identity = placeholder;
+      await persist().catch((err) => console.warn('ledger not written:', err?.code ?? err));
+    }
+    return;
+  }
   try {
     if (TEST_PLACEHOLDER_RELEASE_FAIL) {
       throw Object.assign(new Error('EPERM (MT_TEST_REMOVE_FAIL)'), { code: 'EPERM' });

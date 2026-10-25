@@ -1,0 +1,11 @@
+# K3 build, exFAT (DevKE11): cancel with C0001 read back and C0002 copying, then re-run
+ "heading": "Transfer cancelled",
+  "CLIP\t0\t0\t0\tCancelled · 0 files verified"
+ "note": null,
+  .mtpart 0; ledger: {"version":1,"temps":[]}
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+# K3 build, exFAT (DevKE12): SIGKILL mid-copy, then a normal run
+  leftover: 1
+ "heading": "Transfer complete",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+  after: .mtpart 0; ledger: {"version":1,"temps":[]}
