@@ -1,0 +1,56 @@
+# VR-6 check 8 - commit e5590cb. Unsigned package: CSC_IDENTITY_AUTO_DISCOVERY=false npm run package (verify checkout).
+## build log tail
+  • electron-builder  version=24.13.3 os=25.6.0
+  • loaded configuration  file=package.json ("build" field)
+  • packaging       platform=darwin arch=arm64 electron=29.4.6 appOutDir=release/mac-arm64
+  • skipped macOS application code signing  reason=, see https://electron.build/code-signing CSC_IDENTITY_AUTO_DISCOVERY=false
+  • building        target=DMG arch=arm64 file=release/Media-Transfer-3.0.0-arm64.dmg
+  • building        target=macOS zip arch=arm64 file=release/Media-Transfer-3.0.0-arm64-mac.zip
+  • Detected arm64 process, HFS+ is unavailable. Creating dmg with APFS - supports Mac OSX 10.12+
+  • building block map  blockMapFile=release/Media-Transfer-3.0.0-arm64.dmg.blockmap
+  • building block map  blockMapFile=release/Media-Transfer-3.0.0-arm64-mac.zip.blockmap
+## release/
+-rw-r--r--  1 varela  staff  92411011 Oct 24 19:06 Media-Transfer-3.0.0-arm64-mac.zip
+-rw-r--r--  1 varela  staff     98515 Oct 24 19:06 Media-Transfer-3.0.0-arm64-mac.zip.blockmap
+-rw-r--r--@ 1 varela  staff  95764840 Oct 24 19:06 Media-Transfer-3.0.0-arm64.dmg
+-rw-r--r--  1 varela  staff    101948 Oct 24 19:06 Media-Transfer-3.0.0-arm64.dmg.blockmap
+-rw-r--r--  1 varela  staff       899 Oct 24 19:06 builder-debug.yml
+-rw-r--r--  1 varela  staff       524 Oct 24 19:06 latest-mac.yml
+## latest-mac.yml
+version: 3.0.0
+files:
+  - url: Media-Transfer-3.0.0-arm64-mac.zip
+    sha512: IeFdb4szZuZKxdNKy9hAgFGtAo0QJt+kmpH4CkQxYkt4ljSK5eqv48n2f0cG+P66g3ihcmm41HxIiG3CmeNMnQ==
+    size: 92411011
+  - url: Media-Transfer-3.0.0-arm64.dmg
+    sha512: Dl4uR+4S2LCWlziuuinOubSav7030GK9BGqhaLZgSRg72ydaYQ3h6EOwfqj5NWJgI6AlZmPOqNMdxTnczaZo6Q==
+    size: 95764840
+path: Media-Transfer-3.0.0-arm64-mac.zip
+sha512: IeFdb4szZuZKxdNKy9hAgFGtAo0QJt+kmpH4CkQxYkt4ljSK5eqv48n2f0cG+P66g3ihcmm41HxIiG3CmeNMnQ==
+releaseDate: '2026-10-25T02:06:32.881Z'
+## bundle: CFBundleShortVersionString 3.0.0, CFBundleIconFile icon.icns, app-update.yml:
+owner: eddyvarelae
+repo: media-transfer
+provider: github
+updaterCacheDirName: media-transfer-updater
+codesign: Identifier=Electron Signature=adhoc TeamIdentifier=not set  (unsigned build; no Developer ID)
+## packaged app run: '/private/tmp/claude-501/-Users-varela-Projects-media-transfer-tester/4b9dc50d-823f-4463-973d-ecd2c88decab/scratchpad/pkgmnt/Media Transfer.app/Contents/MacOS/Media Transfer' (mounted dmg, read-only), --user-data-dir=<scratch>/udP, MT_TELEMETRY_URL=http://127.0.0.1:8799 (local stub, so nothing can reach production)
+consent modal shown, closed -> telemetry off; TsCard2 + TsDestX1 labelled in the app
+transfer TsCard2 -> TsDestX1 (exFAT): {"rows": ["DCIM\t3\t3\t0\t\u2713 3 files verified", "CLIP\t2\t2\t0\t\u2713 2 files verified"], "failedList": [], "h2seen": [{"t": 15, "h2": "Transferring", "conveyor": true}, {"t": 857, "h2": "Verifying", "conveyor": false}, {"t": 1093, "h2": "Transfer complete", "conveyor": false}]}
+hashes card vs destination:
+2db4162796b3ddc3b2e578043a80f5df4f7e310e0444c4827819b16cdaf7e704  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0004.MP4
+d69d240c4c468180c78fd33c0ee3a20e3bb2ac8eecb37dc1f527b46bbbf2ef66  /Volumes/TsCard2/PRIVATE/M4ROOT/CLIP/C0005.MP4
+2a0abe6a97f26b583eac25f0863314f5fac39daa41818e3bb4ce201442cd17ee  /Volumes/TsCard2/DCIM/100MSDCF/A.JPG
+2603a90b4e8fc9605f6346fc8a07c48011c2542b610ace138b18bb5fe92da998  /Volumes/TsCard2/DCIM/101MSDCF/a.JPG
+8e4eae159d1dd6fc26f20186c1f6512abfebb194c9b1725ecb61c016bc5ff855  /Volumes/TsCard2/DCIM/102MSDCF/X.JPG
+2db4162796b3ddc3b2e578043a80f5df4f7e310e0444c4827819b16cdaf7e704  /Volumes/TsDestX1/TsCard2/CLIP/C0004.MP4
+d69d240c4c468180c78fd33c0ee3a20e3bb2ac8eecb37dc1f527b46bbbf2ef66  /Volumes/TsDestX1/TsCard2/CLIP/C0005.MP4
+2a0abe6a97f26b583eac25f0863314f5fac39daa41818e3bb4ce201442cd17ee  /Volumes/TsDestX1/TsCard2/DCIM/A.JPG
+8e4eae159d1dd6fc26f20186c1f6512abfebb194c9b1725ecb61c016bc5ff855  /Volumes/TsDestX1/TsCard2/DCIM/X.JPG
+2603a90b4e8fc9605f6346fc8a07c48011c2542b610ace138b18bb5fe92da998  /Volumes/TsDestX1/TsCard2/DCIM/a-2603a90b.JPG
+.mtpart 0; ledger {"version":1,"temps":[]}; stub requests: 0 (stats off)
+## main log (update check against GitHub fails quietly, no dialog)
+Checking for update
+Generated new staging user ID: 55065cc8-c2b1-56ff-86f7-53a226d9e7ba
+Error: Error: Cannot find latest-mac.yml in the latest release artifacts (https://github.com/eddyvarelae/media-transfer/releases/download/v2.0.0/latest-mac.yml): HttpError: 404 
+"method: GET url: https://github.com/eddyvarelae/media-transfer/releases/download/v2.0.0/latest-mac.yml\n\nPlease double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.\n"

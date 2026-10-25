@@ -1,0 +1,18 @@
+# VR-6 check 4 - commit e5590cb. Telemetry end to end.
+## off: telemetry "off" in settings.json, MT_TELEMETRY_URL=http://127.0.0.1:8799 (stub.mjs, logs every request).
+Full session: launch, transfer TsCard2 -> TsDest2 (5/5 verified), SIGTERM quit. Stub requests: 0. telemetry-queue.json: {"version":1,"lastVersion":"3.0.0","events":[]}
+
+## on: MT_TELEMETRY_URL=https://e85jjhxece.execute-api.us-east-1.amazonaws.com (dev stage), stats turned on in the gear (installId 6ca5803b-a7a2-4f25-a51e-df344ba70f52)
+Session 1: toggle on, transfer TsCard2 -> TsDest3 (5/5 verified), SIGTERM quit; queue empty after the transfer and after quit. Session 2: launch, SIGTERM quit (app_launched).
+Read-only scan: aws dynamodb scan --table-name media-transfer-telemetry-dev-EventsTable-nsweodku --profile media-transfer --region us-east-1
+table Count 5: 4 mine + the PM's smoke row (installId 00000000-...-0001), ignored
+  telemetry_toggled 2026-10-25T01:58:13.710Z props {'state': 'on'} | envelope keys ['app', 'at', 'installId', 'name', 'os', 'props', 'receivedAt', 'sentAt', 'sk'] app {'name': 'media-transfer', 'version': '3.0.0'} os {'platform': 'darwin', 'release': '26.7.0', 'arch': 'arm64'}
+  transfer_started 2026-10-25T01:58:16.455Z props {'flatten': True, 'files': '5', 'folders': '2', 'bytes': '848964990'} | envelope keys ['app', 'at', 'installId', 'name', 'os', 'props', 'receivedAt', 'sentAt', 'sk'] app {'name': 'media-transfer', 'version': '3.0.0'} os {'platform': 'darwin', 'release': '26.7.0', 'arch': 'arm64'}
+  transfer_finished 2026-10-25T01:58:17.617Z props {'copied': '5', 'bytes': '848964990', 'verified': '5', 'failed': '0', 'mbps': '730.6', 'durationMs': '1162', 'skipped': '0'} | envelope keys ['app', 'at', 'installId', 'name', 'os', 'props', 'receivedAt', 'sentAt', 'sk'] app {'name': 'media-transfer', 'version': '3.0.0'} os {'platform': 'darwin', 'release': '26.7.0', 'arch': 'arm64'}
+  app_launched 2026-10-25T01:58:45.375Z props {'profiles': '16', 'arch': 'arm64', 'locale': 'en-US', 'version': '3.0.0', 'macos': '26.7.0'} | envelope keys ['app', 'at', 'installId', 'name', 'os', 'props', 'receivedAt', 'sentAt', 'sk'] app {'name': 'media-transfer', 'version': '3.0.0'} os {'platform': 'darwin', 'release': '26.7.0', 'arch': 'arm64'}
+privacy grep over the 4 items (case-insensitive; computer name "Eddy’s Mac mini", user varela, rig volumes, card file and folder names, profile names):
+   TsCard=0, TsDest=0, Volumes=0, DSC0=0, C000=0, .JPG=0, .MP4=0, .mtpart=0, varela=0, Eddy=0, Mac mini=0, Mac-mini=0, /Users=0, /private=0, tars=0, Sony=0, DCIM=0, CLIP=0, THMBNL=0, M4ROOT=0, scratchpad=0
+Full items: 4-dynamodb-items.json
+
+## Addendum: local stub sessions with telemetry on (checks 6/7/10 relaunches): the transfer_failed events of the mkdir-blocked runs carry only
+   {'stage': 'copy', 'errorType': 'EEXIST'} - no path, no folder or volume name ('/' 0 hits, 'Volumes' 0, 'DCIM' 0, 'mkdir' 0 in the bodies).

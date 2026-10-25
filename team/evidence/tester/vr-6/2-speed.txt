@@ -1,0 +1,18 @@
+# VR-6 check 2 - commit e5590cb vs v2.0.0 baseline (c692d2d, exported with git archive, version 2.0.0). Bar: within 2 % of the baseline mean.
+Rig and condition as every earlier A/B: TsCard via slowserve 120 MB/s, cold re-attach per run, fresh launch per run, APFS TsDest5,
+3 alternating rounds per triple; screen locked + Terminal frontmost in all 12 runs.
+
+Triple 1, telemetry "on" in the scratch userData (no endpoint set, so events only queue to telemetry-queue.json):
+| | r1 | r2 | r3 | mean | spread |
+| v2.0.0 | 98.5 | 95.6 | 96.3 | (98.5+95.6+96.3)/3 = 96.80 | 95.6..98.5 |
+| e5590cb | 94.0 | 93.6 | 89.1 | (94.0+93.6+89.1)/3 = 92.23 | 89.1..94.0 |
+change (92.23-96.80)/96.80 = -4.72 % -> FAILS the bar. v2 r1 (98.5) and v3 r3 (89.1) are the two outliers of the session.
+
+Triple 2, telemetry "off" (turned off in the gear before the triple):
+| v2.0.0 | 95.2 | 95.5 | 95.9 | (95.2+95.5+95.9)/3 = 95.53 | 95.2..95.9 |
+| e5590cb | 93.6 | 93.4 | 94.2 | (93.6+93.4+94.2)/3 = 93.73 | 93.4..94.2 |
+change (93.73-95.53)/95.53 = -1.88 % -> WITHIN the 2 % bar; still outside the spread (every v3 run below v2's slowest).
+
+All 12: v2 mean 96.17, v3 mean 92.98 -> -3.31 %.
+Whether "on" costs throughput (queue writes) or triple 1 is noise is NOT separated by these runs.
+History on this rig: 9bebaec -0.2 %, 8cf1918 -3.2 %, 90aecd0 -3.1 %, e5590cb -1.88 % (stats off) / -4.72 % (stats on).

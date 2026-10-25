@@ -1,0 +1,29 @@
+# VR-6 check 3 - commit e5590cb. Consent and gear, production-like build, fresh --user-data-dir each path.
+## A: fresh userData (S/ud): modal on first launch (3-consent-modal.png), settings.json telemetry "unasked"
+close (x) -> modal gone, telemetry "off"; relaunch -> no modal, still "off"
+## gear panel (3-gear-panel-off.png): 'Send anonymous usage stats' (off), 'Check for updates automatically' (on), 'Reset anonymous id', 'What is sent'
+each action -> checkbox states, 'New id created' shown, then settings.json (telemetry updateCheck installId) and telemetry-queue.json:
+start:   settings: off True 2b59cff5-4932-4fca-8874-6db5deadebc6
+stats on:
+true,true false
+   settings: on True 2b59cff5-4932-4fca-8874-6db5deadebc6   queue: {"version":1,"lastVersion":"3.0.0","events":[{"name":"telemetry_toggled","at":"2026-10-25T01:55:27.358Z","props":{"state":"on"}}]}
+updates off:
+true,false false
+   settings: on False 2b59cff5-4932-4fca-8874-6db5deadebc6   queue: {"version":1,"lastVersion":"3.0.0","events":[{"name":"telemetry_toggled","at":"2026-10-25T01:55:27.358Z","props":{"state":"on"}}]}
+updates on:
+true,true false
+   settings: on True 2b59cff5-4932-4fca-8874-6db5deadebc6   queue: {"version":1,"lastVersion":"3.0.0","events":[{"name":"telemetry_toggled","at":"2026-10-25T01:55:27.358Z","props":{"state":"on"}}]}
+reset id:
+true,true true
+   settings: on True 6ca5803b-a7a2-4f25-a51e-df344ba70f52   queue: {"version":1,"lastVersion":"3.0.0","events":[{"name":"telemetry_toggled","at":"2026-10-25T01:55:27.358Z","props":{"state":"on"}}]}
+stats off:
+false,true true
+   settings: off True 6ca5803b-a7a2-4f25-a51e-df344ba70f52   queue: {"version":1,"lastVersion":"3.0.0","events":[]}
+## B: second fresh userData (S/udB): 'Send anonymous stats' in the modal -> telemetry "on", queue holds telemetry_toggled on; relaunch -> no modal
+{
+  "version": 1,
+  "installId": "f75a2d59-bd93-4e8a-9f3e-16d814e1e956",
+  "telemetry": "on",
+  "updateCheck": true
+}
+{"version":1,"lastVersion":"3.0.0","events":[{"name":"telemetry_toggled","at":"2026-10-25T01:55:54.876Z","props":{"state":"on"}},{"name":"app_launched","at":"2026-10-25T01:55:58.964Z","props":{"version":"3.0.0","macos":"26.7.0","arch":"arm64","locale":"en-US","profiles":3}}]}

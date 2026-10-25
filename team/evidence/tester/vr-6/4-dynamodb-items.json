@@ -1,0 +1,241 @@
+[
+ {
+  "app": {
+   "M": {
+    "name": {
+     "S": "media-transfer"
+    },
+    "version": {
+     "S": "3.0.0"
+    }
+   }
+  },
+  "installId": {
+   "S": "6ca5803b-a7a2-4f25-a51e-df344ba70f52"
+  },
+  "at": {
+   "S": "2026-10-25T01:58:13.710Z"
+  },
+  "os": {
+   "M": {
+    "platform": {
+     "S": "darwin"
+    },
+    "release": {
+     "S": "26.7.0"
+    },
+    "arch": {
+     "S": "arm64"
+    }
+   }
+  },
+  "receivedAt": {
+   "S": "2026-10-25T01:58:14.157Z"
+  },
+  "sentAt": {
+   "S": "2026-10-25T01:58:13.712Z"
+  },
+  "props": {
+   "M": {
+    "state": {
+     "S": "on"
+    }
+   }
+  },
+  "name": {
+   "S": "telemetry_toggled"
+  },
+  "sk": {
+   "S": "2026-10-25T01:58:13.710Z#telemetry_toggled#5ceaa8c6-22f3-4664-9bd9-34c795ea7562"
+  }
+ },
+ {
+  "app": {
+   "M": {
+    "name": {
+     "S": "media-transfer"
+    },
+    "version": {
+     "S": "3.0.0"
+    }
+   }
+  },
+  "installId": {
+   "S": "6ca5803b-a7a2-4f25-a51e-df344ba70f52"
+  },
+  "at": {
+   "S": "2026-10-25T01:58:16.455Z"
+  },
+  "os": {
+   "M": {
+    "platform": {
+     "S": "darwin"
+    },
+    "release": {
+     "S": "26.7.0"
+    },
+    "arch": {
+     "S": "arm64"
+    }
+   }
+  },
+  "receivedAt": {
+   "S": "2026-10-25T01:58:17.834Z"
+  },
+  "sentAt": {
+   "S": "2026-10-25T01:58:17.617Z"
+  },
+  "props": {
+   "M": {
+    "flatten": {
+     "BOOL": true
+    },
+    "files": {
+     "N": "5"
+    },
+    "folders": {
+     "N": "2"
+    },
+    "bytes": {
+     "N": "848964990"
+    }
+   }
+  },
+  "name": {
+   "S": "transfer_started"
+  },
+  "sk": {
+   "S": "2026-10-25T01:58:16.455Z#transfer_started#cd07c20e-6d76-421f-b25f-8710a1134017"
+  }
+ },
+ {
+  "app": {
+   "M": {
+    "name": {
+     "S": "media-transfer"
+    },
+    "version": {
+     "S": "3.0.0"
+    }
+   }
+  },
+  "installId": {
+   "S": "6ca5803b-a7a2-4f25-a51e-df344ba70f52"
+  },
+  "at": {
+   "S": "2026-10-25T01:58:17.617Z"
+  },
+  "os": {
+   "M": {
+    "platform": {
+     "S": "darwin"
+    },
+    "release": {
+     "S": "26.7.0"
+    },
+    "arch": {
+     "S": "arm64"
+    }
+   }
+  },
+  "receivedAt": {
+   "S": "2026-10-25T01:58:17.834Z"
+  },
+  "sentAt": {
+   "S": "2026-10-25T01:58:17.617Z"
+  },
+  "props": {
+   "M": {
+    "copied": {
+     "N": "5"
+    },
+    "bytes": {
+     "N": "848964990"
+    },
+    "verified": {
+     "N": "5"
+    },
+    "failed": {
+     "N": "0"
+    },
+    "mbps": {
+     "N": "730.6"
+    },
+    "durationMs": {
+     "N": "1162"
+    },
+    "skipped": {
+     "N": "0"
+    }
+   }
+  },
+  "name": {
+   "S": "transfer_finished"
+  },
+  "sk": {
+   "S": "2026-10-25T01:58:17.617Z#transfer_finished#120d91d5-46e7-4e6c-b4d1-8ec79ef01366"
+  }
+ },
+ {
+  "app": {
+   "M": {
+    "name": {
+     "S": "media-transfer"
+    },
+    "version": {
+     "S": "3.0.0"
+    }
+   }
+  },
+  "installId": {
+   "S": "6ca5803b-a7a2-4f25-a51e-df344ba70f52"
+  },
+  "at": {
+   "S": "2026-10-25T01:58:45.375Z"
+  },
+  "os": {
+   "M": {
+    "platform": {
+     "S": "darwin"
+    },
+    "release": {
+     "S": "26.7.0"
+    },
+    "arch": {
+     "S": "arm64"
+    }
+   }
+  },
+  "receivedAt": {
+   "S": "2026-10-25T01:58:45.707Z"
+  },
+  "sentAt": {
+   "S": "2026-10-25T01:58:45.376Z"
+  },
+  "props": {
+   "M": {
+    "profiles": {
+     "N": "16"
+    },
+    "arch": {
+     "S": "arm64"
+    },
+    "locale": {
+     "S": "en-US"
+    },
+    "version": {
+     "S": "3.0.0"
+    },
+    "macos": {
+     "S": "26.7.0"
+    }
+   }
+  },
+  "name": {
+   "S": "app_launched"
+  },
+  "sk": {
+   "S": "2026-10-25T01:58:45.375Z#app_launched#96ee09a2-c2a8-4957-9681-e8b7dc2a4bda"
+  }
+ }
+]

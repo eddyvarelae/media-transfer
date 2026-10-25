@@ -1,0 +1,37 @@
+# VR-6 check 7 - commit e5590cb. Displays.
+## Transfer cancelled (from check 6's cancel, throttled TsCard2 -> TsDestX2, profile [DCIM, CLIP])
+{"rows": ["DCIM\t3\t3\t0\tCancelled \u00b7 3 files verified", "CLIP\t0\t0\t0\tCancelled \u00b7 0 files verified"], "h2seen": [{"t": 37, "h2": "Transferring", "conveyor": true}, {"t": 760, "h2": "Transfer cancelled", "conveyor": false}], "endText": "TRANSFER CANCELLED\n7.2%\n58.6 MB / 810 MB\n81.7 MB/s\nElapsed 1s\nETA \u2014\nRead back 1.2%\n9.64 MB / 810 MB read back"}
+-> heading 'Transfer cancelled', a row per planned folder, no green check
+
+## Transfer finished with failures (check 6's MT_TEST_CORRUPT=A.JPG run)
+{"rows": ["DCIM\t2\t2\t0\t\u2717 1 file failed verification", "CLIP\t2\t2\t0\t\u2713 2 files verified"], "failedList": ["DCIM100MSDCF/A.JPG \u00b7 checksum mismatch after retry"], "h2seen": [{"t": 14, "h2": "Transferring", "conveyor": true}, {"t": 862, "h2": "Verifying", "conveyor": false}, {"t": 1204, "h2": "Transfer finished with failures", "conveyor": false}]}
+
+## Transfer stopped, mkdir blocked AFTER a completed folder (profile [CLIP, DCIM], plain file at TsDestX3/TsCard2/DCIM)
+{
+ "rows": [
+  "CLIP\t2\t2\t0\t\u2713 2 files verified",
+  "DCIM\t0\t0\t0\t\u2717 Stopped"
+ ],
+ "h2seen": [
+  {
+   "t": 14,
+   "h2": "Transferring",
+   "conveyor": true
+  },
+  {
+   "t": 994,
+   "h2": "Transfer stopped",
+   "conveyor": false
+  }
+ ],
+ "endText": "TRANSFER STOPPED\nDCIM: EEXIST: file already exists, mkdir '/Volumes/TsDestX3/TsCard2/DCIM'\n98.8%\n800 MB / 810 MB\n1.06 GB/s\nElapsed 1s\nETA \u2014\nRead back 98.8%\n800 MB / 810 MB read back"
+}
+CLIP report present: CLIP/.media-transfer/transfer-20261024-190348.json; blocking file untouched (ino 8, 31 B). 7-transfer-stopped-after-clip.png
+
+## FINDING: Transfer stopped when the FIRST folder is blocked (profile [DCIM, CLIP], same blocking file)
+{"rows": ["DCIM\t0\t0\t0\t\u2717 Stopped", "CLIP\t0\t0\t0\tNot reached"], "h2seen": [], "endText": null}
+page headings: NEW DRIVE DETECTED, ALL PROFILES, PLAN, VERIFICATION - no 'Transfer stopped' heading and the error text appears nowhere; the user sees only 'DCIM ✗ Stopped' / 'CLIP Not reached'. The progress section (which carries heading + error) only renders once a progress event arrived. 7-transfer-stopped.png
+
+## Read-back with a foreign .mtpart (I2), TsDestX4: hand-made TsCard2/DCIM/X.JPG.mtpart
+['CLIP\t2\t2\t0\t✓ 2 files verified', 'DCIM\t2\t2\t0\t✗ 1 file failed verification'] ['DCIM102MSDCF/X.JPG · temp name taken by an unknown file'] ['Read back 100.0%', '809 MB / 809 MB read back']
+hand-made file after: ino 10, 38 B (unchanged)

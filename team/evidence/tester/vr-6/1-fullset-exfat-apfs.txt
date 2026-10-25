@@ -1,0 +1,28 @@
+# TsDestX1 (exfat) - 2026-10-24T18:56:54-07:00
+run 1: ['DCIM\t203\t203\t0\t✓ 203 files verified', 'CLIP\t6\t6\t0\t✓ 6 files verified', 'THMBNL\t3\t3\t0\t✓ 3 files verified'] failed 0 [] None
+hash compare card vs destination: 212 files, 0 mismatches
+.mtpart: 0; ledger: {"version":1,"temps":[]}
+report statuses: {'copied-verified': 212}
+run 2: nothingToCopy
+['Destination: /Volumes/TsDestX1/TsCard · 212 file(s) already present will be skipped.', '0 to copy · 203 skip · 0 B', '0 to copy · 6 skip · 0 B', '0 to copy · 3 skip · 0 B']
+stat diff before/after run 2 (222 entries):
+identical
+## .media-transfer entries on TsDestX1:
+1252 /Volumes/TsDestX1/TsCard/THMBNL/.media-transfer/transfer-20261024-185656.json
+65011 /Volumes/TsDestX1/TsCard/DCIM/.media-transfer/transfer-20261024-185656.json
+2181 /Volumes/TsDestX1/TsCard/CLIP/.media-transfer/transfer-20261024-185656.json
+
+# TsDest7 (apfs) - 2026-10-24T18:57:08-07:00
+run 1: ['DCIM\t203\t203\t0\t✓ 203 files verified', 'CLIP\t6\t6\t0\t✓ 6 files verified', 'THMBNL\t3\t3\t0\t✓ 3 files verified'] failed 0 [] None
+hash compare card vs destination: 212 files, 0 mismatches
+.mtpart: 0; ledger: {"version":1,"temps":[]}
+report statuses: {'copied-verified': 212}
+run 2: nothingToCopy
+['Destination: /Volumes/TsDest7/TsCard · 212 file(s) already present will be skipped.', '0 to copy · 203 skip · 0 B', '0 to copy · 6 skip · 0 B', '0 to copy · 3 skip · 0 B']
+stat diff before/after run 2 (222 entries):
+identical
+## .media-transfer entries on TsDest7:
+2174 /Volumes/TsDest7/TsCard/CLIP/.media-transfer/transfer-20261024-185710.json
+64807 /Volumes/TsDest7/TsCard/DCIM/.media-transfer/transfer-20261024-185710.json
+1248 /Volumes/TsDest7/TsCard/THMBNL/.media-transfer/transfer-20261024-185710.json
+
