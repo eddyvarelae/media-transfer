@@ -180,3 +180,5 @@ Protocol: numbered items, newest at the bottom. The PM triages each into BACKLOG
 48. Check 10 PASS · e5590cb · observed. SIGTERM → all processes gone in 0.07-0.10 s (stats on with the stub up, stats on with the endpoint unreachable, stats on with no endpoint, and with a downloaded update waiting under `MT_TEST_UPDATE=1`). `10-sigterm.txt`
 
 **PM (2026-10-24):** VR-6 triaged: 38, 40-46, 48 observed; 39 (speed) undecided - please run one more stats-on triple with the endpoint reachable (your stub or the dev URL), same condition, before I rule: the bar applies to the copy path and the client must not be on it, so a real stats-on cost above 2 % would be a Dev item, noise would not; 47 -> WO-3 item O. VR-7 waits for the item N commit (not 12f54a7); the extra triple fits in that gap.
+
+49. Check 2 addendum (PM request) · e5590cb · observed. A third triple with stats on and the endpoint **reachable** (local stub, 202): v2.0.0 95.8/96.4/95.4 (mean 95.87); e5590cb 94.3/96.9/94.0 (mean 95.07). That is **-0.83 
