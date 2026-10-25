@@ -12,6 +12,7 @@ import {
   noClobberCleanup,
   noClobberDropRun,
   noClobberDropTemp,
+  noClobberFlush,
   noClobberPatchTemp,
   noClobberRename,
   noClobberSetTimes,
@@ -445,6 +446,7 @@ export async function executePlan(
     // publication, so a cancel during final bookkeeping counts. A failing report write is
     // logged and never masks the error that is propagating.
     if (cancelRequested()) runCancelled = true;
+    await noClobberFlush();
     for (const r of reached) {
       try {
         await writeTransferReport(r.folder, appVersion, startedAt, r.records, runCancelled, r.tempsLeft);
@@ -503,7 +505,8 @@ async function copyToTemp(
     sha256 = await copyHashing(file.absPath, writer.ws, onCopyChunk, run.shouldCancel);
   } finally {
     // Every ending (done, cancel, error) records the written file's identity and closes it.
-    await writer.seal();
+    // Not awaited: the gate waits for it before it inspects or removes this temp.
+    void writer.seal();
   }
   return sha256 === null ? 'cancelled' : sha256;
 }

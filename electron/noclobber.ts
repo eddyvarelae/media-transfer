@@ -55,7 +55,7 @@ export function aliasKey(p: string): string {
 
 // ---------------------------------------------------------------- dev-only test hooks
 
-// MT_TEST_LEDGER_FAIL=1: ledger writes fail right after a publication (bookkeeping failure).
+// MT_TEST_LEDGER_FAIL=1: the next ledger write after each publication fails (bookkeeping failure).
 // MT_TEST_REMOVE_FAIL=1: removing an owned temp fails with EPERM (cleanup failure).
 const TEST_LEDGER_FAIL = process.env.MT_TEST_LEDGER_FAIL === '1';
 const TEST_REMOVE_FAIL = process.env.MT_TEST_REMOVE_FAIL === '1';
@@ -109,10 +109,22 @@ async function entries(): Promise<Map<string, LedgerEntry>> {
 }
 
 // Writes run one at a time and always write the latest map; a failed write rejects its caller.
+// Only a claim (it must precede the create) and the exFAT disarm / re-arm wait for their write;
+// identity records and releases mark the ledger dirty and are written at most every 250 ms and
+// at the end of a run (noClobberFlush). A crash before a deferred write leaves an entry without
+// its identity (never removed, the safe side) or an entry whose file is gone (dropped later).
 let writing: Promise<unknown> = Promise.resolve();
+let dirty = false;
+let flushTimer: NodeJS.Timeout | null = null;
+const FLUSH_MS = 250;
+
 function persist(): Promise<void> {
+  dirty = false;
   const next = writing.then(async () => {
-    if (failLedgerWrites) throw Object.assign(new Error('EIO (MT_TEST_LEDGER_FAIL)'), { code: 'EIO' });
+    if (failLedgerWrites) {
+      failLedgerWrites = false;
+      throw Object.assign(new Error('EIO (MT_TEST_LEDGER_FAIL)'), { code: 'EIO' });
+    }
     if (!ledgerFile || !ledger) return;
     await fsp.mkdir(path.dirname(ledgerFile), { recursive: true });
     const body: LedgerFile = { version: 1, temps: [...ledger.values()] };
@@ -120,6 +132,36 @@ function persist(): Promise<void> {
   });
   writing = next.catch(() => undefined);
   return next;
+}
+
+/** Deferred write: coalesces the identity records and releases of many files into one write. */
+function persistSoon(): void {
+  dirty = true;
+  if (flushTimer) return;
+  flushTimer = setTimeout(() => {
+    flushTimer = null;
+    if (!dirty) return;
+    persist().catch((e) => {
+      dirty = true; // retried with the next write
+      console.warn('ledger write failed (retried at the next write):', e?.code ?? e);
+    });
+  }, FLUSH_MS);
+  flushTimer.unref?.();
+}
+
+/** End of a run: writes whatever is still deferred. Failures are logged, never thrown. */
+export async function noClobberFlush(): Promise<void> {
+  if (flushTimer) {
+    clearTimeout(flushTimer);
+    flushTimer = null;
+  }
+  if (dirty) {
+    await persist().catch((e) => {
+      dirty = true;
+      console.warn('ledger write failed:', e?.code ?? e);
+    });
+  }
+  else await writing;
 }
 
 /** Phase 1: the entry is on disk before the file exists. A failed write = no claim. */
@@ -153,16 +195,32 @@ async function recordIdentity(p: string, fh: fsp.FileHandle): Promise<Identity> 
   const e = (await entries()).get(aliasKey(p));
   if (e) {
     e.identity = id;
-    // Not on disk = the next run may not remove it (the safe side); this run keeps it in memory.
-    await persist().catch((err) => console.warn('ledger identity not persisted:', err?.code ?? err));
+    // Deferred: not yet on disk = the next run may not remove it (the safe side).
+    persistSoon();
   }
   return id;
 }
 
-/** Drops an entry (the file itself is not touched); failures are logged, never thrown. */
+/** Drops an entry (the file itself is not touched); written with the next deferred write. */
 async function forget(p: string): Promise<void> {
-  if (!(await entries()).delete(aliasKey(p))) return;
-  await persist().catch((e) => console.warn('ledger entry not dropped on disk:', e?.code ?? e));
+  if ((await entries()).delete(aliasKey(p))) persistSoon();
+}
+
+// Seals in flight, by alias key. A temp is inspected or removed only after its seal finished, so
+// the copy loop never waits for it (WO-3 J).
+const sealing = new Map<string, Promise<void>>();
+
+function track(p: string, done: Promise<void>): Promise<void> {
+  const key = aliasKey(p);
+  const settled = done.finally(() => {
+    if (sealing.get(key) === settled) sealing.delete(key);
+  });
+  sealing.set(key, settled);
+  return settled;
+}
+
+async function sealOf(p: string): Promise<void> {
+  await sealing.get(aliasKey(p));
 }
 
 async function ownerOf(p: string): Promise<LedgerEntry | null> {
@@ -177,6 +235,7 @@ type Removal = 'removed' | 'gone' | 'not-ours' | 'failed';
  * unlink keeps the entry for the next run.
  */
 async function removeOwned(p: string): Promise<Removal> {
+  await sealOf(p);
   const e = await ownerOf(p);
   if (!e) return 'not-ours';
   let st: fs.BigIntStats;
@@ -246,14 +305,15 @@ export async function noClobberTempStream(
     await forget(temp);
     throw e?.code === 'EEXIST' ? new ForeignTempError() : e;
   }
-  await recordIdentity(temp, fh);
+  // No identity yet: the first 1 MB (drain) and seal() record it, and nothing removes this temp
+  // before its seal finished (sealOf). Keeps two syscalls off the copy's critical path.
   const ws = fh.createWriteStream({ highWaterMark: 1024 * 1024, autoClose: false });
   // First 1 MB written: record the real identity now, so a temp left by a crash or an unplug
   // mid-copy is still recognized as ours on exFAT (small files are sealed right after).
   ws.once('drain', () => void recordIdentity(temp, fh).catch(() => {}));
   let sealed: Promise<void> | null = null;
   const seal = () =>
-    (sealed ??= (async () => {
+    (sealed ??= track(temp, (async () => {
       try {
         await recordIdentity(temp, fh);
       } catch (e: any) {
@@ -264,11 +324,12 @@ export async function noClobberTempStream(
         ws.destroy();
         await fh.close().catch(() => {});
       }
-    })());
+    })()));
   return { ws, seal };
 }
 
 async function assertOwned(temp: string): Promise<void> {
+  await sealOf(temp);
   const e = await ownerOf(temp);
   if (!isOwnTemp(temp) || !e?.identity) throw new Error(`Not an app temporary file: ${temp}`);
   if (!sameIdentity(e.identity, await lstatExact(temp))) throw new Error(`Temp replaced: ${temp}`);
@@ -360,13 +421,12 @@ export async function noClobberRename(
 
 /** Bookkeeping after a successful publication: errors are logged, entries kept for the next run. */
 async function afterPublish(fn: () => Promise<void>) {
-  failLedgerWrites = TEST_LEDGER_FAIL;
+  // MT_TEST_LEDGER_FAIL: the next ledger write after this publication fails.
+  if (TEST_LEDGER_FAIL) failLedgerWrites = true;
   try {
     await fn();
   } catch (e: any) {
     console.warn('placed; bookkeeping left for the next run:', e?.code ?? e);
-  } finally {
-    failLedgerWrites = false;
   }
 }
 
