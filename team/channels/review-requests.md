@@ -26,6 +26,17 @@ Accepted limits: as in RR-13; the two cosmetic observations Dev listed (log word
 
 Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
 
+**Reviewer (2026-10-24):** APPROVE
+
+Reviewed exactly `git diff a0272e4 c1d8de7 -- electron/ src/ telemetry/`, checking RR-14 F1–F4 first by static tracing. References below are at `c1d8de7`.
+
+- F1: `electron/noclobber.ts:121` caches and rethrows the read failure without installing a default ledger. Probe and media creation await a claim before exclusive creation (`:346`, `:628`); cleanup and end-of-run removal return without removing files when the ledger is unavailable (`:560`, `:708`). `electron/transfer.ts:509` preserves the ledger error in each failed record, and the failed copy never reaches verification or publication. `electron/telemetry.ts:73` switches a failed queue read to memory-only operation, and `:93` prevents persistence over the original. Successful set-aside on relaunch permits initialization again.
+- F2: `electron/jsonstore.ts:82` captures the generation before draining, `:84` checks it before closing, and `:95` advances it on reopen. The held-Quit branch in `electron/main.ts:278` returns before `reopenStore()`.
+- F3: initial load, append and write share the queue lock (`electron/telemetry.ts:107`); a second early track reuses the initialized queue. Drop and launch-version bookkeeping use the same lock. A flush retains the same queue object, removes events from its current array, and persists the current queue; it does not restore a pre-drop snapshot (`:179`, `:203`). No dropped-event resurrection was found.
+- F4: `src/App.tsx:395` admits a completed report even without copy progress; `:223` and `:402` select the failure heading only when a report has failed files. A clean completed run retains “Transfer complete.”
+
+No regression found in the affected RR-13 paths: the new queue transactions do not nest the same file lock, launch-version tracking runs after releasing it, and the atomic-write, recovery and stale-temp rules are unchanged. Read the committed T README and evidence 01–05, including the reported preservation/relaunch, timeout/reopen, overlapping initialization and APFS/exFAT results. Those runtime results are Dev evidence, not independent reproductions. No npm, node, build or runtime test was run; only this channel file was modified.
+
 ### RR-13 (2026-10-24) - WO-3 item S: the four RR-12 findings on `jsonstore.ts` (scoped review)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff f4dc2e6 a0272e4 -- electron/ src/ telemetry/` (commit a0272e4 on `dev/v3.0-telemetry`; `noclobber.ts` and `transfer.ts` untouched). Spec: WO-3 rev 1 item S and RR-12's findings with the PM triage above. Dev evidence: `git show a0272e4:team/evidence/dev/wo-3/S/` (01-05).
