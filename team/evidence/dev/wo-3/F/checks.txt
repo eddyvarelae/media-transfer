@@ -1,0 +1,26 @@
+# WO-3 F checks (2026-10-24T18:48:00-07:00), branch dev/v3.0-telemetry
+$ npx tsc --noEmit
+(no output, exit 0)
+
+$ npm run build:renderer
+computing gzip size...
+dist/index.html                   0.40 kB │ gzip:  0.27 kB
+dist/assets/index-CBPwcxyh.css   12.99 kB │ gzip:  3.22 kB
+dist/assets/index-C0xrfxyC.js   169.53 kB │ gzip: 53.77 kB
+✓ built in 226ms
+
+$ npm run build:main
+  dist-electron/main.js     597.6kb
+  dist-electron/preload.js    2.5kb
+
+⚡ Done in 27ms
+
+$ cd telemetry && npm run typecheck
+> tsc --noEmit
+
+
+$ cd telemetry && npm test
+
+ALL PASS (12 items stored, 5 PostHog calls)
+
+version: 3.0.0 (package.json), 3.0.0 (lockfile)

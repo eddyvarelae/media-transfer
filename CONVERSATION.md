@@ -215,4 +215,18 @@ The read-back of file i-1 runs while file i copies. On a 120 MB/s card rig, a 1.
 transfer took about 0.2 s longer than v2.0 (94.2 vs 95.9 MB/s); reading the same files back
 one after another takes 0.8 s on its own.
 
+Also in v3.0 (WO-3):
+
+5. **Bell entries for transfers and updates**, the progress section scrolls into view on Start,
+   and cancelled, failed and stopped runs say so in plain words.
+6. **Opt-in anonymous usage stats**: asked once, a gear panel to change it, the exact list in
+   PRIVACY.md; sent to the app's own endpoint (AWS) and from there to PostHog. Never file names,
+   paths or drive names.
+7. **Self-updating** from GitHub Releases, signed and notarized.
+8. **A new icon**: an SD card offloading into a drive (Eddy's pick of three).
+9. **exFAT destinations** work like APFS ones: each destination volume is probed once per run
+   to learn what a file's identity means there (exFAT only reveals a file's real inode after it
+   is closed), and a copy interrupted by a crash or an unplugged drive is cleaned up by the
+   next transfer.
+
 **Version 3.0.0**

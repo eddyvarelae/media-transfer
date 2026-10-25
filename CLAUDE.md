@@ -15,8 +15,9 @@ macOS Electron 29 + React 18 + TypeScript app that offloads camera SD cards to a
 |---|---|---|
 | Production-like (what Eddy runs) | `npm run build:renderer && npm start` | Renderer from `file://dist/index.html`. Anything that loads local files (thumbnails) must be verified here. |
 | Dev with HMR | `npm run dev` + `VITE_DEV_SERVER_URL=http://localhost:5173 npm run dev:electron` | Opens detached DevTools. |
-| Package ("deploy") | `npm run package` | `release/Media Transfer-<version>-arm64.dmg`, unsigned. PM runs it from the `main` tip. |
-| Checks | `npx tsc --noEmit && npm run build:renderer && npm run build:main` | No test framework (v2.0 decision). |
+| Package ("deploy") | `APPLE_KEYCHAIN_PROFILE=media-transfer-notary npm run package` | `release/Media-Transfer-<version>-arm64.dmg`, `…-arm64-mac.zip`, their `.blockmap`s and `latest-mac.yml`; signed + notarized when the Developer ID identity is in the login keychain. PM runs it from the `main` tip. Release steps below. |
+| Icon | `npm run icon` | Renders `build/icon-src.svg` (+ `icon-src-small.svg` for the 16/32 px slots) to `build/icon.png`, `icon.iconset/`, `icon.icns` with Electron's Chromium. |
+| Checks | `npx tsc --noEmit && npm run build:renderer && npm run build:main`; `cd telemetry && npm run typecheck && npm test` | No test framework in the app (v2.0 decision); the telemetry Lambda has a local handler test. |
 
 **Install gotcha (npm 11 / Node 26):** `npm install` skips dependency install scripts, so Electron's binary is never downloaded (`node_modules/electron/dist` holds only `LICENSES.chromium.html`), and running `node node_modules/electron/install.js` by hand extracts nothing on Node 26. Workaround: run the install script once so `@electron/get` caches the zip, then `ditto -x -k ~/Library/Caches/electron/<hash>/electron-v29.4.6-darwin-arm64.zip node_modules/electron/dist && printf 'Electron.app/Contents/MacOS/Electron' > node_modules/electron/path.txt`.
 
@@ -27,7 +28,9 @@ macOS Electron 29 + React 18 + TypeScript app that offloads camera SD cards to a
 | File | Dev (`electron .`) | Packaged app |
 |---|---|---|
 | `profiles.json` `{ version: 1, profiles: { [volumeName]: Profile } }` | `~/Library/Application Support/media-transfer/` | `~/Library/Application Support/Media Transfer/` (sacred) |
-| `notifications.json` `{ version: 1, items: [{ id, kind: "new-drive", volumeName, firstSeenAt, dismissedAt }] }` | same dir | same dir |
+| `notifications.json` `{ version: 1, items: [...] }`: `{ id, kind: "new-drive", volumeName, firstSeenAt, dismissedAt }` and (WO-3 A) `{ id, kind: "transfer-done" \| "transfer-failed" \| "transfer-cancelled", at, origin, destination, summary: { copied, verified, skipped, failed, failedNames (max 10), durationMs } }`, newest 50 transfer entries kept. Update entries (`update-available` / `update-downloaded`) live in memory only | same dir | same dir |
+| `settings.json` `{ version: 1, installId (uuid v4, first run), telemetry: "unasked" \| "on" \| "off", updateCheck: true }` (WO-3 B) | same dir | same dir |
+| `telemetry-queue.json` `{ version: 1, lastVersion, events: [{ name, at, props }] }`, max 500 events; empty unless telemetry is on (turning it off drops the queue) | same dir | same dir |
 | `temps.json` `{ version: 1, temps: [{ path, destRoot, runId, createdAt, identity: { dev, ino, birthtimeNs } \| null }] }`: the ownership ledger (WO-3 H, H2). An entry is persisted before its temp or placeholder is created (a failed write = no claim), its identity (exact decimal strings, read through the open handle) after the create and again when the temp is sealed. Usually empty between transfers. Only one app instance per userData writes it (`requestSingleInstanceLock`), and inside it only the single active transfer | same dir | same dir |
 | Renderer `localStorage`: `mt.profilesOpen` (`"1"`/`"0"`, accordion state), `mt.thumbs` (`"off"` hides the thumbnail strip; used for speed A/B only) | `.../media-transfer/Local Storage/` | `.../Media Transfer/Local Storage/` |
 
@@ -37,7 +40,7 @@ Two dev instances share the dev `userData`. The second one cannot open the Local
 
 | Channel | Kind | Payload / return |
 |---|---|---|
-| `state:get` | invoke | `{ volumes, profiles, notifications }` |
+| `state:get` | invoke | `{ volumes, profiles, notifications, settings }` (notifications include the in-memory update entries) |
 | `state:update` | main -> renderer, every 2 s and after writes | same shape |
 | `profile:save` / `profile:delete` | invoke | profiles map; saving also removes that volume's new-drive notification |
 | `notification:dismiss(volumeName)` | invoke | notification items; idempotent; writes are serialized |
@@ -49,7 +52,17 @@ Two dev instances share the dev `userData`. The second one cannot open the Local
 | `transfer:file-start` | main -> renderer, first progress event of each file | `{ absPath, name }` (source path) |
 | `transfer:verify` | main -> renderer, read-back progress, throttled to ~10/s (always sent at 100 %) | `{ folderLabel, currentFile, bytesVerifiedOverall, totalBytesOverall }` |
 | `transfer:done` | main -> renderer | `VerifyReport[]`, one per planned folder: `{ label, ok, reached, cancelled, tempsLeft, filesCopied, filesVerified, filesSkipped, filesFailed, failed: [{ relPath, destName, reason }] }`; `ok = filesFailed === 0`; `filesCopied` = placed (`copied-verified`) only; `stoppedError` (WO-3 I3) on the folder whose step threw (the run's other rows are kept; `transfer:start` resolves with them instead of rejecting); `reached: false` = a cancel stopped the run before that folder |
+| `settings:get` / `settings:set(patch)` | invoke | `Settings`; patch `{ telemetry?: "on" \| "off", updateCheck?, resetInstallId? }`; turning telemetry on queues `telemetry_toggled`, off drops the queue |
+| `update:install` | invoke | flushes telemetry (<= 1 s), then `autoUpdater.quitAndInstall()` |
+| `shell:openExternal(url)` | invoke | opens exactly the PRIVACY.md URL, nothing else |
 | `thumb:get(absPath)` | invoke | 96 px data URL or `null`. Only for source files of the active plan (never the destination). QuickLook via `nativeImage.createThumbnailFromPath`, 3 s timeout, LRU 200. |
+
+## Telemetry, updates, release (WO-3 B, C, E)
+
+- **Telemetry** (`electron/telemetry.ts`, `PRIVACY.md`): opt-in, asked once (modal), toggled in the gear panel. Events and props are typed in `EventProps`; props are numbers, booleans and short fixed strings only. Queue on disk, batches of <= 100 to `POST <endpoint>/v1/events`, 5 s timeout, backoff 1 min / 5 min / 30 min, 4xx batches dropped, flushed at launch, after each transfer and on quit (<= 1 s; the deferred quit ends with `app.exit(0)`, because a `before-quit` `preventDefault` + `app.quit()` stalls on SIGTERM; skipped while a downloaded update waits so electron-updater's quit path installs it). Endpoint: the production URL in packaged builds; **`MT_TELEMETRY_URL=<url>`** points any build at a stage; an unpackaged build sends nothing unless it is set. Server side: `telemetry/` (own README; the PM deploys).
+- **Updates** (`electron/updates.ts`): electron-updater from GitHub Releases (`publish` in package.json), packaged builds only, at launch and every 6 h while "Check for updates automatically" is on; downloads in the background, installs on quit or from the bell's "Restart to install"; errors logged, never a dialog. **`MT_TEST_UPDATE=1`** (dev hook) emits update-available then update-downloaded (3.0.1) without a network call; "Restart to install" then only logs.
+- **Release (PM):** `APPLE_KEYCHAIN_PROFILE=media-transfer-notary npm run package` (electron-builder 24.13.3 notarizes through notarytool when that variable is set and `mac.notarize` is unset; the Developer ID identity is auto-discovered from the login keychain, `CSC_NAME` pins it if there are several; `CSC_IDENTITY_AUTO_DISCOVERY=false` builds unsigned). Then `gh release create v<version> release/Media-Transfer-<version>-arm64.dmg release/Media-Transfer-<version>-arm64-mac.zip release/*.blockmap release/latest-mac.yml --title "Media Transfer <version>" --notes "..."`. **Never rename an asset:** `latest-mac.yml` names them exactly; `artifactName` has no spaces because GitHub turns a space in an asset name into a dot, which would break the updater's lookup (the v2.0.0 asset was renamed by hand; v2.0.0 has no updater, so v3.0.0 is the first release it can track).
+- Hardened runtime + `build/entitlements.mac.plist` (allow-jit, allow-unsigned-executable-memory, allow-dyld-environment-variables, disable-library-validation); targets dmg + zip.
 
 ## New-drive notification rules
 

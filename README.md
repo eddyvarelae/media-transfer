@@ -33,7 +33,13 @@ any card via per-drive profiles.
   and it is safe to re-run as often as you want
 - **Notifications bell** in the top bar: dismiss a "New drive detected"
   card with × and it stays out of the way (across replugs and relaunches);
-  the bell keeps it, with **Label** and **Remove**
+  the bell keeps it, with **Label** and **Remove**. Every finished,
+  failed or cancelled transfer leaves an entry there too (origin ->
+  destination, counts, failed file names), and so does an available update
+- **Updates itself** from GitHub Releases, in the background (switch it off
+  in the gear panel)
+- **Anonymous usage stats, only if you say yes** - never file names, paths
+  or drive names ([Privacy](#privacy))
 - **Thumbnails ride the progress bar** left to right while files copy
 
 ---
@@ -216,6 +222,25 @@ removed from or overwritten on the destination.
 
 ---
 
+## Privacy
+
+The first time you open the app it asks whether it may send anonymous usage
+stats. "No thanks" means nothing is ever sent. The gear in the top bar
+switches it on or off, resets the anonymous id and links to the exact list
+of what is sent: [PRIVACY.md](PRIVACY.md). File names, paths and drive
+names are never sent. The only other network call is the update check.
+
+---
+
+## Updates
+
+Media Transfer checks GitHub Releases at launch and every 6 hours, downloads
+a new version in the background and installs it when you quit, or right
+away from the bell's **Restart to install**. Switch it off in the gear
+panel ("Check for updates automatically").
+
+---
+
 ## Configuration
 
 Profiles live at:
@@ -224,7 +249,10 @@ Profiles live at:
 ~/Library/Application Support/Media Transfer/profiles.json
 ```
 
-Dismissed new-drive notices live next to it in `notifications.json`.
+Next to it: `notifications.json` (the bell), `settings.json` (the stats and
+update choices, and the random anonymous id), `telemetry-queue.json` (stats
+waiting to be sent, only if you agreed) and `temps.json` (the app's record
+of its own temporary files).
 
 You normally don't need to edit this by hand — use the UI. But you can
 back it up, share it, or reset it by deleting the file (the app re-seeds
@@ -240,7 +268,8 @@ defaults on next launch).
 | `npm start`             | Build + launch the app                   |
 | `npm run build:renderer`| Build the React/Vite renderer            |
 | `npm run build:main`    | Build the Electron main + preload bundles |
-| `npm run package`       | Full DMG build → `release/`              |
+| `npm run package`       | DMG + zip + `latest-mac.yml` → `release/` |
+| `npm run icon`          | Render the app icon from `build/icon-src.svg` |
 
 ---
 
@@ -256,8 +285,9 @@ defaults on next launch).
 
 ## Caveats
 
-- **Unsigned build.** The DMG isn't code-signed, so macOS asks for approval
-  on first launch. Right-click → Open → Open.
+- **Signed releases.** From v3.0 the released DMG is signed and notarized.
+  A build you make yourself is unsigned: right-click → Open → Open the
+  first time, and it can't update itself.
 - **Apple Silicon build.** The packaged DMG targets arm64. Intel Macs need
   to rebuild with `electron-builder --mac --x64`.
 - **No deletion safety net needed** because the app never deletes from

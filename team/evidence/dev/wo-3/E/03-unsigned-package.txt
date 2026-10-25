@@ -1,47 +1,40 @@
-# CSC_IDENTITY_AUTO_DISCOVERY=false npm run package (unsigned, local; not a release)
+# Final unsigned local package (CSC_IDENTITY_AUTO_DISCOVERY=false npm run package) from a3b78df + docs; not a release
   • electron-builder  version=24.13.3 os=25.6.0
   • loaded configuration  file=package.json ("build" field)
   • packaging       platform=darwin arch=arm64 electron=29.4.6 appOutDir=release/mac-arm64
   • skipped macOS application code signing  reason=, see https://electron.build/code-signing CSC_IDENTITY_AUTO_DISCOVERY=false
-  • building        target=DMG arch=arm64 file=release/Media Transfer-3.0.0-arm64.dmg
-  • building        target=macOS zip arch=arm64 file=release/Media Transfer-3.0.0-arm64-mac.zip
+  • building        target=DMG arch=arm64 file=release/Media-Transfer-3.0.0-arm64.dmg
+  • building        target=macOS zip arch=arm64 file=release/Media-Transfer-3.0.0-arm64-mac.zip
   • Detected arm64 process, HFS+ is unavailable. Creating dmg with APFS - supports Mac OSX 10.12+
-  • building block map  blockMapFile=release/Media Transfer-3.0.0-arm64.dmg.blockmap
-  • building block map  blockMapFile=release/Media Transfer-3.0.0-arm64-mac.zip.blockmap
+  • building block map  blockMapFile=release/Media-Transfer-3.0.0-arm64.dmg.blockmap
+  • building block map  blockMapFile=release/Media-Transfer-3.0.0-arm64-mac.zip.blockmap
 
-## release/
--rw-r--r--  1 varela  staff  92407847 Oct 24 17:22 Media Transfer-3.0.0-arm64-mac.zip
--rw-r--r--  1 varela  staff     98412 Oct 24 17:22 Media Transfer-3.0.0-arm64-mac.zip.blockmap
--rw-r--r--@ 1 varela  staff  95760504 Oct 24 17:21 Media Transfer-3.0.0-arm64.dmg
--rw-r--r--  1 varela  staff    101242 Oct 24 17:21 Media Transfer-3.0.0-arm64.dmg.blockmap
--rw-r--r--  1 varela  staff       524 Oct 24 17:22 latest-mac.yml
-drwxr-xr-x  3 varela  staff        96 Oct 24 17:21 mac-arm64
+-rw-r--r--  1 varela  staff  92411011 Oct 24 18:47 Media-Transfer-3.0.0-arm64-mac.zip
+-rw-r--r--  1 varela  staff     98491 Oct 24 18:47 Media-Transfer-3.0.0-arm64-mac.zip.blockmap
+-rw-r--r--@ 1 varela  staff  95749204 Oct 24 18:47 Media-Transfer-3.0.0-arm64.dmg
+-rw-r--r--  1 varela  staff    101701 Oct 24 18:47 Media-Transfer-3.0.0-arm64.dmg.blockmap
+-rw-r--r--  1 varela  staff       524 Oct 24 18:47 latest-mac.yml
+drwxr-xr-x  3 varela  staff        96 Oct 24 18:46 mac-arm64
 
-## release/latest-mac.yml
+## latest-mac.yml
 version: 3.0.0
 files:
   - url: Media-Transfer-3.0.0-arm64-mac.zip
-    sha512: McnmqcH5UzldU2YzuS4/ON7tVVzbb0klacom7ul4T6tkhygAG7rIXfREwWXlqeds7E9ICeY8uBepWyI2GEYPew==
-    size: 92407847
+    sha512: RDyC/aiL6RBGn97/O9LwcnkEx03/kW1VLWvC6K3K0sjpOM17cif1xkfW1+ngpRAJLriFWH+/qPR6STpt/4mPuw==
+    size: 92411011
   - url: Media-Transfer-3.0.0-arm64.dmg
-    sha512: OZY5dX6VY23+4GjSloZNS4yaFqHbsR5n29dWgcNSctlJR0eZ93yubyTJOVZ/bI8biwDsqB9yC7JHvin6Cu4QPQ==
-    size: 95760504
+    sha512: 5hIJV2dNeZwbs8SUq4vhpA0UA/nx16WVT/URg7gQLtkomhm6kDmzgmeDOMljsXiI2Bc7uxSmUuTwS+/C/AwKoQ==
+    size: 95749204
 path: Media-Transfer-3.0.0-arm64-mac.zip
-sha512: McnmqcH5UzldU2YzuS4/ON7tVVzbb0klacom7ul4T6tkhygAG7rIXfREwWXlqeds7E9ICeY8uBepWyI2GEYPew==
-releaseDate: '2026-10-25T00:22:04.728Z'
-
-## app-update.yml inside the app (what electron-updater reads)
+sha512: RDyC/aiL6RBGn97/O9LwcnkEx03/kW1VLWvC6K3K0sjpOM17cif1xkfW1+ngpRAJLriFWH+/qPR6STpt/4mPuw==
+releaseDate: '2026-10-25T01:47:18.814Z'
+## app-update.yml
 owner: eddyvarelae
 repo: media-transfer
 provider: github
 updaterCacheDirName: media-transfer-updater
-
-## Info.plist identity
-com.digitalporters.mediatransfer
-3.0.0
-icon.icns
 ## codesign
-Executable=/Users/varela/Projects/media-transfer-dev/release/mac-arm64/Media Transfer.app/Contents/MacOS/Media Transfer
 Identifier=Electron
-Format=app bundle with Mach-O thin (arm64)
 CodeDirectory v=20400 size=513 flags=0x20002(adhoc,linker-signed) hashes=13+0 location=embedded
+TeamIdentifier=not set
+## icon in the bundle = build/icon.icns: yes

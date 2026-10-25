@@ -1,27 +1,13 @@
-# packaged app (release/mac-arm64/Media Transfer.app, unsigned), --user-data-dir=<scratch> (never the packaged app's real userData), MT_TELEMETRY_URL=local stub
-## transfer DevACard -> DevADest8:
+# packaged app (final unsigned build), --user-data-dir=<scratch> (never the packaged app's real userData), exFAT destination DevKE17, MT_TELEMETRY_URL=local stub
  "heading": "Transfer complete",
-  "CLIP\t3\t3\t0\t✓ 3 files verified",
-  "DCIM\t3\t3\t0\t✓ 3 files verified"
-   "label": "CLIP",
-   "label": "DCIM",
-## main-process log (updater check against GitHub from the unsigned build, errors swallowed):
-DevTools listening on ws://127.0.0.1:9241/devtools/browser/b794f8d5-0e32-4871-af9f-65a3007181db
+  "DCIM\t5\t5\t0\t✓ 5 files verified",
+  "CLIP\t2\t2\t0\t✓ 2 files verified"
+## main log:
 Checking for update
-Generated new staging user ID: 1a68e0b4-88f3-5299-aae4-43e9c23adbc8
-Error: Error: Cannot find latest-mac.yml in the latest release artifacts (https://github.com/eddyvarelae/media-transfer/releases/download/v2.0.0/latest-mac.yml): HttpError: 404 
-"method: GET url: https://github.com/eddyvarelae/media-transfer/releases/download/v2.0.0/latest-mac.yml\n\nPlease double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.\n"
-Headers: {
-  "cache-control": "no-cache",
-  "content-encoding": "gzip",
-  "content-length": "29",
-  "content-security-policy": "default-src 'none'; base-uri 'self'; connect-src 'self'; form-action 'self'; img-src 'self' data:; script-src 'self'; style-src 'unsafe-inline'",
-  "content-type": "text/plain; charset=utf-8",
-  "date": "Sun, 25 Oct 2026 00:30:57 GMT",
-## telemetry requests received from the packaged app:        2
-   ['app_launched']
-   ['transfer_started', 'transfer_finished']
-## ledger after: {
- "version": 1,
- "temps": []
-}
+Error: Error: Cannot find latest-mac.yml in the latest release artifacts (https://github.com/eddyvarelae/media-transfer/releases/download/v2.0.0/latest-mac.yml)
+update check failed: Cannot find latest-mac.yml in the latest release artifacts (https://github.com/eddyvarelae/media-transfer/releases/download/v2.0.0/latest-m
+update check failed: Cannot find latest-mac.yml in the latest release artifacts (https://github.com/eddyvarelae/media-transfer/releases/download/v2.0.0/latest-m
+volume probe DCIM: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+volume probe CLIP: {"handleStable":false,"useBirth":true,"removalEnabled":true}
+## telemetry received:        2 request(s): ['app_launched', 'transfer_started', 'transfer_finished']
+## ledger: {"version":1,"temps":[]}; .mtpart: 0
