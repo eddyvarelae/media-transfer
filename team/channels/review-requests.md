@@ -5,6 +5,72 @@ Protocol: the PM stages each request at the top as a `### RR-n` heading (what to
 
 ## OPEN REQUESTS
 
+### RR-13 (2026-10-24) - WO-3 item S: the four RR-12 findings on `jsonstore.ts` (scoped review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff f4dc2e6 a0272e4 -- electron/ src/ telemetry/` (commit a0272e4 on `dev/v3.0-telemetry`; `noclobber.ts` and `transfer.ts` untouched). Spec: WO-3 rev 1 item S and RR-12's findings with the PM triage above. Dev evidence: `git show a0272e4:team/evidence/dev/wo-3/S/` (01-05).
+
+Claims under review:
+1. `withFile(file, op)` is the per-file lock; every read, write and caller read-modify-write (notifications, settings, profiles, queue) is one operation under it; a recovering read re-reads the file after reading the `.bak` and restores only if the current file still does not parse.
+2. Stray temps are removed only for a plain numeric pid that is not this process and is dead (`ESRCH`); anything else is left and logged once.
+3. A failed set-aside fails closed: the operation rejects, no default is written, the original is untouched, "kept as" is logged only after a successful move.
+4. Operations are registered at admission; the quit's `drainAndClose()` drains them and refuses new ones; `closeStore()` at the 5 s bound; `reopenStore()` when a Restart to install does not exit and no quit is held.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1. A userData read or write outside `withFile`; a nested `withFile` on the same file (deadlock) reachable from any IPC path or quit path; a restore that writes without the re-validation; two files' locks acquired in opposite orders somewhere (deadlock).
+- F2. A tmp removed on a non-numeric, current-process, or live pid; a pid check that treats `EPERM` as dead.
+- F3. A default written after a failed set-aside; the original touched.
+- F4. An operation admitted after `drainAndClose()` that still writes after exit was authorized, or one refused in a way the caller treats as success (silent data loss on a refused save); `reopenStore()` reachable while a quit is held; `closeStore()` leaving an operation half-written (tmp without rename is fine, a renamed partial is not).
+- Regressions on RR-12's other checked paths within this diff.
+
+Accepted limits: as in RR-12; the three dev hooks `MT_TEST_HOLD_SAVE_READ_MS`, `MT_TEST_SETASIDE_FAIL`, `MT_TEST_CRASH_BEFORE_RENAME`.
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
+**Reviewer (2026-10-24):** FINDINGS
+
+1. **P2 — F3 / claim 3: callers still overwrite the original after a failed set-aside.** `electron/jsonstore.ts:173`, `electron/telemetry.ts:64`, `electron/telemetry.ts:79`, `electron/telemetry.ts:110`; the ledger has the same integration gap at `electron/noclobber.ts:118` and `electron/noclobber.ts:144` (unchanged caller, traced to check this helper change). Failing input: launch with an unparsable `telemetry-queue.json`, no usable `.bak`, and `MT_TEST_SETASIDE_FAIL=1`, while ordinary writes succeed. `noteLaunchVersion()` calls `loadQueue()`, which catches the preservation error, caches an empty default queue, sets its version and persists it over the only original. No `.corrupt` copy exists. An unparsable `temps.json` under the same conditions is likewise replaced after `entries()` swallows the error and a subsequent claim persists the new map. The helper now rejects correctly, but the callers defeat its fail-closed guarantee. Propagate preservation failure through these callers and prevent subsequent persistence from their fallback state. Evidence 03 tests only a settings-shaped transaction, not these callers.
+
+2. **P2 — Claim 4: a timed-out drain can close the store again after it has been reopened.** `electron/jsonstore.ts:80`, `electron/jsonstore.ts:81`, `electron/main.ts:163`, `electron/main.ts:285`. Failing input: with `MT_TEST_UPDATE=1` and `MT_TEST_HOLD_SAVE_READ_MS=8000`, wait for the simulated downloaded update, invoke `profile:save`, then immediately invoke Restart to install with no Quit held and telemetry off. At the five-second bound, `within(drainAndClose())` times out but does not cancel its pending drain. The non-exiting install calls `reopenStore()`; when the held save eventually settles, that old drain resumes and sets `closed = true` again. The still-open app then rejects subsequent profile saves, notification operations and uncached reads as quitting. Invalidate a timed-out drain when reopening, or otherwise prevent an old finalization from closing a newer store lifecycle. Evidence 04 holds the save for only 1500 ms and exits, so it cannot cover this failure.
+
+3. **P2 — Claim 1: the telemetry queue's read-modify-write is still split across locks and can lose events.** `electron/telemetry.ts:60`, `electron/telemetry.ts:63`, `electron/telemetry.ts:67`, `electron/telemetry.ts:78`, `electron/telemetry.ts:88`. Failing input: telemetry is on, the process's queue cache is null, and two `track()` calls enter `loadQueue()` before the first disk read completes (for example, update-available and transfer-started events while initial queue I/O is delayed). Both queue a `readJson` before either queues its `persist`. The first reader installs queue A and appends its event; the second reader still reads the old disk file, installs a distinct queue B and appends its event. The pending persistence operations use the global `queue`, now B, so the first event is lost even though both operations resolve successfully. Serializing `persist` alone does not serialize initialization and mutation. Make queue initialization single-flight and serialize the complete queue mutation with persistence. Evidence 05 exercises a sequential smoke path, not overlapping initial loads.
+
+Review scope: exactly `git diff f4dc2e6 a0272e4 -- electron/ src/ telemetry/`; code references are at `a0272e4`. Checked F1–F4 first by static tracing, then the remaining changes and committed S README, evidence 01–05, and the unit-check source. Profile, settings and notification transactions hold the per-file lock through their mutations; recovery revalidates before restoring without nesting the same lock. No opposite-order file-lock acquisition was found. Stray-temp cleanup preserves non-numeric, current and live pids and treats EPERM as alive. Writes still fsync the complete temporary file before rename; no partial-file publication was found. The ordinary held-save quit path is registered from admission, and the explicit held-Quit branch precedes reopening. The accepted five-second timeout and update-waiting fast path were not treated as findings. `noclobber.ts`, `transfer.ts`, `src/` and `telemetry/` have no changes in this diff. No npm, node, build, or runtime reproduction was run.
+
+**PM (2026-10-24):** triage of RR-13 - three P2, none against the destination invariant, all accepted as WO-3 item T (callers propagate a failed set-aside and never persist defaults over the original; a timed-out drain is invalidated on reopen; single-flight queue initialization with the full mutation under the lock). RR-14 scoped to the T commit; VR-10 retargets to it; VR-9 continues on f4dc2e6.
+
+### RR-12 (2026-10-24) - WO-3 item R: atomic, awaited userData writes (scoped review)
+
+**PM (2026-10-24):** staged. Diff to review: `git diff fd1ad50 f4dc2e6 -- electron/ src/ telemetry/` (commit f4dc2e6 on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 item R (top of `team/channels/dev-questions.md`) and the Tester's VR-7 item 55. Dev evidence: `git show f4dc2e6:team/evidence/dev/wo-3/R/` (01-05).
+
+Claims under review:
+1. `electron/jsonstore.ts`: `writeJson` writes `<file>.tmp-<pid>` in the same directory, fsyncs, copies the current file to `<file>.bak` when it parses, renames over the target, fsyncs the directory; writes are serialized per file; `pendingWrites()` is a barrier. `readJson` restores an unparsable file from `.bak` (logged) or sets it aside as `.corrupt-<time>` and uses the default; `profiles.json` is strict (the read throws, nothing is written over it). Stray tmps of dead pids are removed.
+2. All five userData files (`notifications.json`, `settings.json`, `temps.json`, `telemetry-queue.json`, `profiles.json`) use it; in `noclobber.ts` only the ledger's read and write calls change.
+3. `activeRun` spans the whole `transfer:start` handler (run, bell entry, outcome event); the quit finalization awaits it and every pending write inside the 5 s bound, then the flush and the writes it causes.
+
+What would falsify them (check first, cite file:line and the failing input):
+- F1. A remaining plain `writeFile` to a userData JSON file; a rename that can land a partial file (missing fsync of the tmp before rename); a `.bak` taken from an unparsable current file; the pid-based stray-tmp removal deleting a live process's tmp (pid reuse) or a user's file.
+- F2. A read path that silently replaces content (no log, or no `.corrupt` copy); `profiles.json` ever written from a default or a partial read; the restore-from-`.bak` loop that can restore a `.bak` older than a later successful write.
+- F3. A write started after the barrier was taken (bell entry or outcome event after `pendingWrites()` resolved) that `app.exit` can still cut; the 5 s bound starting before the writes are queued.
+- F4. Any change to the destination invariant or to `noclobber.ts` beyond the two call sites.
+
+Accepted limits: as in RR-11; an unreadable `profiles.json` with no `.bak` still stops the app (PM product call: profiles are never reset silently).
+
+Answer with APPROVE, FINDINGS (numbered, most severe first) or CANNOT VERIFY, directly under this request.
+
+**Reviewer (2026-10-24):** FINDINGS
+
+1. **P1 — F2: a delayed recovery can overwrite a later successful save with an older backup.** `electron/jsonstore.ts:101`, `electron/jsonstore.ts:103`, `electron/jsonstore.ts:66`. Failing input: `profiles.json` is unparsable and its backup contains profiles A; concurrent `state:get` and `profile:save` calls both enter recovery. Hold the first reader's backup-read completion after it has read A; let the save's reader recover A and the save successfully write B (A plus the edited profile), then release the first reader. It queues a restoration of A after B, overwriting the successful edit. Only writes are serialized; the read/decision/restore transaction is not, and restoration never rechecks the current file. The same race applies to notification history through concurrent state reads and notification mutations. Serialize recovery with mutations or revalidate the current file inside the serialized operation before restoring.
+
+2. **P1 — F1: stray-temp cleanup deletes files without establishing that they are dead-process temporaries.** `electron/jsonstore.ts:126`, `electron/jsonstore.ts:128`. Failing input: put a user-created `notifications.json.tmp-notes` in userData, then call `loadNotifications()`. It is unlinked solely because its name starts with the prefix. A numeric suffix belonging to another live PID is also unconditionally unlinked; no PID parsing, liveness or ownership check exists. The single-instance lock does not establish ownership of arbitrary matching files. Restrict cleanup to provably owned stale temporaries and preserve uncertain files.
+
+3. **P2 — F2: failed preservation still permits replacement from defaults and falsely reports a retained corrupt copy.** `electron/jsonstore.ts:110`, `electron/jsonstore.ts:112`; caller `electron/settings.ts:39`. Failing input: invalid `settings.json`, no usable backup, and the rename to `.corrupt-<time>` fails once with `EIO`, while subsequent writes succeed. The error is swallowed, the log says the file was kept, and `loadSettings()` writes normalized defaults over the only corrupt original without any `.corrupt` copy. Return an error unless preservation succeeds; do not authorize a default write after a failed move.
+
+4. **P2 — F3 / claim 3: the quit barrier misses pending mutations that have not reached `writeJson` yet.** `electron/main.ts:153`, `electron/main.ts:161`, `electron/jsonstore.ts:69`; producer `electron/profiles.ts:81`. Failing input: with no active transfer, no update waiting, and an empty telemetry queue, invoke `profile:save`, hold its asynchronous `loadProfiles()` read, then request Quit. Both calls to `pendingWrites()` see an empty set, the flush completes immediately, and `app.exit(0)` runs while the save is still pending, before the five-second allowance is exhausted. Notification mutations blocked in their initial read have the same gap. The barrier registers only actual `writeJson` calls, not the enclosing queued read-modify-write operations, and quit does not stop new producers. Register and drain those operations from admission through their final write before authorizing exit.
+
+Review scope: exactly `git diff fd1ad50 f4dc2e6 -- electron/ src/ telemetry/`; code references are at `f4dc2e6`. Checked F1–F4 first by static tracing, then the remaining changes, item R, VR-7 item 55, and the committed R README and evidence 01–05. All five userData files use the helper; the temporary file is fsynced before rename and the backup copy is gated on parsing the current file. The ordinary single-transfer path now awaits its bell entry and outcome event. The destination algorithm is unchanged; `noclobber.ts` changes are confined to the helper import and ledger read/write integration. The accepted logged five-second timeout and update-waiting fast path were not treated as findings. The supplied evidence does not exercise the failing inputs above. No npm, node, build, or runtime reproduction was run.
+
+**PM (2026-10-24):** triage of RR-12 - all four accepted as WO-3 item S (recovery inside the per-file lock with re-validation before any restore; stray-temp removal only for parsed, dead, foreign pids; failed set-aside fails closed; operations registered from admission for the quit barrier). RR-13 scoped to the S commit. VR-9 continues on f4dc2e6; VR-10 (short) on the S commit.
+
 ### RR-11 (2026-10-24) - WO-3 item P: the RR-10 findings (scoped re-review; expected last before the merge)
 
 **PM (2026-10-24):** staged. Diff to review: `git diff 96cf97b 592f74b -- electron/ src/ telemetry/` (commit 592f74b on `dev/v3.0-telemetry`). Spec: WO-3 rev 1 item P and RR-10's findings with the PM triage above. Dev evidence: `git show 592f74b:team/evidence/dev/wo-3/P/01-sighup-held.txt`, `02-restart-then-quit.txt`, `03-handler-tests.txt`.
